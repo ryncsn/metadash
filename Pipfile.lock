@@ -1,0 +1,122 @@
+{
+    "_meta": {
+        "sources": [
+            {
+                "url": "https://pypi.python.org/simple",
+                "verify_ssl": true
+            }
+        ],
+        "requires": {},
+        "hash": {
+            "sha256": "bd82df01fe8c84bd8a4b652a736d55840bac721add4e3f72054758c4e561e7ff"
+        }
+    },
+    "default": {
+        "caselink": {
+            "ref": "master",
+            "git": "https://github.com/ryncsn/caselink-python"
+        },
+        "MarkupSafe": {
+            "version": "==1.0",
+            "hash": "sha256:a6be69091dac236ea9c6bc7d012beab42010fa914c459791d627dad4910eb665"
+        },
+        "Werkzeug": {
+            "version": "==0.12.1",
+            "hash": "sha256:918322630c58fa52b89e14c45de3ad78514e18928dac726060bb89cd647f6b83"
+        },
+        "SQLAlchemy": {
+            "version": "==1.1.6",
+            "hash": "sha256:815924e3218d878ddd195d2f9f5bf3d2bb39fabaddb1ea27dace6ac27d9865e4"
+        },
+        "Flask-SQLAlchemy": {
+            "version": "==2.2",
+            "hash": "sha256:fa3bd6343de231b2b3376a276df6d331c63c766449b660fc04d375a1c21312ac"
+        },
+        "Jinja2": {
+            "version": "==2.9.5",
+            "hash": "sha256:a7b7438120dbe76a8e735ef7eba6048eaf4e0b7dbc530e100812f8ec462a4d50"
+        },
+        "pytz": {
+            "version": "==2016.10",
+            "hash": "sha256:a1ea35e87a63c7825846d5b5c81d23d668e8a102d3b1b465ce95afe1b3a2e065"
+        },
+        "alembic": {
+            "version": "==0.9.1",
+            "hash": "sha256:767cf6c8c4578f1f625f17bfbc8716a7d4f80a0c1efc7a9b72af30ad68954962"
+        },
+        "click": {
+            "version": "==6.7",
+            "hash": "sha256:29f99fc6125fbc931b758dc053b3114e55c77a6e4c6c3a2674a2dc986016381d"
+        },
+        "Mako": {
+            "version": "==1.0.6",
+            "hash": "sha256:48559ebd872a8e77f92005884b3d88ffae552812cdf17db6768e5c3be5ebbe0d"
+        },
+        "six": {
+            "version": "==1.10.0",
+            "hash": "sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f32a97335eb1"
+        },
+        "aniso8601": {
+            "version": "==1.2.0",
+            "hash": "sha256:502400f82574afa804cc915d83f15c67533d364dcd594f8a6b9d2053f3404dd4"
+        },
+        "Flask": {
+            "version": "==0.12",
+            "hash": "sha256:7f03bb2c255452444f7265eddb51601806e5447b6f8a2d50bbc77a654a14c118"
+        },
+        "python-editor": {
+            "version": "==1.0.3",
+            "hash": "sha256:a3c066acee22a1c94f63938341d4fb374e3fdd69366ed6603d7b24bed1efc565"
+        },
+        "Flask-RESTful": {
+            "version": "==0.3.5",
+            "hash": "sha256:7799326da016045bb6e67d6ff7be334303408b9dca39a68f0a2a4e54078f0389"
+        },
+        "python-dateutil": {
+            "version": "==2.6.0",
+            "hash": "sha256:537bf2a8f8ce6f6862ad705cd68f9e405c0b5db014aa40fa29eab4335d4b1716"
+        },
+        "Flask-Migrate": {
+            "version": "==2.0.3",
+            "hash": "sha256:331f1facf93712b6a3067eac382e645b1ef09e9a6d34da447acb6a3c293afd80"
+        },
+        "Flask-Script": {
+            "version": "==2.0.5",
+            "hash": "sha256:cef76eac751396355429a14c38967bb14d4973c53e07dec94af5cc8fb017107f"
+        },
+        "itsdangerous": {
+            "version": "==0.24",
+            "hash": "sha256:cbb3fcf8d3e33df861709ecaf89d9e6629cff0a217bc2848f1b41cd30d360519"
+        }
+    },
+    "develop": {
+        "isort": {
+            "version": "==4.2.5",
+            "hash": "sha256:a0c38c1c5e4c70ea1141daa80c740372ad94351e92e9e07da1cd86ce65653dc4"
+        },
+        "astroid": {
+            "version": "==1.4.9",
+            "hash": "sha256:944400d94e45865af150fb98700b27b788ddee5ad17c77d0725f67ac271f7a10"
+        },
+        "six": {
+            "version": "==1.10.0",
+            "hash": "sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f32a97335eb1"
+        },
+        "wrapt": {
+            "version": "==1.10.10",
+            "hash": "sha256:42160c91b77f1bc64a955890038e02f2f72986c01d462d53cb6cb039b995cdd9"
+        },
+        "mccabe": {
+            "version": "==0.6.1",
+            "hash": "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"
+        },
+        "pylint": {
+            "version": "==1.6.5",
+            "hash": "sha256:c15405aa2a8b982c059ad7e76effe7c7531490af08890a2fcb0c64c9e25b70f9"
+        },
+        "lazy-object-proxy": {
+            "version": "==1.2.2",
+            "hash": "sha256:b83adc06c46039018b4b47ef2a5677006e899a52be16ff57df6229cd89d6a53b"
+        }
+    }
+}
