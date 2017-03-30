@@ -1,1 +1,33 @@
-DOC: Use __namespace__ for persistance metadata
+* Better __namespace__ decleration
+    Two model can have same __namespace__,
+    consider one model was built in, but one day we decided to split it out
+    into another service, so all related data need to be pulled from remote,
+    Then we can use a model with same __namespace__ to replace it, but hook
+    the loading progress, we a instance was loaded, it pulls the data needed
+    automatically (or lazyly)
+
+* Better remote support
+    Still the above satuation, if we need to handle both "remote" and "local"
+    models? Use sub mapper?
+
+* Better Serializer
+    So we don't have to declare all needed column/key in each API module.
+
+* Better Proxy decleration
+    Model can declera the proxy parameters, like creator, collector.
+
+* Plugin support
+    Split non-core model / view into plugins.
+
+* Frontend
+    An modern UI, which should also accepts plugins.
+
+* Internal event subscribe
+    Allow plugin / models to listen on some event, consider just use sqlalchemy's event.
+    Implement a internal event bus?
+
+* External event subscribe
+    Allow plugin / models to listen on some kind of bus, and hook some functions.
+
+* UI event push
+    UI be ware of something is happending, use WS.

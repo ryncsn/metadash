@@ -69,6 +69,8 @@ class BareEntityModel(metaclass=BareEntityMeta):
 
     attribute_models = []
 
+    uuid = None # Just a hint
+
     def identity(self):
         return '{}:{}(bare)'.format(self.__namespace__, self.uuid)
 

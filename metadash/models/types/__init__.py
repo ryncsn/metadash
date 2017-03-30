@@ -13,6 +13,9 @@ class UUID(TypeDecorator):
 
     Uses PostgreSQL's UUID type, otherwise uses
     CHAR(32), storing as stringified hex values.
+
+    With PostgreSQL's UUID type, we don't need any special opeartion to create index,
+    b-tree index is good enough and hash index is actually worse due to historical problem.
     """
 
     impl = CHAR

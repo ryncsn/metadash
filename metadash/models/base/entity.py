@@ -112,6 +112,8 @@ class EntityModel(metaclass=EntityMeta):
 
     attribute_models = []
 
+    uuid = None # Just a hint
+
     def identity(self):
         return '{}:{}'.format(self.__namespace__, self.uuid)
 
