@@ -1,8 +1,9 @@
 """
 Some basic metadata
 """
-from metadash.models.base import EntityModel, Model
-from metadash.models import db, UUID
+from metadash.models.base import EntityModel
+from metadash.models.types import UUID
+from metadash.models import db
 
 
 class ManualTestResult(EntityModel):
