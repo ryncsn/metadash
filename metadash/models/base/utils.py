@@ -1,5 +1,5 @@
 """
-Internal use helpers for model base
+Helper mostly for internal use
 """
 from metadash import logger
 
@@ -49,7 +49,7 @@ def _get_model_name(dict_):
 def _pluralize(singular):
     # FIXME: it's wrong, totally
     if singular.endswith('y'):
-        return "{}s".format(singular[:-1])
+        return "{}ies".format(singular[:-1])
     return "{}s".format(singular) if not singular.endswith('s') else singular #FIXME
 
 
@@ -75,3 +75,13 @@ class _Jsonable(object):
         return dict([(_c.name, _format_for_json(getattr(self, _c.name)))
                      for _c in
                      only or set(self.__table__.columns + (extra or [])) - set(exclude or [])])
+
+
+def _lazy_property(fn):
+    lazy_name = '__lazy__' + fn.__name__
+    @property
+    def lazy_eval(self):
+        if not hasattr(self, lazy_name):
+            setattr(self, lazy_name, fn(self))
+        return getattr(self, lazy_name)
+    return lazy_eval

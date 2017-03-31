@@ -46,17 +46,17 @@ class AttributeMeta(type(Model)):
         entity_models = AttributeModel.entity_models[:]
 
         dict_['backname'] = backname
-        dict_['foreign_uuid'] = db.Column(UUID(), index=True, nullable=False, primary_key=True)
+        dict_['entity_uuid'] = db.Column(UUID(), index=True, nullable=False, primary_key=True)
 
         table_args += (
-            db.ForeignKeyConstraint(['foreign_uuid'], [MetadashEntity.uuid],
+            db.ForeignKeyConstraint(['entity_uuid'], [MetadashEntity.uuid],
                                     name="_metadash_{}_f".format(tablename), ondelete="CASCADE"),
         )
 
         for key, value in dict_.items():
             if isinstance(value, db.Column) and value.unique_attribute:
                 table_args = table_args + (
-                    db.UniqueConstraint('foreign_uuid', key,
+                    db.UniqueConstraint('entity_uuid', key,
                                         name='_{}_metadash_attr_{}_uc'.format(tablename, value.name))
                     , # Make it a tuple
                 )
@@ -68,7 +68,7 @@ class AttributeMeta(type(Model)):
             entity_models.append(parentname)
             dict_[parentname] = db.relationship(
                 model,
-                primaryjoin=foreign(dict_['foreign_uuid']) == remote(model.uuid),
+                primaryjoin=foreign(dict_['entity_uuid']) == remote(model.uuid),
                 backref=backref(
                     backname, uselist=True
                 ),
@@ -78,7 +78,7 @@ class AttributeMeta(type(Model)):
 
         dict_['entity'] = db.relationship(
             MetadashEntity,
-            primaryjoin=dict_['foreign_uuid'] == MetadashEntity.uuid,
+            primaryjoin=dict_['entity_uuid'] == MetadashEntity.uuid,
             #backref=backref("attributes"), TODO
             uselist=False
         )
@@ -185,10 +185,10 @@ class AttributeModel(_Jsonable, Model, metaclass=AttributeMeta):
 
     @parent.setter
     def parent(self, parent):
-        self.foreign_uuid = parent
+        self.entity_uuid = parent
 
     def __repr__(self):
-        return '<Metadash Attr of Enity "{}">'.format(self.foreign_uuid)
+        return '<Metadash Attr of Enity "{}">'.format(self.entity_uuid)
 
     def as_dict(self, detail=False):
         dict_ = super(AttributeModel, self).as_dict()

@@ -33,7 +33,7 @@ db = SQLAlchemy(app)
 # Load Views
 from metadash.apis.result import Blueprint as result
 from metadash.apis.metadata import Blueprint as metadata
-app.register_blueprint(result, url_prefix="/result")
+app.register_blueprint(result, url_prefix="/test")
 app.register_blueprint(metadata, url_prefix="/metadata")
 
 # Load Manager and Migration
