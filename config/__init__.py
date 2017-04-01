@@ -9,8 +9,7 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///{basedir}/test.db'.format(basedir=basedir)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    POLARION_ENABLED = False
-    POLARION_URL = '#'
+    RESULTSDB_API = ''
 
 
 class ProductionConfig(Config):

@@ -31,3 +31,7 @@
 
 * UI event push
     UI be ware of something is happending, use WS.
+
+* Composive Proxy Helper
+
+* Add local index on accessing non-existing remote object / Build index at beginning
