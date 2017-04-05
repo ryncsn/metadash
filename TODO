@@ -35,3 +35,6 @@
 * Composive Proxy Helper
 
 * Add local index on accessing non-existing remote object / Build index at beginning
+
+* Dependency Injection of Models
+    One entity deps another entiry that provides some feature/columns.
