@@ -2,9 +2,6 @@
 # Load Flask
 from metadash import app, db
 
-# Apply a new config
-app.config.from_object('config.ActiveConfig')
-
 # Load Manager and Migration
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager

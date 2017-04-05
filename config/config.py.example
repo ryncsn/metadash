@@ -1,3 +1,7 @@
+"""
+Config for DB
+"""
+
 import os
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../metadash"))
 
@@ -8,9 +12,5 @@ class Config(object):
 
     SQLALCHEMY_DATABASE_URI = 'sqlite:///{basedir}/test.db'.format(basedir=basedir)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    POLARION_ENABLED = False
-    POLARION_URL = '#'
-
 
 ActiveConfig = Config
