@@ -38,3 +38,6 @@
 
 * Dependency Injection of Models
     One entity deps another entiry that provides some feature/columns.
+
+* Interface
+    Test result interface, each class inherits it provides sth.

@@ -1,8 +1,8 @@
 """
 Some basic metadata
 """
-from metadash.models.base import SharedAttributeModel, AttributeModel
-from metadash.models import db
+from .base import SharedAttributeModel, AttributeModel
+from . import db
 
 
 class Property(AttributeModel):

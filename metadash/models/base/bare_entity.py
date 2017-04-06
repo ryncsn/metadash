@@ -6,12 +6,12 @@ import uuid
 from sqlalchemy import event
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from metadash.models.base.utils import _get_table_name_dict
-from metadash.models.base.utils import _format_for_json, _Jsonable
-from metadash.models.base.entity import MetadashEntity, URN
+from .. import db
+from ..types import UUID
 
-from metadash.models import db
-from metadash.models.types import UUID
+from .utils import _get_table_name_dict
+from .utils import _format_for_json, _Jsonable
+from .entity import MetadashEntity, URN
 
 
 class BareEntityMeta(type(db.Model)):
@@ -31,7 +31,7 @@ class BareEntityMeta(type(db.Model)):
         if classname == "BareEntityModel":
             return type.__new__(mcs, classname, bases, dict_)
 
-        dict_ = dict(dict_) # Make it writable
+        dict_ = dict(dict_)  # Make it writable
 
         __namespace__ = dict_.get('__namespace__', None)
         if isinstance(__namespace__, str):
@@ -39,7 +39,8 @@ class BareEntityMeta(type(db.Model)):
         assert isinstance(__namespace__, uuid)
 
         __mapper_args__ = dict_.get('__mapper_args__', {})
-        __mapper_args__['polymorphic_identity'] = __namespace__ # TODO: Error on already set?
+        __mapper_args__['polymorphic_identity'] = __namespace__
+        # TODO: Error on already set?
 
         # pylint: disable=no-member
         dict_['__table__'] = MetadashEntity.__table__
@@ -69,7 +70,7 @@ class BareEntityModel(metaclass=BareEntityMeta):
 
     attribute_models = []
 
-    uuid = None # Just a hint
+    uuid = None  # Just a hint
 
     def identity(self):
         return '{}:{}(bare)'.format(self.__namespace__, self.uuid)

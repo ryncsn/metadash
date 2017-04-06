@@ -6,13 +6,13 @@ import uuid
 from sqlalchemy.orm import backref, foreign, remote
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from metadash.models.types import UUID
-from metadash.models import db
-from metadash import logger
+from ..types import UUID
+from .. import db
+from ... import logger
 
-from metadash.models.base.entity import MetadashEntity, EntityModel
-from metadash.models.base.utils import _pluralize, _get_model_name, _get_table_name_dict
-from metadash.models.base.utils import _all_leaf_class, _Jsonable, _format_for_json
+from .entity import MetadashEntity, EntityModel
+from .utils import _pluralize, _get_model_name, _get_table_name_dict
+from .utils import _all_leaf_class, _Jsonable, _format_for_json
 
 
 Model = db.Model
@@ -40,10 +40,12 @@ class AttributeMeta(type(Model)):
 
         tablename = _get_table_name_dict(dict_)
         modelname = _get_model_name(dict_)
-        backname = _pluralize(modelname)
         table_args = dict_.get('__table_args__', ())
-        entity_only = dict_.get('__entity_only__', [])
+        unique_attribute = dict_.get('__unique_attr__', False) #TODO: Injection style
+        entity_only = dict_.get('__entity_only__', []) #TODO: Injection style
         entity_models = AttributeModel.entity_models[:]
+
+        backname = _pluralize(modelname) if not unique_attribute else modelname
 
         dict_['backname'] = backname
         dict_['entity_uuid'] = db.Column(UUID(), index=True, nullable=False, primary_key=True)
@@ -70,7 +72,7 @@ class AttributeMeta(type(Model)):
                 model,
                 primaryjoin=foreign(dict_['entity_uuid']) == remote(model.uuid),
                 backref=backref(
-                    backname, uselist=True
+                    backname, uselist=not unique_attribute
                 ),
                 uselist=False, single_parent=True,
                 cascade="all, delete-orphan",
@@ -125,7 +127,7 @@ class SharedAttributeMeta(type(Model)):
 
         dict_['backname'] = backname
         dict_['uuid'] = db.Column(UUID(), index=True, nullable=False, unique=True,
-                                  primary_key=(not has_primary_key), default=uuid.uuid4)
+                                  primary_key=(not has_primary_key), default=uuid.uuid1)
 
         dict_['__secondary__'] = (
             db.Table("metadash_entities_{}".format(tablename),

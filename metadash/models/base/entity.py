@@ -6,11 +6,11 @@ import uuid
 from sqlalchemy import event
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from metadash.models.base.utils import _get_table_name_dict
-from metadash.models.base.utils import _format_for_json, _Jsonable
+from .utils import _get_table_name_dict
+from .utils import _format_for_json, _Jsonable
 
-from metadash.models import db
-from metadash.models.types import UUID
+from .. import db
+from ..types import UUID
 
 
 Model = db.Model
@@ -35,12 +35,13 @@ class MetadashEntity(Model):
 
     namespace = db.Column(UUID(), index=True, nullable=False, primary_key=True)
     uuid = db.Column(UUID(), index=True, nullable=False, unique=True, primary_key=True,
-                     default=uuid.uuid4)
+                     default=uuid.uuid1)
 
     __mapper_args__ = {
         'polymorphic_on': namespace,
         'polymorphic_identity': __namespace__
     }
+
 
 MetadashEntity.__namespace_map__[MetadashEntity.__namespace__] = MetadashEntity
 
@@ -71,14 +72,14 @@ class EntityMeta(type(db.Model)):
         if classname == 'EntityModel':
             return type.__new__(mcs, classname, bases, dict_)
 
-        dict_ = dict(dict_) # Make it writable
+        dict_ = dict(dict_)  # Make it writable
 
         __namespace__ = dict_.get('__namespace__',
-                              uuid.uuid5(uuid.UUID(URN), _get_table_name_dict(dict_)))
+                                  uuid.uuid5(uuid.UUID(URN), _get_table_name_dict(dict_)))
         assert isinstance(__namespace__, uuid.UUID)
 
         __mapper_args__ = dict_.get('__mapper_args__', {})
-        __mapper_args__['polymorphic_identity'] = __namespace__ # TODO: Error on already set?
+        __mapper_args__['polymorphic_identity'] = __namespace__  # TODO: Error on already set?
 
         dict_['uuid'] = db.Column(
             UUID(), db.ForeignKey(MetadashEntity.uuid, ondelete="CASCADE", onupdate="RESTRICT"),
@@ -112,7 +113,7 @@ class EntityModel(metaclass=EntityMeta):
 
     attribute_models = []
 
-    uuid = None # Just a hint
+    uuid = None  # Just a hint
 
     def identity(self):
         return '{}:{}'.format(self.__namespace__, self.uuid)

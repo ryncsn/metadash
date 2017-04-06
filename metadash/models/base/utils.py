@@ -1,7 +1,7 @@
 """
 Helper mostly for internal use
 """
-from metadash import logger
+from ... import logger
 
 
 def _extend_column_arg_patch():
@@ -50,7 +50,7 @@ def _pluralize(singular):
     # FIXME: it's wrong, totally
     if singular.endswith('y'):
         return "{}ies".format(singular[:-1])
-    return "{}s".format(singular) if not singular.endswith('s') else singular #FIXME
+    return "{}s".format(singular) if not singular.endswith('s') else singular  # FIXME
 
 
 def _format_for_json(data):
@@ -79,6 +79,7 @@ class _Jsonable(object):
 
 def _lazy_property(fn):
     lazy_name = '__lazy__' + fn.__name__
+
     @property
     def lazy_eval(self):
         if not hasattr(self, lazy_name):

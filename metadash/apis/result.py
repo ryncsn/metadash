@@ -4,14 +4,8 @@ import uuid
 from flask import Blueprint
 from flask_restful import reqparse, Resource, Api, abort
 
-from metadash.models.result import TestResult, TestRun
+from metadash.models.service import require
 from metadash import db
-
-TestResultParser = reqparse.RequestParser(bundle_errors=True)
-TestResultParser.add_argument('result', type=lambda _s: TestResult.ALL_RESULTS.index(_s) + 1 and _s, required=True)
-TestResultParser.add_argument('date', type=datetime.datetime, required=False)
-TestResultParser.add_argument('test_run', type=uuid.UUID, required=True)
-
 TestRunParser = reqparse.RequestParser(bundle_errors=True)
 TestRunParser.add_argument('name', type=str, required=True)
 
@@ -21,8 +15,16 @@ Api = Api(Blueprint)
 
 
 class TestResultList(Resource):
+    def __init__(self):
+        self.testresult = require("testresult")
+        self.parser = self.testresult.deserilizer()
+        self.parser.add_argument('result', type=lambda _s: self.testresult.ALL_RESULTS.index(_s) + 1 and _s, required=True)
+        self.parser.add_argument('date', type=datetime.datetime, required=False)
+        self.parser.add_argument('test_run', type=uuid.UUID, required=True)
+
+
     def post(self):
-        result = TestResult()
+        result = self.testresult()
         args = TestResultParser.parse_args()
         result.test_run = args['test_run']
         result.result = args['result']
