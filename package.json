@@ -13,7 +13,9 @@
     "lint": "eslint --ext .js,.vue metadash/src metadash/test/unit/specs metadash/test/e2e/specs"
   },
   "dependencies": {
+    "lodash": "^4.17.4",
     "vue": "^2.2.2",
+    "vue-patternfly": "0.0.11",
     "vue-router": "^2.2.0"
   },
   "devDependencies": {
