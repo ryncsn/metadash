@@ -41,3 +41,6 @@
 
 * Interface
     Test result interface, each class inherits it provides sth.
+
+* Bus
+    Bus communication between plugins
