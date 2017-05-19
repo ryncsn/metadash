@@ -3,8 +3,11 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import VuePatternfly from 'vue-patternfly'
 
 Vue.config.productionTip = false
+
+VuePatternfly.install(Vue)
 
 /* eslint-disable no-new */
 new Vue({
