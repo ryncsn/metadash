@@ -1,6 +1,15 @@
 <template>
-  <div class="hello">
-    <pf-table :columns="columns" :rows="rows">
+  <div>
+    <pf-table :columns='columns' :rows='rows'>
+      <template scope="props">
+        <td v-for="name in props.row"> {{name}} </td>
+      </template>
+      <slot name="action">
+        action
+      </slot>
+      <slot name="dropdown">
+        dropdown
+      </slot>
     </pf-table>
   </div>
 </template>
@@ -9,18 +18,31 @@
 export default {
   data () {
     return {
+      page: 1,
+      pages: 1,
+      name: 'table',
+      sortable: true,
       columns: [
-        'Test',
-        'Result'
+        'Id',
+        'Name',
+        'Surname',
+        'City',
+        'State'
       ],
       rows: [
         {
-          'test': 'T1',
-          'result': 'Pass'
+          'Id': 1,
+          'name': 'John',
+          'surname': 'Smith',
+          'city': 'New York',
+          'state': 'New York'
         },
         {
-          'test': 'T2',
-          'result': 'Pass'
+          'Id': 2,
+          'name': 'Joe',
+          'surname': 'Black',
+          'city': 'Miami',
+          'state': 'Florida'
         }
       ]
     }
@@ -30,21 +52,4 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-a {
-  color: #42b983;
-}
 </style>
