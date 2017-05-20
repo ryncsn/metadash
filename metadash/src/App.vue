@@ -1,20 +1,20 @@
 <template>
   <pf-layout id="app" :icons="true">
     <router-link slot="brand" to="/" :exact="true" class="navbar-brand">
-      <span class="navbar-brand-name">Vue PatternFly</span>
+      <span class="navbar-brand-name">Metadash</span>
     </router-link>
 
     <template slot="vertical-menu">
-      <router-link tag="li" class="list-group-item" active-class="active" to="/get-started" :exact="true">
+      <router-link tag="li" class="list-group-item" active-class="active" to="/dashboard" :exact="true">
         <a>
-          <span class="fa fa-play-circle" title="Get Started"></span>
-          <span class="list-group-item-value">Get Started</span>
+          <span class="fa fa-dashboard" title="Dashboard"></span>
+          <span class="list-group-item-value">Dashboard</span>
         </a>
       </router-link>
-      <router-link tag="li" class="list-group-item" active-class="active" to="/layout" :exact="true">
+      <router-link tag="li" class="list-group-item" active-class="active" to="/table" :exact="true">
         <a>
-          <span class="fa fa-columns" title="Layout"></span>
-          <span class="list-group-item-value">Layout</span>
+          <span class="fa fa-columns" title="Table"></span>
+          <span class="list-group-item-value">Table</span>
         </a>
       </router-link>
     </template>
