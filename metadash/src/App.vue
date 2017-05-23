@@ -37,4 +37,28 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+
+.navbar-pf-vertical .navbar-brand {
+  font-size: 20px;
+  line-height: 35px;
+}
+
+.navbar-brand-name,
+.home .jumbotron h1 {
+  background: -webkit-linear-gradient(#5399F9,#6df7ac);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #5399F9;
+}
+
+/*
+Fix for pattern fly side bar animation
+ */
+.nav-pf-vertical, .nav-pf-vertical ul, li, a {
+  -webkit-transition:width 300ms ease-in-out, height 300ms ease-in-out;
+  -moz-transition:width 300ms ease-in-out, height 300ms ease-in-out;
+  -o-transition:width 300ms ease-in-out, height 300ms ease-in-out;
+  transition:width 300ms ease-in-out, height 300ms ease-in-out;
+}
+
 </style>
