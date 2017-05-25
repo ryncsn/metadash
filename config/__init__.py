@@ -25,6 +25,6 @@ class TestingConfig(Config):
 
 
 try:
-    from config import ActiveConfig
+    from .config import ActiveConfig
 except ImportError:
     ActiveConfig = DevelopmentConfig

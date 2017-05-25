@@ -75,14 +75,3 @@ class _Jsonable(object):
         return dict([(_c.name, _format_for_json(getattr(self, _c.name)))
                      for _c in
                      only or set(self.__table__.columns + (extra or [])) - set(exclude or [])])
-
-
-def _lazy_property(fn):
-    lazy_name = '__lazy__' + fn.__name__
-
-    @property
-    def lazy_eval(self):
-        if not hasattr(self, lazy_name):
-            setattr(self, lazy_name, fn(self))
-        return getattr(self, lazy_name)
-    return lazy_eval

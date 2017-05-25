@@ -19,11 +19,7 @@ from .attribute import AttributeModel, SharedAttributeModel
 from .bare_entity import BareEntityModel
 
 from .utils import _extend_column_arg_patch
-from .utils import _lazy_property as lazy_property
-
-cached_property = lazy_property
 
 _extend_column_arg_patch()
 
-__all__ = ['EntityModel', 'AttributeModel', 'SharedAttributeModel',
-           'BareEntityModel', 'lazy_property']
+__all__ = ['EntityModel', 'AttributeModel', 'SharedAttributeModel', 'BareEntityModel']

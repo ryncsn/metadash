@@ -76,6 +76,9 @@ class EntityMeta(type(db.Model)):
 
         __namespace__ = dict_.get('__namespace__',
                                   uuid.uuid5(uuid.UUID(URN), _get_table_name_dict(dict_)))
+        if isinstance(__namespace__, str):
+            __namespace__ = uuid.uuid5(uuid.UUID(URN), __namespace__)
+
         assert isinstance(__namespace__, uuid.UUID)
 
         __mapper_args__ = dict_.get('__mapper_args__', {})
@@ -122,5 +125,5 @@ class EntityModel(metaclass=EntityMeta):
         dict_ = super(EntityModel, self).as_dict()
         if detail:
             for model in self.attribute_models:
-                dict_[model.backname] = _format_for_json(getattr(self, model.backname))
+                dict_[model.backref_name] = _format_for_json(getattr(self, model.backref_name))
         return dict_

@@ -26,11 +26,14 @@ def _get_logger():
     root_logger.addHandler(console_handler)
     return root_logger
 
+
 logger = _get_logger()
+
 
 # Load ORM
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy(app)
+
 
 # Load Views
 # Point index in index.html
@@ -38,11 +41,13 @@ db = SQLAlchemy(app)
 def index():
     return app.send_static_file('index.html')
 
+
 from metadash.apis.result import Blueprint as result
 from metadash.apis.metadata import Blueprint as metadata
-app.register_blueprint(result, url_prefix="/test")
-app.register_blueprint(metadata, url_prefix="/metadata")
+app.register_blueprint(result, url_prefix="/api")
+app.register_blueprint(metadata, url_prefix="/api")
 # Then it will fallback to static files
+
 
 # Load Manager and Migration
 from flask_migrate import Migrate, MigrateCommand
@@ -51,13 +56,16 @@ migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
+
 @app.cli.command('initdb')
 def init_db_cli():
     init_db()
 
+
 def init_db():
     with app.app_context():
         db.create_all()
+
 
 # Start the server
 if __name__ == '__main__':

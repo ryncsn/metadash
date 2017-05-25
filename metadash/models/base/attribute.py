@@ -41,13 +41,13 @@ class AttributeMeta(type(Model)):
         tablename = _get_table_name_dict(dict_)
         modelname = _get_model_name(dict_)
         table_args = dict_.get('__table_args__', ())
-        unique_attribute = dict_.get('__unique_attr__', False) #TODO: Injection style
-        entity_only = dict_.get('__entity_only__', []) #TODO: Injection style
+        unique_attribute = dict_.get('__unique_attr__', False)  # TODO: Injection style
+        entity_only = dict_.get('__entity_only__', [])  # TODO: Injection style
         entity_models = AttributeModel.entity_models[:]
 
-        backname = _pluralize(modelname) if not unique_attribute else modelname
+        backref_name = _pluralize(modelname) if not unique_attribute else modelname
 
-        dict_['backname'] = backname
+        dict_['backref_name'] = backref_name
         dict_['entity_uuid'] = db.Column(UUID(), index=True, nullable=False, primary_key=True)
 
         table_args += (
@@ -59,8 +59,7 @@ class AttributeMeta(type(Model)):
             if isinstance(value, db.Column) and value.unique_attribute:
                 table_args = table_args + (
                     db.UniqueConstraint('entity_uuid', key,
-                                        name='_{}_metadash_attr_{}_uc'.format(tablename, value.name))
-                    , # Make it a tuple
+                                        name='_{}_metadash_attr_{}_uc'.format(tablename, value.name)),
                 )
 
         for model in _all_leaf_class(EntityModel):
@@ -72,7 +71,7 @@ class AttributeMeta(type(Model)):
                 model,
                 primaryjoin=foreign(dict_['entity_uuid']) == remote(model.uuid),
                 backref=backref(
-                    backname, uselist=not unique_attribute
+                    backref_name, uselist=not unique_attribute
                 ),
                 uselist=False, single_parent=True,
                 cascade="all, delete-orphan",
@@ -81,7 +80,7 @@ class AttributeMeta(type(Model)):
         dict_['entity'] = db.relationship(
             MetadashEntity,
             primaryjoin=dict_['entity_uuid'] == MetadashEntity.uuid,
-            #backref=backref("attributes"), TODO
+            # backref=backref("attributes"), TODO
             uselist=False
         )
 
@@ -110,7 +109,7 @@ class SharedAttributeMeta(type(Model)):
 
         tablename = _get_table_name_dict(dict_)
         modelname = _get_model_name(dict_)
-        backname = _pluralize(modelname)
+        backref_name = _pluralize(modelname)
         table_args = dict_.get('__table_args__', ())
         entity_only = dict_.get('__entity_only__', ())
         entity_models = AttributeModel.entity_models[:]
@@ -125,7 +124,7 @@ class SharedAttributeMeta(type(Model)):
                 if value.unique_attribute:
                     value.unique = True
 
-        dict_['backname'] = backname
+        dict_['backref_name'] = backref_name
         dict_['uuid'] = db.Column(UUID(), index=True, nullable=False, unique=True,
                                   primary_key=(not has_primary_key), default=uuid.uuid1)
 
@@ -135,7 +134,7 @@ class SharedAttributeMeta(type(Model)):
                      db.Column('attr_uuid', UUID(), index=True),
                      db.ForeignKeyConstraint(['attr_uuid'], [dict_['uuid']], ondelete="CASCADE"),
                      db.ForeignKeyConstraint(['entity_uuid'], [MetadashEntity.uuid], ondelete="CASCADE")
-                    )
+                     )
         )
 
         for model in _all_leaf_class(EntityModel):
@@ -149,7 +148,7 @@ class SharedAttributeMeta(type(Model)):
                 secondary=dict_['__secondary__'],
                 primaryjoin=dict_['__secondary__'].c.attr_uuid == dict_['uuid'],
                 secondaryjoin=foreign(dict_['__secondary__'].c.entity_uuid) == remote(model.uuid),
-                backref=backref(backname,
+                backref=backref(backref_name,
                                 primaryjoin=dict_['__secondary__'].c.entity_uuid == model.uuid,
                                 secondaryjoin=foreign(dict_['__secondary__'].c.attr_uuid) == remote(dict_['uuid'])),
                 uselist=True,
@@ -161,7 +160,7 @@ class SharedAttributeMeta(type(Model)):
             secondary=dict_['__secondary__'],
             primaryjoin=dict_['__secondary__'].c.attr_uuid == dict_['uuid'],
             secondaryjoin=dict_['__secondary__'].c.entity_uuid == MetadashEntity.uuid,
-            #backref=backref("shared_attributes"), TODO
+            # backref=backref("shared_attributes"), TODO
         )
 
         dict_['__table_args__'] = table_args
@@ -175,7 +174,7 @@ class AttributeModel(_Jsonable, Model, metaclass=AttributeMeta):
     An attribute belong to only one entity
     Extra columns will be created to track the relation.
     """
-    #TODO: Error on creation
+    # TODO: Error on creation
 
     __entity_only__ = None
 
@@ -204,7 +203,7 @@ class SharedAttributeModel(_Jsonable, Model, metaclass=SharedAttributeMeta):
     An attribute shared by multiple entity.
     A second table will be created to track the relation.
     """
-    #TODO: Error on creation
+    # TODO: Error on creation
 
     __entity_only__ = None
 
@@ -213,7 +212,7 @@ class SharedAttributeModel(_Jsonable, Model, metaclass=SharedAttributeMeta):
     parents = association_proxy(
         'entity',
         'uuid',
-        creator=lambda uuid: MetadashEntity.query.filter(MetadashEntity.uuid == uuid).first() #TODO: Error on empty query
+        creator=lambda uuid: MetadashEntity.query.filter(MetadashEntity.uuid == uuid).first()  # TODO: Error on empty query
     )
 
     def __repr__(self):
