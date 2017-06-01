@@ -47,8 +47,7 @@ class TestCase(EntityModel):  # Inherit from EntityModel, so have a UUID
     """
     Stands for a test case
     """
-    __tablename__ = __alias__ = 'testcase'
-    __namespace__ = 'testcase'
+    __tablename__ = __alias__ = __namespace__ = 'testcase'
 
     name = db.Column(db.Integer, primary_key=True, unique=True, index=True)
 
@@ -93,8 +92,7 @@ class TestResult(EntityModel):
     Reference to a Test Result on ResultDB
     Used to maintain local constraints, and make metadata tracking easier
     """
-    __tablename__ = __alias__ = 'testresult'
-    __namespace__ = 'testresult'
+    __tablename__ = __alias__ = __namespace__ = 'testresult'
 
     RESULTS_MAP = ['PASSED', 'FAILED', 'INFO', 'NEEDS_INSPECTION']  # Just reminder
 
@@ -171,8 +169,7 @@ class TestGroup(BareEntityModel):
     Reference to a Test Group on ResultDB
     Used to maintain local constraints, and make metadata tracking easier
     """
-    __alias__ = 'testgroup'
-    __namespace__ = 'testgroup'
+    __tablename__ = __alias__ = __namespace__ = 'testgroup'
 
     @cached_property
     @handle_404
