@@ -11,7 +11,7 @@ from .. import db
 from ... import logger
 
 from .entity import MetadashEntity, EntityModel
-from .utils import _pluralize, _get_model_name, _get_table_name_dict
+from .utils import _pluralize, _get_alias_dict, _get_table_name_dict
 from .utils import _all_leaf_class, _Jsonable, _format_for_json
 
 
@@ -39,7 +39,7 @@ class AttributeMeta(type(Model)):
             return type.__new__(mcs, classname, bases, dict_)
 
         tablename = _get_table_name_dict(dict_)
-        modelname = _get_model_name(dict_)
+        modelname = _get_alias_dict(dict_)
         table_args = dict_.get('__table_args__', ())
         unique_attribute = dict_.get('__unique_attr__', False)  # TODO: Injection style
         entity_only = dict_.get('__entity_only__', [])  # TODO: Injection style
@@ -65,7 +65,7 @@ class AttributeMeta(type(Model)):
         for model in _all_leaf_class(EntityModel):
             if entity_only and model.__namespace__ not in entity_only:
                 continue
-            parentname = _get_model_name(model.__dict__)
+            parentname = _get_alias_dict(model.__dict__)
             entity_models.append(parentname)
             dict_[parentname] = db.relationship(
                 model,
@@ -108,7 +108,7 @@ class SharedAttributeMeta(type(Model)):
             return type.__new__(mcs, classname, bases, dict_)
 
         tablename = _get_table_name_dict(dict_)
-        modelname = _get_model_name(dict_)
+        modelname = _get_alias_dict(dict_)
         backref_name = _pluralize(modelname)
         table_args = dict_.get('__table_args__', ())
         entity_only = dict_.get('__entity_only__', ())
@@ -140,7 +140,7 @@ class SharedAttributeMeta(type(Model)):
         for model in _all_leaf_class(EntityModel):
             if entity_only and model.__namespace__ not in entity_only:
                 continue
-            parentname = _get_model_name(model.__dict__)
+            parentname = _get_alias_dict(model.__dict__)
             parentsname = _pluralize(parentname)
             entity_models.append(parentsname)
             dict_[parentsname] = db.relationship(
@@ -177,6 +177,7 @@ class AttributeModel(_Jsonable, Model, metaclass=AttributeMeta):
     # TODO: Error on creation
 
     __entity_only__ = None
+    __collection__ = list
 
     entity_models = []
 
@@ -205,7 +206,9 @@ class SharedAttributeModel(_Jsonable, Model, metaclass=SharedAttributeMeta):
     """
     # TODO: Error on creation
 
-    __entity_only__ = None
+    __entities__ = None
+    __collector__ = list
+    __presenter__ = None  # TODO: Accept a dict
 
     entity_models = []
 

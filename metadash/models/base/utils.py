@@ -38,7 +38,7 @@ def _get_table_name_dict(dict_):
     return tablename
 
 
-def _get_model_name(dict_):
+def _get_alias_dict(dict_):
     _alias = dict_.get('__alias__', None)
     _tablename = _get_table_name_dict(dict_)
     modelname = _alias or _tablename

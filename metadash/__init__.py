@@ -31,7 +31,7 @@ logger = _get_logger()
 
 
 # Load ORM
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy # noqa
 db = SQLAlchemy(app)
 
 
@@ -42,16 +42,16 @@ def index():
     return app.send_static_file('index.html')
 
 
-from metadash.apis.result import Blueprint as result
-from metadash.apis.metadata import Blueprint as metadata
+from metadash.apis.result import Blueprint as result # noqa
+from metadash.apis.metadata import Blueprint as metadata # noqa
 app.register_blueprint(result, url_prefix="/api")
 app.register_blueprint(metadata, url_prefix="/api")
 # Then it will fallback to static files
 
 
 # Load Manager and Migration
-from flask_migrate import Migrate, MigrateCommand
-from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand # noqa
+from flask_script import Manager # noqa
 migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
