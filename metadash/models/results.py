@@ -102,7 +102,7 @@ class TestResult(EntityModel):
     @cached_property
     @handle_404
     def raw(self):
-        return API.get_result(self.uuid) if self.uuid else {}
+        return API.get_result(self.id) if self.id else {}
 
     @property
     def data(self):
@@ -127,9 +127,7 @@ class TestResult(EntityModel):
 
     @testcase.setter
     def testcase(self, value: str):
-        session = Session.object_session(self)
-        get_or_create(session, TestCase, name=value)
-        self.raw['testcase'] = value
+        self.raw['testcase'] = {"name": value}
 
     @cached_property
     def ref_url(self):
@@ -142,6 +140,10 @@ class TestResult(EntityModel):
     @property
     def testgroups(self) -> List[str]:
         return self.raw['groups']
+
+    @testgroups.setter
+    def testgroups(self, value: List[str]):
+        self.raw['groups'] = value
 
     def as_dict(self, detail=False):
         ret = super(TestResult, self).as_dict(detail)
@@ -156,6 +158,9 @@ class TestResult(EntityModel):
         raise NotImplementedError()
 
     def _save(self):
+        session = Session.object_session(self)
+        if self.testcase:
+            get_or_create(session, TestCase, name=self.testcase)
         ret = API.create_result(self.outcome, self.testcase, groups=self.testgroups, ref_url=self.ref_url)
         self.id = ret['id']
 

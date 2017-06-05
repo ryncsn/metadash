@@ -1,6 +1,7 @@
 """
 Some basic metadata
 """
+from sqlalchemy.orm.collections import attribute_mapped_collection
 from .base import SharedAttributeModel, AttributeModel
 from . import db
 
@@ -12,6 +13,8 @@ class Property(AttributeModel):
     """
     __alias__ = 'property'
     __tablename__ = 'metadash_property'
+    __collector__ = attribute_mapped_collection("key")
+    __composer__ = "value"
 
     key = db.Column(db.String(255), nullable=False, index=True, primary_key=True, unique_attribute=True)
     value = db.Column(db.String(3072), nullable=False, index=True)
@@ -28,6 +31,8 @@ class Detail(AttributeModel):
     """
     __alias__ = 'detail'
     __tablename__ = 'metadash_detail'
+    __collector__ = attribute_mapped_collection("key")
+    __composer__ = "value"
 
     key = db.Column(db.String(255), nullable=False, index=True, primary_key=True, unique_attribute=True)
     value = db.Column(db.Text(), nullable=False)
@@ -42,6 +47,8 @@ class Tag(SharedAttributeModel):
     """
     __alias__ = 'tag'
     __tablename__ = 'metadash_tag'
+    __collector__ = set
+    __composer__ = "name"
 
     name = db.Column(db.String(255), nullable=False, index=True, unique_attribute=True)
 

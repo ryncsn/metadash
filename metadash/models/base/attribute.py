@@ -18,6 +18,21 @@ from .utils import _all_leaf_class, _Jsonable, _format_for_json
 Model = db.Model
 
 
+def _find_entity(key):
+    if isinstance(key, EntityModel):
+        return key
+    elif isinstance(key, (str)):
+        # TODO: Poor Performance
+        for model in _all_leaf_class(EntityModel):
+            if model.__name__ == key:
+                return model
+            if getattr(model, '__namespace__') == key:
+                return model
+            if getattr(model, '__table__') == key:
+                return model
+    raise RuntimeError()
+
+
 class AttributeMeta(type(Model)):
     """
     Metaclass for defining new attribute class
@@ -33,49 +48,55 @@ class AttributeMeta(type(Model)):
         for model in _all_leaf_class(EntityModel):
             model.attribute_models.append(cls)
 
-    def __new__(mcs, classname, bases, dict_, **kwds):
+    def __new__(mcs, classname, bases, dict_, **kwargs):
         # pylint: disable=no-member
         if classname == "AttributeModel":
             return type.__new__(mcs, classname, bases, dict_)
 
         tablename = _get_table_name_dict(dict_)
-        modelname = _get_alias_dict(dict_)
+        aliasname = _get_alias_dict(dict_)
+        # TODO: Injection style
         table_args = dict_.get('__table_args__', ())
-        unique_attribute = dict_.get('__unique_attr__', False)  # TODO: Injection style
-        entity_only = dict_.get('__entity_only__', [])  # TODO: Injection style
+        entities_only = dict_.get('__entities__', [])
+        unique_attribute = dict_.get('__unique_attr__', False)
+        collector = dict_.get('__collector__', list)
+        composer = dict_.get('__composer__', None)
+
+        entities = [_find_entity(e) for e in entities_only] or _all_leaf_class(EntityModel)
+
+        proxy_name = _pluralize(aliasname) if not unique_attribute else aliasname
+        backref_name = "{}_ref".format(proxy_name)
         entity_models = AttributeModel.entity_models[:]
 
-        backref_name = _pluralize(modelname) if not unique_attribute else modelname
-
-        dict_['backref_name'] = backref_name
-        dict_['entity_uuid'] = db.Column(UUID(), index=True, nullable=False, primary_key=True)
-
+        dict_['key_name'] = proxy_name if composer else backref_name
+        dict_['entity_uuid'] = db.Column(
+            UUID(), index=True, nullable=False, primary_key=True)
         table_args += (
             db.ForeignKeyConstraint(['entity_uuid'], [MetadashEntity.uuid],
-                                    name="_metadash_{}_f".format(tablename), ondelete="CASCADE"),
-        )
+                                    name="_metadash_{}_fc".format(tablename),
+                                    ondelete="CASCADE"),)
 
         for key, value in dict_.items():
             if isinstance(value, db.Column) and value.unique_attribute:
                 table_args = table_args + (
                     db.UniqueConstraint('entity_uuid', key,
-                                        name='_{}_metadash_attr_{}_uc'.format(tablename, value.name)),
-                )
+                                        name='_{}_metadash_attr_{}_uc'.format(
+                                            tablename, value.name)), )
 
-        for model in _all_leaf_class(EntityModel):
-            if entity_only and model.__namespace__ not in entity_only:
-                continue
+        for model in entities:
             parentname = _get_alias_dict(model.__dict__)
             entity_models.append(parentname)
             dict_[parentname] = db.relationship(
                 model,
                 primaryjoin=foreign(dict_['entity_uuid']) == remote(model.uuid),
                 backref=backref(
-                    backref_name, uselist=not unique_attribute
+                    backref_name, uselist=not unique_attribute, collection_class=collector
                 ),
                 uselist=False, single_parent=True,
                 cascade="all, delete-orphan",
             )
+            if composer:
+                setattr(model, proxy_name, association_proxy(backref_name, composer))
 
         dict_['entity'] = db.relationship(
             MetadashEntity,
@@ -87,7 +108,7 @@ class AttributeMeta(type(Model)):
         dict_['__table_args__'] = table_args
         dict_['entity_models'] = entity_models
 
-        return super(AttributeMeta, mcs).__new__(mcs, classname, bases, dict_, **kwds)
+        return super(AttributeMeta, mcs).__new__(mcs, classname, bases, dict_, **kwargs)
 
 
 class SharedAttributeMeta(type(Model)):
@@ -103,20 +124,26 @@ class SharedAttributeMeta(type(Model)):
         else:
             type.__new__(type, classname, bases, dict_)
 
-    def __new__(mcs, classname, bases, dict_, **kwds):
+    def __new__(mcs, classname, bases, dict_, **kwargs):
+        # XXX: This looks more like another kind of entity...
         if classname == "SharedAttributeModel":
             return type.__new__(mcs, classname, bases, dict_)
 
         tablename = _get_table_name_dict(dict_)
-        modelname = _get_alias_dict(dict_)
-        backref_name = _pluralize(modelname)
+        aliasname = _get_alias_dict(dict_)
+        # TODO: Injection style
         table_args = dict_.get('__table_args__', ())
-        entity_only = dict_.get('__entity_only__', ())
+        entities_only = dict_.get('__entities__', [])
+        collector = dict_.get('__collector__', list)
+        composer = dict_.get('__composer__', None)
+
+        entities = [_find_entity(e) for e in entities_only] or _all_leaf_class(EntityModel)
+
+        proxy_name = _pluralize(aliasname)
+        backref_name = "{}_ref".format(proxy_name)
         entity_models = AttributeModel.entity_models[:]
 
-        # XXX: This looks more like another kind of entity...
         has_primary_key = False
-
         for value in dict_.values():
             if isinstance(value, db.Column):
                 if value.primary_key:
@@ -124,22 +151,22 @@ class SharedAttributeMeta(type(Model)):
                 if value.unique_attribute:
                     value.unique = True
 
-        dict_['backref_name'] = backref_name
+        dict_['key_name'] = proxy_name if composer else backref_name
         dict_['uuid'] = db.Column(UUID(), index=True, nullable=False, unique=True,
-                                  primary_key=(not has_primary_key), default=uuid.uuid1)
+                                  primary_key=not has_primary_key, default=uuid.uuid1)
 
         dict_['__secondary__'] = (
             db.Table("metadash_entities_{}".format(tablename),
                      db.Column('entity_uuid', UUID(), index=True),
                      db.Column('attr_uuid', UUID(), index=True),
-                     db.ForeignKeyConstraint(['attr_uuid'], [dict_['uuid']], ondelete="CASCADE"),
-                     db.ForeignKeyConstraint(['entity_uuid'], [MetadashEntity.uuid], ondelete="CASCADE")
+                     db.ForeignKeyConstraint(
+                         ['attr_uuid'], [dict_['uuid']], ondelete="CASCADE"),
+                     db.ForeignKeyConstraint(
+                         ['entity_uuid'], [MetadashEntity.uuid], ondelete="CASCADE")
                      )
         )
 
-        for model in _all_leaf_class(EntityModel):
-            if entity_only and model.__namespace__ not in entity_only:
-                continue
+        for model in entities:
             parentname = _get_alias_dict(model.__dict__)
             parentsname = _pluralize(parentname)
             entity_models.append(parentsname)
@@ -150,10 +177,13 @@ class SharedAttributeMeta(type(Model)):
                 secondaryjoin=foreign(dict_['__secondary__'].c.entity_uuid) == remote(model.uuid),
                 backref=backref(backref_name,
                                 primaryjoin=dict_['__secondary__'].c.entity_uuid == model.uuid,
-                                secondaryjoin=foreign(dict_['__secondary__'].c.attr_uuid) == remote(dict_['uuid'])),
+                                secondaryjoin=foreign(dict_['__secondary__'].c.attr_uuid) == remote(dict_['uuid']), collection_class=collector),
                 uselist=True,
                 cascade="save-update, merge, refresh-expire, expunge",
             )
+
+            if composer:
+                setattr(model, proxy_name, association_proxy(backref_name, composer))
 
         dict_['entity'] = db.relationship(
             MetadashEntity,
@@ -166,7 +196,7 @@ class SharedAttributeMeta(type(Model)):
         dict_['__table_args__'] = table_args
         dict_['entity_models'] = entity_models
 
-        return super(SharedAttributeMeta, mcs).__new__(mcs, classname, bases, dict_, **kwds)
+        return super(SharedAttributeMeta, mcs).__new__(mcs, classname, bases, dict_, **kwargs)
 
 
 class AttributeModel(_Jsonable, Model, metaclass=AttributeMeta):
@@ -175,9 +205,16 @@ class AttributeModel(_Jsonable, Model, metaclass=AttributeMeta):
     Extra columns will be created to track the relation.
     """
     # TODO: Error on creation
-
-    __entity_only__ = None
-    __collection__ = list
+    # If true, and uniq key will hava a extra constraint to make it unique in
+    # the set of attributes belongs to a single entity
+    __unique_attr__ = False
+    # When given only create relationship with given entities or else will be a genetic attribute
+    # Use require or namespace for entity
+    __entities__ = None
+    # Collector to use for relationship
+    __collector__ = list
+    # If specified will use associationproxy, and this is the key
+    __composer__ = None  # TODO: Accept a dict
 
     entity_models = []
 
@@ -205,10 +242,13 @@ class SharedAttributeModel(_Jsonable, Model, metaclass=SharedAttributeMeta):
     A second table will be created to track the relation.
     """
     # TODO: Error on creation
-
+    # When given only create relationship with given entities or else will be a genetic attribute
+    # Use require or namespace for entity
     __entities__ = None
+    # Collector to use for relationship
     __collector__ = list
-    __presenter__ = None  # TODO: Accept a dict
+    # If specified will use associationproxy, and this is the key
+    __composer__ = None  # TODO: Accept a dict
 
     entity_models = []
 

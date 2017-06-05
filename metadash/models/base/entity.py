@@ -125,5 +125,5 @@ class EntityModel(metaclass=EntityMeta):
         dict_ = super(EntityModel, self).as_dict()
         if detail:
             for model in self.attribute_models:
-                dict_[model.backref_name] = _format_for_json(getattr(self, model.backref_name))
+                dict_[model.key_name] = _format_for_json(getattr(self, model.key_name))
         return dict_

@@ -50,6 +50,10 @@ def _pluralize(singular):
     # FIXME: it's wrong, totally
     if singular.endswith('y'):
         return "{}ies".format(singular[:-1])
+    if singular.endswith('s'):
+        return "{}es".format(singular)
+    if singular.endswith('o'):
+        return "{}es".format(singular)
     return "{}s".format(singular) if not singular.endswith('s') else singular  # FIXME
 
 
