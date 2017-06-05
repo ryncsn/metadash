@@ -36,17 +36,18 @@ db = SQLAlchemy(app)
 
 
 # Load Views
-# Point index in index.html
-@app.route('/')
-def index():
-    return app.send_static_file('index.html')
-
-
 from metadash.apis.result import Blueprint as result # noqa
 from metadash.apis.metadata import Blueprint as metadata # noqa
 app.register_blueprint(result, url_prefix="/api")
 app.register_blueprint(metadata, url_prefix="/api")
-# Then it will fallback to static files
+
+
+# If not catch by any view, fallback to index on non-static
+@app.route('/')
+@app.route('/<path>')
+def index(path):
+    return app.send_static_file('index.html')
+# Then fallback to static files
 
 
 # Load Manager and Migration
