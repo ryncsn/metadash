@@ -1,7 +1,9 @@
-var path = require('path')
-var utils = require('./utils')
-var config = require('./config')
-var vueLoaderConfig = require('./vue-loader.conf')
+const path = require('path')
+const utils = require('./utils')
+const config = require('./config')
+const vueLoaderConfig = require('./vue-loader.conf')
+
+const pluginLoader = path.resolve(path.join(__dirname, './plugin-loader.js'))
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -28,6 +30,12 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+        test: /metadash-plugins\.js$/,
+        loaders: [pluginLoader, 'eslint-loader'],
+        enforce: 'pre',
+        include: [resolve('src'), resolve('test')]
+      },
       {
         test: /\.(js|vue)$/,
         loader: 'eslint-loader',

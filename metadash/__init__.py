@@ -14,7 +14,7 @@ app.config.from_object('config.ActiveConfig')
 
 # setup logging
 def _get_logger():
-    fmt = '[%(filename)s:%(lineno)d] %(asctime)s %(levelname)s %(message)s'
+    fmt = '%(filename)s:%(lineno)d %(asctime)s %(levelname)s %(message)s'
     loglevel = logging.DEBUG
     formatter = logging.Formatter(fmt=fmt)
 
@@ -42,8 +42,12 @@ app.register_blueprint(result, url_prefix="/api")
 app.register_blueprint(metadata, url_prefix="/api")
 
 
+from metadash.plugins import Plugins as plugins # noqa
+plugins.regist(app)
+
+
 # If not catch by any view, fallback to index on non-static
-@app.route('/')
+@app.route('/', defaults={"path": ""})
 @app.route('/<path>')
 def index(path):
     return app.send_static_file('index.html')

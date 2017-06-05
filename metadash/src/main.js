@@ -4,10 +4,13 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import VuePatternfly from 'vue-patternfly'
+import Plugins from './libs/metadash-plugins'
 
 Vue.config.productionTip = false
 
 VuePatternfly.install(Vue)
+
+console.log(Plugins)
 
 /* eslint-disable no-new */
 new Vue({
