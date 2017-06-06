@@ -61,6 +61,7 @@ class AttributeMeta(type(Model)):
         unique_attribute = dict_.get('__unique_attr__', False)
         collector = dict_.get('__collector__', list)
         composer = dict_.get('__composer__', None)
+        creator = dict_.get('__creator__', None)
 
         entities = [_find_entity(e) for e in entities_only] or _all_leaf_class(EntityModel)
 
@@ -96,7 +97,8 @@ class AttributeMeta(type(Model)):
                 cascade="all, delete-orphan",
             )
             if composer:
-                setattr(model, proxy_name, association_proxy(backref_name, composer))
+                setattr(model, proxy_name, association_proxy(backref_name, composer),
+                        **({'creator': creator} if creator else {}))
 
         dict_['entity'] = db.relationship(
             MetadashEntity,
@@ -136,6 +138,7 @@ class SharedAttributeMeta(type(Model)):
         entities_only = dict_.get('__entities__', [])
         collector = dict_.get('__collector__', list)
         composer = dict_.get('__composer__', None)
+        creator = dict_.get('__creator__', None)
 
         entities = [_find_entity(e) for e in entities_only] or _all_leaf_class(EntityModel)
 
@@ -183,7 +186,9 @@ class SharedAttributeMeta(type(Model)):
             )
 
             if composer:
-                setattr(model, proxy_name, association_proxy(backref_name, composer))
+                setattr(model, proxy_name,
+                        association_proxy(backref_name, composer,
+                                          **({'creator': creator} if creator else {})))
 
         dict_['entity'] = db.relationship(
             MetadashEntity,
@@ -215,6 +220,8 @@ class AttributeModel(_Jsonable, Model, metaclass=AttributeMeta):
     __collector__ = list
     # If specified will use associationproxy, and this is the key
     __composer__ = None  # TODO: Accept a dict
+    # Used when composer is specified
+    __creator__ = None
 
     entity_models = []
 
@@ -249,6 +256,8 @@ class SharedAttributeModel(_Jsonable, Model, metaclass=SharedAttributeMeta):
     __collector__ = list
     # If specified will use associationproxy, and this is the key
     __composer__ = None  # TODO: Accept a dict
+    # Used when composer is specified
+    __creator__ = None
 
     entity_models = []
 

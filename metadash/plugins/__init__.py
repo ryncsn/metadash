@@ -31,8 +31,10 @@ def initialize(app, plugin_dir):
         plugin = json.load(meta)
         if not plugin.get('name'):
             logger.error('Plugin {} don\'t have a valid name!'.format(plugin_dir))
+            raise RuntimeError()
         elif plugin.get('name') in ENABLED:
             logger.error('Plugin {} name conflict!'.format(plugin_dir))
+            raise RuntimeError()
 
         try:
             if os.path.isfile(os.path.join(models_path, "__init__.py")):
