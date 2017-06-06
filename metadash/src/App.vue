@@ -17,6 +17,12 @@
           <span class="list-group-item-value">Table</span>
         </a>
       </router-link>
+      <router-link v-for="plugin in plugins" :key="path" tag="li" class="list-group-item" active-class="active" :to="plugin.path" :exact="true">
+        <a>
+          <span :title="plugin.title" v-html="plugin.icon"></span>
+          <span class="list-group-item-value">{{plugin.title}}</span>
+        </a>
+      </router-link>
     </template>
     <router-view></router-view>
   </pf-layout>
@@ -24,7 +30,8 @@
 
 <script>
 export default {
-  name: 'app'
+  name: 'app',
+  props: ['plugins']
 }
 </script>
 

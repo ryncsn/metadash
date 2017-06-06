@@ -1,8 +1,8 @@
 import component from './app.vue'
 
 export default {
-  name: 'example-component',
-  icon: '<i class="fa fa-info" aria-hidden="true"></i>',
+  path: 'example', // Need to be uniq, and will be used for url routing
+  icon: '<i class="fa fa-info" aria-hidden="true"></i>', // Or import a webpack resource
   entry: component,
   title: 'Example Plugin'
 }

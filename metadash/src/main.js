@@ -10,12 +10,35 @@ Vue.config.productionTip = false
 
 VuePatternfly.install(Vue)
 
-console.log(Plugins)
+let PluginRoutes = []
+
+for (let pluginName in Plugins) {
+  let plugin = Plugins[pluginName]
+  PluginRoutes.push({
+    path: '/' + plugin.path,
+    name: plugin.title,
+    component: plugin.entry
+  })
+}
+
+router.addRoutes(PluginRoutes)
+
+/* Fallback to default after all plugin entries are added */
+/* Or else plugins routing won't work */
+router.addRoutes([
+  {
+    path: '*',
+    redirect: '/dashboard'
+  }
+])
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
-  template: '<App/>',
+  template: '<App :plugins="plugins"/>',
+  data: {
+    plugins: Plugins
+  },
   components: { App }
 })
