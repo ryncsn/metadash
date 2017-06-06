@@ -9,8 +9,17 @@ export default {
   name: 'example',
   data () {
     return {
-      msg: 'Plugins works!'
+      msg: 'Plugin Works, will try to read from API...'
     }
+  },
+  mounted () {
+    setTimeout(() => {
+      this.$http.get('/api/example/').then(res => {
+        res.json().then(json => {
+          this.msg = `Plugins works! ${json.name}`
+        })
+      })
+    }, 1000)
   }
 }
 </script>
