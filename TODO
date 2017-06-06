@@ -16,12 +16,6 @@
 * Better Proxy decleration
     Model can declera the proxy parameters, like creator, collector.
 
-* Plugin support
-    Split non-core model / view into plugins.
-
-* Frontend
-    An modern UI, which should also accepts plugins.
-
 * Internal event subscribe
     Allow plugin / models to listen on some event, consider just use sqlalchemy's event.
     Implement a internal event bus?
@@ -51,3 +45,9 @@
 
 * Initializing order
     Entity after attribute / required and provide
+
+* Frontend store / bus
+
+* Frontend path/event dependency
+    When a component calls $bus.emit(But not avaliable yet) or store.commit/action
+    Maybe instead of throw exception when calling, could perform a check at startup
