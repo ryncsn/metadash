@@ -48,3 +48,6 @@
 * Problem
     Flask is not suitable for so many async jobs, but extremely suitable for ORM.
     May encounter proformance issue, in the far future.
+
+* Initializing order
+    Entity after attribute / required and provide
