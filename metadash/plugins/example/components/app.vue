@@ -16,7 +16,7 @@ export default {
     setTimeout(() => {
       this.$http.get('/api/example/').then(res => {
         res.json().then(json => {
-          this.msg = `Plugins works! ${json.name}`
+          this.msg = `Plugins works! Response: "${json.name}", created a entity with UUID ${json.uuid}`
         })
       })
     }, 1000)
@@ -26,6 +26,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+div {
+  text-align: center;
+}
+
 h1, h2 {
   font-weight: normal;
 }
