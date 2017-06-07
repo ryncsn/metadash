@@ -4,9 +4,10 @@ Basic infrastructures
 Provides logging, DB acccess, config etc.
 """
 import logging
+import config
 
 # Load Flask and config
-from flask import Flask
+from flask import Flask, jsonify
 app = Flask(__name__, static_url_path="", static_folder="dist/")
 
 app.config.from_object('config.ActiveConfig')
@@ -44,6 +45,11 @@ app.register_blueprint(metadata, url_prefix="/api")
 
 from metadash.plugins import Plugins as plugins # noqa
 plugins.regist(app)
+
+
+@app.route('/config')
+def send_config(path):
+    return jsonify(config.PUBLIC)
 
 
 # If not catch by any view, fallback to index on non-static

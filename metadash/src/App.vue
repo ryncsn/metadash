@@ -37,10 +37,8 @@ export default {
 
 <style>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
   margin-top: 60px;
 }
@@ -61,7 +59,7 @@ export default {
 /*
 Fix for pattern fly side bar animation
  */
-.nav-pf-vertical, .nav-pf-vertical ul, li, a {
+.nav-pf-vertical, .nav-pf-vertical a {
   -webkit-transition:width 300ms ease-in-out, height 300ms ease-in-out;
   -moz-transition:width 300ms ease-in-out, height 300ms ease-in-out;
   -o-transition:width 300ms ease-in-out, height 300ms ease-in-out;
