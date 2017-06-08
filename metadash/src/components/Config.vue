@@ -48,7 +48,14 @@ export default {
   watch: {
     configs: {
       handler (newConfig) {
-        console.log(_.differenceBy(newConfig, this.oldConfig, 'value'))
+        let changedConfigs = _.differenceBy(newConfig, this.oldConfigs, 'value')
+        for (let config of changedConfigs) {
+          if (!config.nullable && !config.value) {
+            config.error = true
+          } else {
+            config.error = false
+          }
+        }
         this.oldConfig = JSON.parse(JSON.stringify(newConfig))
       },
       deep: true
