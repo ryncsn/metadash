@@ -17,4 +17,4 @@ def load_meta(params, plugin_name=None):
         if not isinstance(item, dict):
             raise RuntimeError("Parsing error: Unrecognized config parameters, "
                                "plugin {}, config {}".format(plugin_name, item))
-        Config.create(key, plugin=plugin_name, **item)
+        Config.create(key, plugin=plugin_name or "metadash", **item)

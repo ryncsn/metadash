@@ -40,9 +40,11 @@ db = SQLAlchemy(app)
 import json # noqa
 import os # noqa
 from .config import Config, load_meta # noqa
+from .apis.config import Blueprint as ConfigBlueprint # noqa
+defaults = os.path.abspath(os.path.join(os.path.dirname(__file__), "./config/defaults.json"))
+app.register_blueprint(ConfigBlueprint, url_prefix="/api")
 with app.app_context():
     Config.init()
-defaults = os.path.abspath(os.path.join(os.path.dirname(__file__), "./config/defaults.json"))
 with open(defaults) as default_configs:
     load_meta(json.load(default_configs))
 
@@ -69,6 +71,11 @@ def send_config(path):
 def index(path):
     return app.send_static_file('index.html')
 # Then fallback to static files
+
+
+# Load saved configs
+with app.app_context():
+    Config.load()
 
 
 # Load Manager and Migration

@@ -23,6 +23,12 @@
           <span class="list-group-item-value">{{plugin.title}}</span>
         </a>
       </router-link>
+      <router-link tag="li" class="list-group-item" active-class="active" to="/config" :exact="true">
+        <a>
+          <span class="fa fa-gear" title="Config"></span>
+          <span class="list-group-item-value">Config</span>
+        </a>
+      </router-link>
     </template>
     <router-view></router-view>
   </pf-layout>

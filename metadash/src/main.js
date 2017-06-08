@@ -25,6 +25,7 @@ for (let pluginName in Plugins) {
 
 router.addRoutes(PluginRoutes)
 
+/* Add Config page */
 /* Fallback to default after all plugin entries are added */
 /* Or else plugins routing won't work */
 router.addRoutes([

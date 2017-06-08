@@ -20,7 +20,7 @@ class ConfigItem(object):
 
         # different plugin can't have same key for a plugin
         # the plugin attribute here is just a info for config page
-        self.plugin = kwargs.pop("plugin", None)
+        self.plugin = kwargs.pop("plugin", "metadash")
 
         if kwargs:
             raise ConfigError("Unrecognized params: {}".format(",".join(kwargs.keys())))
@@ -61,7 +61,7 @@ class Config(object):
         for key, item in Config.__all__.items():
             if item.secret:
                 continue
-            db_instance = get_or_create(session, ConfigItemModel, key=key)
+            db_instance, _ = get_or_create(session, ConfigItemModel, key=key)
             db_instance.value = item.value
         session.commit()
 
@@ -82,10 +82,12 @@ class Config(object):
         """
         Get configs by name
         """
+        # TODO: Return to admin
         ret = Config.__all__.get(key)
-        if not ret:
+        if not ret or ret.secret:
             raise ConfigError("Trying to access non-exist config item {}"
                               .format(key))
+        return ret
 
     @staticmethod
     def get_plugins():
@@ -93,6 +95,14 @@ class Config(object):
         Get configs grouped by Plugins
         """
         return itertools.groupby(Config.__all__, lambda x: x.plugin)
+
+    @staticmethod
+    def get_all():
+        """
+        Get configs grouped by Plugins
+        """
+        # TODO: Return to admin
+        return [config for config in Config.__all__.values() if config.secret is False]
 
     @staticmethod
     def get(key):
@@ -115,7 +125,7 @@ class Config(object):
         if not ret:
             raise ConfigError("Trying to access non-exist config item {}"
                               .format(key))
-        ret.value = Config.__all__.get(key)
+        ret.value = value
 
     @staticmethod
     def create(key, **params):
