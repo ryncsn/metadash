@@ -38,9 +38,9 @@ class AttributeMeta(type(Model)):
     Metaclass for defining new attribute class
     """
     # pylint: disable=no-self-argument
-    def __init__(cls, classname, bases, dict_):
+    def __init__(cls, classname, bases, dict_, **kwargs):
         if classname == "AttributeModel":
-            type.__new__(type, classname, bases, dict_)
+            type.__init__(type, classname, bases, dict_, **kwargs)
             return
 
         super(AttributeMeta, cls).__init__(classname, bases, dict_)
@@ -51,7 +51,7 @@ class AttributeMeta(type(Model)):
     def __new__(mcs, classname, bases, dict_, **kwargs):
         # pylint: disable=no-member
         if classname == "AttributeModel":
-            return type.__new__(mcs, classname, bases, dict_)
+            return type.__new__(mcs, classname, bases, dict_, **kwargs)
 
         tablename = _get_table_name_dict(dict_)
         aliasname = _get_alias_dict(dict_)
@@ -118,13 +118,13 @@ class SharedAttributeMeta(type(Model)):
     Metaclass for defining new attribute class
     """
     # pylint: disable=no-self-argument
-    def __init__(cls, classname, bases, dict_):
+    def __init__(cls, classname, bases, dict_, **kwargs):
         if classname != "SharedAttributeModel":
-            super(SharedAttributeMeta, cls).__init__(classname, bases, dict_)
+            super(SharedAttributeMeta, cls).__init__(classname, bases, dict_, **kwargs)
             for model in _all_leaf_class(EntityModel):
                 model.attribute_models.append(cls)
         else:
-            type.__new__(type, classname, bases, dict_)
+            type.__init__(type, classname, bases, dict_, **kwargs, **kwargs)
 
     def __new__(mcs, classname, bases, dict_, **kwargs):
         # XXX: This looks more like another kind of entity...
