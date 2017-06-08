@@ -1,0 +1,20 @@
+{
+    "name": "job-trigger",
+    "author": "Kairui Song",
+    "description": "A job trigger for libvirt-ci",
+    "configs": {
+        "TRIGGER_JOBS_URL": {
+            "description": "Where job triggering request will be forwarded",
+            "default": null,
+            "secret": false,
+            "nullable": false
+        },
+        "GET_JOBS_URL": {
+            "description": "Where job getting request will be forwarded",
+            "default": null,
+            "secret": false,
+            "nullable": false
+        }
+    },
+    "version": "0.0.0"
+}
