@@ -1,0 +1,8 @@
+{
+    "RESULTSDB_API": {
+        "description": "URL for ResultsDB API",
+        "default": null,
+        "secret": false,
+        "nullable": false
+    }
+}

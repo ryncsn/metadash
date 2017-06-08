@@ -3,11 +3,11 @@ Plugin loader
 """
 from flask import Blueprint
 from metadash import logger
+from metadash.config import Config, load_meta
 
 import importlib
 import json
 import os
-
 
 ENABLED = []  # TODO: now it's all enabled
 plugin_base = os.path.dirname(os.path.abspath(__file__))
@@ -21,22 +21,29 @@ def get_plugin_dirs():
     return plugin_dirs
 
 
+def process_configs(plugin_meta):
+    plugin_name = plugin_meta['name']
+    config_meta = plugin_meta.get("configs")
+    load_meta(config_meta, plugin_name)
+
+
 def initialize(app, plugin_dir):
     # components = os.path.join(plugin_dir, 'components')
     # Flask don't care about it's components yet
     models_path = os.path.join(plugin_base, plugin_dir, 'models')
     apis_path = os.path.join(plugin_base, plugin_dir, 'apis')
 
-    with open(os.path.join(plugin_base, plugin_dir, "plugin.json")) as meta:
-        plugin = json.load(meta)
-        if not plugin.get('name'):
+    with open(os.path.join(plugin_base, plugin_dir, "plugin.json")) as meta_file:
+        plugin_meta = json.load(meta_file)
+        if not plugin_meta.get('name'):
             logger.error('Plugin {} don\'t have a valid name!'.format(plugin_dir))
             raise RuntimeError()
-        elif plugin.get('name') in ENABLED:
+        elif plugin_meta.get('name') in ENABLED:
             logger.error('Plugin {} name conflict!'.format(plugin_dir))
             raise RuntimeError()
 
         try:
+            process_configs(plugin_meta)
             if os.path.isfile(os.path.join(models_path, "__init__.py")):
                 models = importlib.import_module("metadash.plugins.{}.models".format(plugin_dir))
             if os.path.isfile(os.path.join(apis_path, "__init__.py")):
@@ -44,10 +51,11 @@ def initialize(app, plugin_dir):
                 blueprint = apis.Blueprint
                 app.register_blueprint(blueprint, url_prefix="/api")
         except Exception:
-            # TODO: better log
+            # Just crash on plugin loading error, it's trouble some to clean up a failed plugin
+            logger.error("Got exception during initializing plugin: {}".format(plugin_meta["name"]))
             raise
 
-        ENABLED.append(plugin['name'])
+        ENABLED.append(plugin_meta['name'])
 
 
 class Plugins(object):

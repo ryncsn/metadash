@@ -11,7 +11,6 @@ XXX: Storing relationship data remotely just because it works, shoule create loc
 TODO: Store readonly data locally, as they should never need to be synced
 """
 from resultsdb_api import ResultsDBapi, ResultsDBapiException
-from config import ActiveConfig
 from typing import List
 
 from . import get_or_create
@@ -21,12 +20,13 @@ from sqlalchemy.orm.session import Session
 from .base import BareEntityModel, EntityModel
 from .service import provide, defered, cached_property
 from . import db
+from ..config import Config
 
 # Restful API is not ACID, use a limit for bulk operation
 FOREIGN_OBJECT_LIMIT = 65535
 
 
-API = ResultsDBapi(ActiveConfig.RESULTSDB_API)
+API = property(lambda: ResultsDBapi(Config.get("RESULTSDB_API")))
 
 
 def handle_404(func):

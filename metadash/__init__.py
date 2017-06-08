@@ -15,8 +15,8 @@ app.config.from_object('config.ActiveConfig')
 
 # setup logging
 def _get_logger():
-    fmt = '%(filename)s:%(lineno)d %(asctime)s %(levelname)s %(message)s'
-    loglevel = logging.DEBUG
+    fmt = '%(pathname)s:%(lineno)d %(asctime)s %(levelname)s %(message)s'
+    loglevel = logging.DEBUG  # TODO: in config
     formatter = logging.Formatter(fmt=fmt)
 
     root_logger = logging.getLogger('metadb')
@@ -34,6 +34,17 @@ logger = _get_logger()
 # Load ORM
 from flask_sqlalchemy import SQLAlchemy # noqa
 db = SQLAlchemy(app)
+
+
+# Load default configs
+import json # noqa
+import os # noqa
+from .config import Config, load_meta # noqa
+with app.app_context():
+    Config.init()
+defaults = os.path.abspath(os.path.join(os.path.dirname(__file__), "./config/defaults.json"))
+with open(defaults) as default_configs:
+    load_meta(json.load(default_configs))
 
 
 # Load Views

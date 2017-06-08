@@ -51,3 +51,9 @@
 * Frontend path/event dependency
     When a component calls $bus.emit(But not avaliable yet) or store.commit/action
     Maybe instead of throw exception when calling, could perform a check at startup
+
+* Plugins
+    The plugin model is very simple, just plain import, has some drawbacks like lack of
+    control of plugins, plugins shares everything so it's diffcult to track.
+    But make it easy to move any api/components in/out, UI is components so not hard to
+    move too.
