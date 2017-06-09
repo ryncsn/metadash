@@ -30,7 +30,9 @@
         </a>
       </router-link>
     </template>
-    <router-view></router-view>
+    <keep-alive>
+      <router-view></router-view>
+    </keep-alive>
   </pf-layout>
 </template>
 
