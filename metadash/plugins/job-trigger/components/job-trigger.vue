@@ -6,7 +6,31 @@
           <br />
           <label for="job-trigger-form">Params for triggering a job</label>
           <br />
-          <div class="input-group" v-bind:class="{ 'has-error': !archValid }" >
+          <div class="input-group" v-bind:class="{ 'has-error': !ciMessageValid }" >
+            <span class="input-group-addon" id="basic-addon1">CI Message</span>
+            <input type="text" class="form-control" v-model="message" placeholder="CI Message: {'CI_TYPE': 'balbal'}">
+          </div>
+          <br />
+
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1" v-bind:class="{ 'has-error': !ciMessageValid }" >Package Name</span>
+            <input type="text" class="form-control" v-model="pkg_name" placeholder="Package Name">
+          </div>
+          <br />
+
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">Product</span>
+            <input type="text" class="form-control" v-model="product" placeholder="Product: eg: RHEL">
+          </div>
+          <br />
+
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">Version</span>
+            <input type="text" class="form-control" v-model="version" placeholder="Product version">
+          </div>
+          <br />
+
+          <div class="input-group">
             <span class="input-group-addon" id="basic-addon1">Arch</span>
             <div class="tagsinput form-control">
               <span v-for="arch in arch" class="tag label label-info" v-on:click="removeArch(arch)">{{arch}} x</span>
@@ -22,15 +46,9 @@
           </div>
           <br />
 
-          <div class="input-group" v-bind:class="{ 'has-error': !ciMessageValid }" >
-            <span class="input-group-addon" id="basic-addon1">CI Message</span>
-            <input type="text" class="form-control" v-model="message" placeholder="CI Message: {'CI_TYPE': 'balbal'}">
-          </div>
-          <br />
-
           <div class="input-group">
-            <span class="input-group-addon" id="basic-addon1" v-bind:class="{ 'has-error': !ciMessageValid }" >Package Name</span>
-            <input type="text" class="form-control" v-model="pkg_name" placeholder="Package Name">
+            <span class="input-group-addon" id="basic-addon1">Component</span>
+            <input type="text" class="form-control" v-model="component" placeholder="Component">
           </div>
           <br />
 
@@ -41,23 +59,20 @@
           <br />
 
           <div class="input-group">
-            <span class="input-group-addon" id="basic-addon1">Product</span>
-            <input type="text" class="form-control" v-model="product" placeholder="Product: eg: RHEL">
-          </div>
-          <br />
-
-          <div class="input-group">
             <span class="input-group-addon" id="basic-addon1">Job name</span>
             <input type="text" class="form-control" v-model="job_name" placeholder="Job name">
           </div>
           <br />
         </div>
 
-        <div class="well">
-          Matched Jobs: {{ matchedJobs }}
+        <div v-for="job in jobs">
+          <job-card
+            @deleteJob="excludeSingleJob(job)"
+            :arch="job.arch" :product="job.product" :version="job.version" :component="job.component" :job-name="job.job_name" :jenkins-url="jenkinsUrl">
+          </job-card>
         </div>
 
-        <button type="submit" class="btn btn-default btn-lg pull-right" v-on:click.stop.prevent="submit">Submit</button>
+        <button type="submit" class="btn btn-default btn-lg pull-right" v-on:click.stop.prevent="submit"> Trigger </button>
       </form>
     </div>
   </div>
@@ -66,51 +81,63 @@
 <script>
 import _ from 'lodash'
 import Dropdown from 'vue-strap/src/Dropdown'
+import JobCard from './job-card'
 export default {
-  components: { Dropdown },
+  components: { Dropdown, JobCard },
   name: 'job-trigger',
   props: [ 'triggerGateUrl', 'getJobNamesUrl' ],
   data () {
     return {
-      archCandidate: ['x86_64', 'ppc64le', 'aarch64'],
-      tagCandidate: ['7.3', '7.4', 'arm'],
+      jenkinsUrl: '',
+      archCandidate: ['x86_64', 'ppc64le', 'arm'],
+      ready: false,
 
       pkg_name: '',
       arch: ['x86_64'],
-      brew_tag: '',
       message: '{}',
+      brew_tag: '',
       product: '',
+      version: '',
+      component: '',
       job_name: '',
 
-      matchedJobs: []
+      jobs: []
     }
   },
   methods: {
     dataForSubmit () {
       // Send only follow keys and filter empty value
       return _.pickBy(
-        _.pick(this, ['arch', 'brew_tag', 'message', 'product', 'job_name', 'pkg_name']),
+        _.pick(this, ['arch', 'brew_tag', 'message', 'product', 'version', 'component', 'job_name', 'pkg_name']),
         v => v !== '' && v.length !== 0
       )
     },
-    submit () {
-      this.$http.post('api/trigger-jobs', this.dataForSubmit())
-        .then(() => {
+
+    submit: _.debounce(function () {
+      if (!this.ciMessageValid || !this.archValid) {
+        return
+      }
+      this.$http.post('api/trigger-jobs',
+        {
+          job_data_list: this.jobs,
+          ci_message: this.message
+        }).then(() => {
           alert('Submit successful')
         }, (err) => {
           alert(`Failed with ${err.body}`)
         })
-    },
+    }, 300),
     getMatchedJobs: _.debounce(function () {
       this.$http.post('api/get-jobs', this.dataForSubmit())
         .then((res) => {
           res.json().then((data) => {
-            this.matchedJobs = data
+            this.jobs = data
           })
         }, (err) => {
           alert(`Failed with ${err.body}`)
         })
     }, 500),
+
     addArch (arch) {
       if (this.arch.indexOf(arch) === -1) {
         this.arch.push(arch)
@@ -119,6 +146,10 @@ export default {
     removeArch (arch) {
       this.arch.splice(this.arch.indexOf(arch), 1)
     },
+    excludeSingleJob (job) {
+      this.jobs.splice(this.jobs.indexOf(job), 1)
+    },
+
     isJsonValid (str) {
       try {
         JSON.parse(str)
@@ -132,22 +163,27 @@ export default {
     archValid () {
       return (this.arch.length !== 0)
     },
-    packageValid () {
-      return true
-    },
-    productValid () {
-      return true
-    },
-    jobNameValid () {
-      return true
-    },
     ciMessageValid () {
       return this.isJsonValid(this.message)
     }
   },
-  created () {
+  mounted () {
+    this.$http.get('/api/configs/JENKINS_INSTANCE_URL').then((res) => {
+      res.json().then(data => {
+        this.jenkinsUrl = data.value
+      })
+    }).then(() => {
+      this.ready = true
+      this.getMatchedJobs()
+    })
   },
   watch: {
+    version () {
+      this.getMatchedJobs()
+    },
+    component () {
+      this.getMatchedJobs()
+    },
     job_name () {
       this.getMatchedJobs()
     },
