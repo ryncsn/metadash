@@ -1,5 +1,14 @@
 {
-  "name": "example-unique-name",
-  "author": "Kairui Song",
-  "version": "0.0.0"
+    "name": "example-unique-name",
+    "author": "Kairui Song",
+    "description": "Example Plugin",
+    "configs": {
+        "EXAMPLE_CONFIG": {
+            "description": "Example Config",
+            "default": null,
+            "secret": false,
+            "nullable": false
+        }
+    },
+    "version": "0.0.0"
 }
