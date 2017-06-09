@@ -12,6 +12,7 @@
               <div class="col-sm-10">
                 <input type="text" id="textInput-markup" class="form-control" v-model="config.value">
                 <span class="help-block">{{ config.description }}</span>
+                <span v-if="config.error" class="help-block">{{ config.error }}</span>
               </div>
             </div>
           </form>
@@ -31,19 +32,42 @@ export default {
   data () {
     return {
       'loaded': false,
+      'savedConfigs': [],
       'oldConfigs': [],
       'configs': []
     }
   },
   mounted () {
-    this.$http.get('/api/configs').then((res) => {
-      res.json().then((data) => {
-        this.configs = data.data
-        this.loaded = true
-      })
-    })
+    this.load()
   },
-  methods () {
+  methods: {
+    save: _.debounce(function () {
+      let changedConfigs = _.differenceBy(this.configs, this.savedConfigs, 'value')
+      changedConfigs.map((config) => {
+        if (config.error) {
+          return
+        }
+        this.$http.put('/api/configs/' + config.key, {
+          value: config.value
+        }).then((res) => {
+          this.debouncedLoad()
+        }, (errRes) => {
+          config.error = 'Failed to save'
+        })
+      })
+    }, 500),
+    load () {
+      this.$http.get('/api/configs').then((res) => {
+        res.json().then((data) => {
+          this.savedConfigs = JSON.parse(JSON.stringify(data.data))
+          this.configs = data.data
+          this.loaded = true
+        })
+      })
+    },
+    debouncedLoad: _.debounce(function () {
+      this.load()
+    }, 500)
   },
   watch: {
     configs: {
@@ -51,12 +75,13 @@ export default {
         let changedConfigs = _.differenceBy(newConfig, this.oldConfigs, 'value')
         for (let config of changedConfigs) {
           if (!config.nullable && !config.value) {
-            config.error = true
+            config.error = "Can't be empty"
           } else {
             config.error = false
           }
         }
-        this.oldConfig = JSON.parse(JSON.stringify(newConfig))
+        this.oldConfigs = JSON.parse(JSON.stringify(newConfig))
+        this.save()
       },
       deep: true
     }
