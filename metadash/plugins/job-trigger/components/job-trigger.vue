@@ -64,14 +64,12 @@
           </div>
           <br />
         </div>
-
-        <div v-for="job in jobs">
-          <job-card
+        <transition-group name="job-list" tag="p">
+          <job-card v-for="job in jobs" :key="job" class="job-list-item"
             @deleteJob="excludeSingleJob(job)"
             :arch="job.arch" :product="job.product" :version="job.version" :component="job.component" :job-name="job.job_name" :jenkins-url="jenkinsUrl">
           </job-card>
-        </div>
-
+        </transition-group>
         <button type="submit" class="btn btn-default btn-lg pull-right" v-on:click.stop.prevent="submit"> Trigger </button>
       </form>
     </div>
@@ -228,5 +226,17 @@ export default {
   margin-right: 2px;
   color: white;
   display: inline-block;
+}
+
+.job-list-item {
+  transition: all 0.2s;
+}
+
+.job-list-enter, .job-list-leave-to {
+  opacity: 0;
+}
+
+.job-list-leave-active {
+  display: none;
 }
 </style>
