@@ -1,5 +1,15 @@
 <template>
   <pf-layout id="app" :icons="true">
+    <bs-modal title="Fade Modal" effect="fade" width="800" :value="showPersonalModal" @closed="showPersonalModal = false">
+      <login slot="modal-body" class="modal-body" @success="showPersonalModal = false">
+      </login>
+      <div slot="modal-footer"></div>
+    </bs-modal>
+    <li slot="utility-menu">
+      <a class="nav-item-iconic" @click="loginModal">
+        <span class="fa fa-user" title="User" data-toggle="modal" data-target=".bs-example-modal-sm"></span>
+      </a>
+    </li>
     <router-link slot="brand" to="/" :exact="true" class="navbar-brand">
       <span class="navbar-brand-name">Metadash</span>
     </router-link>
@@ -37,9 +47,31 @@
 </template>
 
 <script>
+import Vue from 'vue'
+import Login from '@/components/Login.vue'
 export default {
   name: 'app',
-  props: ['plugins']
+  props: ['plugins'],
+  components: { Login },
+  data () {
+    return {
+      showPersonalModal: false
+    }
+  },
+  methods: {
+    loginModal () {
+      this.showPersonalModal = !this.showPersonalModal
+    }
+  },
+  mounted () {
+    Vue.http.interceptors.push(function (request, next) {
+      next(function (response) {
+        if (response.status === 401) {
+          this.loginModal()
+        }
+      })
+    })
+  }
 }
 </script>
 
