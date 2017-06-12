@@ -57,3 +57,5 @@
     control of plugins, plugins shares everything so it's diffcult to track.
     But make it easy to move any api/components in/out, UI is components so not hard to
     move too.
+
+* Auth and CSRF
