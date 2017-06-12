@@ -14,21 +14,24 @@ app.config.from_object('config.ActiveConfig')
 
 
 # setup logging
-def _get_logger():
-    fmt = '%(pathname)s:%(lineno)d %(asctime)s %(levelname)s %(message)s'
+def setup_logger():
+    fmt = '%(asctime)s %(name)s %(levelname)s: %(message)s'
     loglevel = logging.DEBUG  # TODO: in config
     formatter = logging.Formatter(fmt=fmt)
 
-    root_logger = logging.getLogger('metadb')
-    root_logger.setLevel(loglevel)
+    logging.basicConfig(format=fmt, level=loglevel)
+
     console_handler = logging.StreamHandler()
     console_handler.setLevel(loglevel)
     console_handler.setFormatter(formatter)
+
+    root_logger = logging.getLogger('metadb')
+    root_logger.setLevel(loglevel)
     root_logger.addHandler(console_handler)
     return root_logger
 
 
-logger = _get_logger()
+logger = setup_logger()
 
 
 # Load ORM
@@ -47,6 +50,11 @@ with app.app_context():
     Config.init()
 with open(defaults) as default_configs:
     load_meta(json.load(default_configs))
+
+
+# Load auth
+from .auth import Blueprint as login # noqa
+app.register_blueprint(login, url_prefix="/api")
 
 
 # Load Views

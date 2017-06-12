@@ -16,6 +16,6 @@ def get_jobs():
 
 @app.route("/trigger-jobs", methods=["POST"])
 def trigger_jobs():
-    res = requests.post(Config.get("TRIGGER_JOBS_URL"), request.json)
+    res = requests.post(Config.get("TRIGGER_JOBS_URL"), json=request.json)
     res.raise_for_status()
     return res.text

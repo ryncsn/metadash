@@ -14,7 +14,7 @@ basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../metadash")
 class Config(object):
     DEBUG = True
     TESTING = False
-    SECRET = ""  # Replace with some random string please
+    SECRET_KEY = ""  # Replace with some random string please
     SECURITY = False
 
     SQLALCHEMY_DATABASE_URI = 'sqlite:///{basedir}/test.db'.format(basedir=basedir)
@@ -39,5 +39,5 @@ except ImportError:
     ActiveConfig = DevelopmentConfig
 
 
-if not ActiveConfig.SECRET:
-    raise RuntimeError("Please use a random string for SECRET")
+if not ActiveConfig.SECRET_KEY:
+    raise RuntimeError("Please use a random string for SECRET_KEY")
