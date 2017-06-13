@@ -52,7 +52,7 @@ const store = new Vuex.Store({
         })
     },
     logout ({state}) {
-      return Vue.http.post('/api/logout')
+      return Vue.http.get('/api/logout')
         .then(res => res.json())
         .then(data => {
           state.username = data.username
@@ -60,7 +60,7 @@ const store = new Vuex.Store({
         })
     },
     fetchMe ({state}) {
-      return Vue.http.post('/api/me')
+      return Vue.http.get('/api/me')
         .then(res => res.json())
         .then(data => {
           state.username = data.username
@@ -79,5 +79,8 @@ new Vue({
   data: {
     plugins: Plugins
   },
-  components: { App }
+  components: { App },
+  created () {
+    this.$store.dispatch('fetchMe')
+  }
 })

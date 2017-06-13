@@ -56,7 +56,7 @@ def login():
         return jsonify(ident)
 
 
-@app.route('/logout', methods=['POST'])
+@app.route('/logout', methods=['GET'])
 def logout():
     del(session['username'])
     del(session['role'])

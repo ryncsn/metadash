@@ -1,7 +1,9 @@
 <template>
   <pf-layout id="app" :icons="true">
-    <bs-modal title="Fade Modal" effect="fade" width="800" :value="showPersonalModal" @closed="showPersonalModal = false">
-      <login slot="modal-body" class="modal-body" @success="showPersonalModal = false">
+    <bs-modal title="User Info" effect="fade" width="800" :value="showPersonalModal" @closed="showPersonalModal = false">
+      <user v-show="loggedIn" slot="modal-body" class="modal-body" @success="showPersonalModal = false">
+      </user>
+      <login v-show="!loggedIn" slot="modal-body" class="modal-body" @success="showPersonalModal = false">
       </login>
       <div slot="modal-footer"></div>
     </bs-modal>
@@ -49,10 +51,11 @@
 <script>
 import Vue from 'vue'
 import Login from '@/components/Login.vue'
+import User from '@/components/User.vue'
 export default {
   name: 'app',
   props: ['plugins'],
-  components: { Login },
+  components: { Login, User },
   data () {
     return {
       showPersonalModal: false
@@ -71,6 +74,11 @@ export default {
         }
       })
     })
+  },
+  computed: {
+    loggedIn () {
+      return !!this.$store.state.username
+    }
   }
 }
 </script>
