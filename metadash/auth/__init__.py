@@ -21,7 +21,11 @@ def get_current_user_role():
     if not config.SECURITY:
         return 'admin'
     else:
-        return session.get('role') or 'anonymous'
+        username = session.get('username')
+        if username:
+            return User.query.filter(User.username == username).first().role
+        else:
+            return 'anonymous'
 
 
 def requires_roles(*roles):
@@ -53,7 +57,6 @@ def login():
         return jsonify({'message': 'Invalid Credential'}), 400
     else:
         session['username'] = user.username
-        session['role'] = user.role
         ident = get_ident()
         ident.update({'message': 'Login Success'})
         return jsonify(ident)
@@ -62,7 +65,6 @@ def login():
 @app.route('/logout', methods=['GET'])
 def logout():
     del(session['username'])
-    del(session['role'])
     ident = get_ident()
     ident.update({'message': 'Logout Success'})
     return jsonify(ident)
