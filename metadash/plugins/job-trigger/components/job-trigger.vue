@@ -92,7 +92,7 @@ export default {
 
       pkg_name: '',
       arch: ['x86_64'],
-      message: '{}',
+      message: `{"triggered-by": "${this.$store.state.username || 'anonymous'}"}`,
       brew_tag: '',
       product: '',
       version: '',
