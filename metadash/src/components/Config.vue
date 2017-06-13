@@ -1,5 +1,14 @@
 <template>
   <div class="container">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h1 class="panel-title"> User & permissions </h1>
+      </div>
+      <div class="panel-body">
+        <users>
+        </users>
+      </div>
+    </div>
     <div v-if="loaded">
       <div v-for="value in plugins" class="panel panel-default">
         <div class="panel-heading">
@@ -27,7 +36,9 @@
 
 <script>
 import _ from 'lodash'
+import Users from '@/components/Users'
 export default {
+  components: { Users },
   name: 'config',
   data () {
     return {

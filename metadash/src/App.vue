@@ -13,7 +13,7 @@
       </div>
     </bs-modal>
     <li slot="utility-menu">
-      <a class="nav-item-iconic" @click="loginModal">
+      <a class="nav-item-iconic" @click="loginModal()">
         <span class="fa fa-user" title="User" data-toggle="modal" data-target=".bs-example-modal-sm"></span>
       </a>
     </li>

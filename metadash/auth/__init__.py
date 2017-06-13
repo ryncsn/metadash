@@ -3,6 +3,8 @@ from functools import wraps
 from .ldap import try_login
 from ..exceptions import AuthError
 from config import ActiveConfig as config
+from .user import User
+from .. import db
 
 
 app = Blueprint = Blueprint('authentication', __name__)
@@ -16,7 +18,7 @@ def get_ident():
 
 
 def get_current_user_role():
-    if config.SECURITY is None:
+    if not config.SECURITY:
         return 'admin'
     else:
         return session.get('role') or 'anonymous'
@@ -69,3 +71,26 @@ def logout():
 @app.route('/me', methods=['GET'])
 def whoami():
     return jsonify(get_ident())
+
+
+@app.route('/users', methods=['GET'])
+def users():
+    return jsonify([{
+        "username": u.username,
+        "role": u.role
+    } for u in User.query.all()])
+
+
+@app.route('/users/<username>', methods=['PUT'])
+@requires_roles('admin')
+def user(username):
+    role = request.json['role']
+    u = User.query.filter(User.username == username).first()
+    u.role = role
+    db.session.commit()
+    return jsonify({
+        "username": u.username,
+        "role": u.role
+    })
+
+

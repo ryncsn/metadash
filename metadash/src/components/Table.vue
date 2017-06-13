@@ -1,6 +1,6 @@
 <template>
   <div>
-    <pf-table :columns='columns' :rows='rows'>
+    <pf-table :columns="columns" :rows="rows">
       <template scope="props">
         <td v-for="name in props.row"> {{name}} </td>
       </template>
