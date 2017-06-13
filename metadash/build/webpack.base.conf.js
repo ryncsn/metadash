@@ -5,6 +5,10 @@ const vueLoaderConfig = require('./vue-loader.conf')
 
 const pluginLoader = path.resolve(path.join(__dirname, './plugin-loader.js'))
 
+function resolveModule (dir) {
+  return path.join(__dirname, '../../node_modules', dir)
+}
+
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
 }
@@ -53,7 +57,7 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        include: [resolve('src'), resolve('test')]
+        include: [resolve('src'), resolveModule('vue-strap'), resolve('test')]
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
