@@ -5,7 +5,12 @@
       </user>
       <login v-show="!loggedIn" slot="modal-body" class="modal-body" @success="showPersonalModal = false">
       </login>
-      <div slot="modal-footer"></div>
+      <div slot="modal-footer">
+        <div v-if="modalInfo" class="alert alert-danger">
+          <span class="pficon pficon-error-circle-o"></span>
+          <strong> {{ modalInfo }} </strong>
+        </div>
+      </div>
     </bs-modal>
     <li slot="utility-menu">
       <a class="nav-item-iconic" @click="loginModal">
@@ -58,19 +63,22 @@ export default {
   components: { Login, User },
   data () {
     return {
-      showPersonalModal: false
+      showPersonalModal: false,
+      modalInfo: ''
     }
   },
   methods: {
-    loginModal () {
+    loginModal (info) {
       this.showPersonalModal = !this.showPersonalModal
+      this.modalInfo = info
     }
   },
   mounted () {
-    Vue.http.interceptors.push(function (request, next) {
-      next(function (response) {
+    let vm = this
+    Vue.http.interceptors.push((request, next) => {
+      next((response) => {
         if (response.status === 401) {
-          this.loginModal()
+          vm.loginModal("You don'e have required permission")
         }
       })
     })

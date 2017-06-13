@@ -115,25 +115,15 @@ export default {
       if (!this.ciMessageValid || !this.archValid) {
         return
       }
-      this.$http.post('api/trigger-jobs',
-        {
-          job_data_list: this.jobs,
-          ci_message: this.message
-        }).then(() => {
-          alert('Submit successful')
-        }, (err) => {
-          alert(`Failed with ${err.body}`)
-        })
+      this.$http.post('api/trigger-jobs', {
+        job_data_list: this.jobs,
+        ci_message: this.message
+      }).then(() => { alert('Submit successful') })
     }, 300),
     getMatchedJobs: _.debounce(function () {
       this.$http.post('api/get-jobs', this.dataForSubmit())
-        .then((res) => {
-          res.json().then((data) => {
-            this.jobs = data
-          })
-        }, (err) => {
-          alert(`Failed with ${err.body}`)
-        })
+        .then(res => res.json())
+        .then(data => { this.jobs = data })
     }, 500),
 
     addArch (arch) {

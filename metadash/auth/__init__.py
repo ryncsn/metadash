@@ -1,8 +1,8 @@
-import config
-from flask import jsonify, session, request, Blueprint
+from flask import jsonify, session, request, Blueprint, abort, make_response
 from functools import wraps
 from .ldap import try_login
 from ..exceptions import AuthError
+from config import ActiveConfig as config
 
 
 app = Blueprint = Blueprint('authentication', __name__)
@@ -19,19 +19,20 @@ def get_current_user_role():
     if config.SECURITY is None:
         return 'admin'
     else:
-        raise NotImplementedError()
+        return session.get('role') or 'anonymous'
 
 
 def requires_roles(*roles):
     # Allow admin to do anything
     if 'admin' not in roles:
-        roles = ['admin'].extend(roles)
+        roles = ['admin'] + list(roles)
 
     def wrapper(f):
         @wraps(f)
         def wrapped(*args, **kwargs):
             if get_current_user_role() not in roles:
-                return jsonify({'message': 'Not authorized'}), 401
+                abort(make_response(
+                    jsonify({'message': 'Not authorized'}), 401))
             return f(*args, **kwargs)
         return wrapped
     return wrapper

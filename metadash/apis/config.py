@@ -4,6 +4,7 @@ from flask_restful import reqparse, Resource, Api
 
 from metadash.config import Config
 from metadash import db
+from metadash.auth import requires_roles
 
 app = Blueprint = Blueprint('configs', __name__)
 
@@ -34,6 +35,7 @@ class ConfigList(Resource):
 
 
 class ConfigDetail(Resource):
+    @requires_roles('admin')
     def put(self, key):
         args = ConfigParser.parse_args()
         Config.set(key, args['value'])

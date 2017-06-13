@@ -82,5 +82,13 @@ new Vue({
   components: { App },
   created () {
     this.$store.dispatch('fetchMe')
+    let vm = this
+    Vue.http.interceptors.push((request, next) => {
+      next((response) => {
+        if (response.status === 401) {
+          vm.$store.dispatch('fetchMe')
+        }
+      })
+    })
   }
 })
