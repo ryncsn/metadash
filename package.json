@@ -13,6 +13,7 @@
     "lint": "eslint --ext .js,.vue metadash/src metadash/test/unit/specs metadash/test/e2e/specs"
   },
   "dependencies": {
+    "js-cookie": "^2.1.4",
     "lodash": "^4.17.4",
     "vue": "^2.2.2",
     "vue-patternfly": "0.0.12",
@@ -93,5 +94,7 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "main": "index.js",
+  "license": "GPLv3"
 }

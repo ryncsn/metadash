@@ -56,6 +56,15 @@ def login():
         return jsonify(ident)
 
 
+@app.route('/logout', methods=['POST'])
+def logout():
+    del(session['username'])
+    del(session['role'])
+    ident = get_ident()
+    ident.update({'message': 'Logout Success'})
+    return jsonify(ident)
+
+
 @app.route('/me', methods=['GET'])
 def whoami():
     return jsonify(get_ident())

@@ -45,12 +45,27 @@ const store = new Vuex.Store({
       return Vue.http.post('/api/login', {
         username: username,
         password: password
-      }).then((res) => {
-        res.json().then((data) => {
+      }).then(res => res.json())
+        .then(data => {
           state.username = data.username
           state.role = data.role
         })
-      })
+    },
+    logout ({state}) {
+      return Vue.http.post('/api/logout')
+        .then(res => res.json())
+        .then(data => {
+          state.username = data.username
+          state.role = data.role
+        })
+    },
+    fetchMe ({state}) {
+      return Vue.http.post('/api/me')
+        .then(res => res.json())
+        .then(data => {
+          state.username = data.username
+          state.role = data.role
+        })
     }
   }
 })
