@@ -84,26 +84,3 @@ def index(path):
 # Load saved configs
 with app.app_context():
     Config.load()
-
-
-# Load Manager and Migration
-from flask_migrate import Migrate, MigrateCommand # noqa
-from flask_script import Manager # noqa
-migrate = Migrate(app, db)
-manager = Manager(app)
-manager.add_command('db', MigrateCommand)
-
-
-@app.cli.command('initdb')
-def init_db_cli():
-    init_db()
-
-
-def init_db():
-    with app.app_context():
-        db.create_all()
-
-
-# Start the server
-if __name__ == '__main__':
-    manager.run()
