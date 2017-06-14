@@ -44,6 +44,10 @@ def initialize(app, plugin_dir):
 
         try:
             process_configs(plugin_meta)
+
+            # XXX: strange workaround for sqlalchemy dialect loading
+            setattr(Plugins, plugin_dir, importlib.import_module("metadash.plugins.{}".format(plugin_dir)))
+
             if os.path.isfile(os.path.join(models_path, "__init__.py")):
                 models = importlib.import_module("metadash.plugins.{}.models".format(plugin_dir))
             if os.path.isfile(os.path.join(apis_path, "__init__.py")):

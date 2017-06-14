@@ -13,9 +13,10 @@ def _format_user(user):
 
 
 def get_identity():
+    username = session.get('username')
     return {
         'username': session.get('username') or None,
-        'role': session.get('role') or 'anonymous',
+        'role': 'anonymous' if username is None else User.query.filter(User.username == username).first().role
     }
 
 
