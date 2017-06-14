@@ -1,16 +1,18 @@
-from flask import jsonify, session, request, Blueprint, abort, make_response
+from flask import jsonify, session, abort, make_response
 from functools import wraps
-from .ldap import try_login
-from ..exceptions import AuthError
+from ..exceptions import AuthError  # TODO
 from config import ActiveConfig as config
 from .user import User
-from .. import db
 
 
-app = Blueprint = Blueprint('authentication', __name__)
+def _format_user(user):
+    return {
+        "username": user.username,
+        "role": user.role
+    }
 
 
-def get_ident():
+def get_identity():
     return {
         'username': session.get('username') or None,
         'role': session.get('role') or 'anonymous',
@@ -18,6 +20,10 @@ def get_ident():
 
 
 def get_current_user_role():
+    """
+    Get role of current loged in user, or return 'admin' if
+    SECURITY is set to False
+    """
     if not config.SECURITY:
         return 'admin'
     else:
@@ -44,55 +50,5 @@ def requires_roles(*roles):
     return wrapper
 
 
-@app.route('/login', methods=['POST'])
-def login():
-    try:
-        username = request.json['username']
-        password = request.json['password']
-    except KeyError:
-        return jsonify({'message': 'Missing Credential'}), 400
-    try:
-        user = try_login(username, password)
-    except AuthError:
-        return jsonify({'message': 'Invalid Credential'}), 400
-    else:
-        session['username'] = user.username
-        ident = get_ident()
-        ident.update({'message': 'Login Success'})
-        return jsonify(ident)
-
-
-@app.route('/logout', methods=['GET'])
-def logout():
-    del(session['username'])
-    ident = get_ident()
-    ident.update({'message': 'Logout Success'})
-    return jsonify(ident)
-
-
-@app.route('/me', methods=['GET'])
-def whoami():
-    return jsonify(get_ident())
-
-
-@app.route('/users', methods=['GET'])
-def users():
-    return jsonify([{
-        "username": u.username,
-        "role": u.role
-    } for u in User.query.all()])
-
-
-@app.route('/users/<username>', methods=['PUT'])
-@requires_roles('admin')
-def user(username):
-    role = request.json['role']
-    u = User.query.filter(User.username == username).first()
-    u.role = role
-    db.session.commit()
-    return jsonify({
-        "username": u.username,
-        "role": u.role
-    })
-
-
+def get_all_users(*roles):
+    return [_format_user(u) for u in User.query.all()]

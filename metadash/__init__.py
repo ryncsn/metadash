@@ -53,7 +53,7 @@ with open(defaults) as default_configs:
 
 
 # Load auth
-from .auth import Blueprint as login # noqa
+from .apis.auth import Blueprint as login # noqa
 app.register_blueprint(login, url_prefix="/api")
 
 
