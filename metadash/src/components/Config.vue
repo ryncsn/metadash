@@ -5,8 +5,8 @@
         <h1 class="panel-title"> User & permissions </h1>
       </div>
       <div class="panel-body">
-        <users>
-        </users>
+        <md-permission>
+        </md-permission>
       </div>
     </div>
     <div v-if="loaded">
@@ -36,10 +36,10 @@
 
 <script>
 import _ from 'lodash'
-import Users from '@/components/Users'
+import MdPermission from '@/components/Permission'
 export default {
-  components: { Users },
-  name: 'config',
+  components: { MdPermission },
+  name: 'md-config',
   data () {
     return {
       'loaded': false,

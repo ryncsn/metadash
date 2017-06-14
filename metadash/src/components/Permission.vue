@@ -14,7 +14,7 @@
 <script>
 import _ from 'lodash'
 export default {
-  name: 'users',
+  name: 'md-permission',
   data () {
     return {
       'roles': ['admin', 'user', 'anonymous'],
