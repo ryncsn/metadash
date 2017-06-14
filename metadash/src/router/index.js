@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Dashboard from '@/components/Dashboard'
 import Table from '@/components/Table'
 import Config from '@/components/Config'
+import { PluginRoutes } from '@/plugin'
 
 Vue.use(Router)
 
@@ -25,4 +26,13 @@ export default new Router({
       component: Config
     }
   ]
+  .concat(
+    PluginRoutes
+  )
+  .concat([
+    {
+      path: '*',
+      redirect: '/dashboard'
+    }
+  ])
 })
