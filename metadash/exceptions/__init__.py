@@ -19,5 +19,9 @@ class AuthError(MetadashException):
     pass
 
 
+class RemoteServerError(MetadashException):
+    pass
+
+
 class DependencyError(MetadashException):
     pass

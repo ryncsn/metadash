@@ -63,3 +63,5 @@
 * Unified error handling for front
 
 * Read theme and layout from cookie
+
+* Cache
