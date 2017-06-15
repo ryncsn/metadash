@@ -22,19 +22,19 @@
     </router-link>
 
     <template slot="vertical-menu">
-      <router-link tag="li" class="list-group-item" active-class="active" to="/dashboard" :exact="true">
+      <router-link tag="li" class="list-group-item" active-class="active" to="/dashboard">
         <a>
           <span class="fa fa-dashboard" title="Dashboard"></span>
           <span class="list-group-item-value">Dashboard</span>
         </a>
       </router-link>
-      <router-link tag="li" class="list-group-item" active-class="active" to="/table" :exact="true">
+      <router-link tag="li" class="list-group-item" active-class="active" to="/table">
         <a>
           <span class="fa fa-columns" title="Table"></span>
           <span class="list-group-item-value">Table</span>
         </a>
       </router-link>
-      <router-link v-for="plugin in plugins" :key="plugin.path" tag="li" class="list-group-item" active-class="active" :to="plugin.path" :exact="true">
+      <router-link v-for="plugin in plugins" :key="plugin.path" tag="li" class="list-group-item" active-class="active" :to="plugin.path">
         <a>
           <span :title="plugin.title" v-html="plugin.icon"></span>
           <span class="list-group-item-value">{{plugin.title}}</span>

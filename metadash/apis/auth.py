@@ -4,6 +4,7 @@ from ..auth import get_identity, get_all_users, requires_roles
 from ..auth.ldap import try_login
 from ..auth.user import User
 from ..exceptions import AuthError
+from ..models import get_or_create
 
 app = Blueprint = Blueprint('authentication', __name__)
 
@@ -44,12 +45,17 @@ def users():
     return jsonify(get_all_users())
 
 
-@app.route('/users/<username>', methods=['PUT'])
+@app.route('/users/<username>', methods=['PUT', 'POST', 'DELETE'])
 @requires_roles('admin')
 def user(username):
-    role = request.json['role']
-    u = User.query.filter(User.username == username).first_or_404()
-    u.role = role
+    if request.method == 'DELETE':
+        u = User.query.filter(User.username == username).first_or_404()
+        db.session.delete(u)
+    else:
+        role = request.json.get('role', None)
+        u, _ = get_or_create(db.session, User, username=username)
+        if role:
+            u.role = role
     db.session.commit()
     return jsonify({
         "username": u.username,
