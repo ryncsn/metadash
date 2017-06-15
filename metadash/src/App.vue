@@ -6,9 +6,9 @@
       <login v-show="!loggedIn" slot="modal-body" class="modal-body" @success="showPersonalModal = false">
       </login>
       <div slot="modal-footer">
-        <div v-if="modalInfo" class="alert alert-danger">
+        <div v-if="loginModalInfo" class="alert alert-danger">
           <span class="pficon pficon-error-circle-o"></span>
-          <strong> {{ modalInfo }} </strong>
+          <strong> {{ loginModalInfo }} </strong>
         </div>
       </div>
     </bs-modal>
@@ -58,13 +58,19 @@ export default {
   data () {
     return {
       showPersonalModal: false,
-      modalInfo: ''
+      showErrorModal: false,
+      loginModalInfo: '',
+      errorModalInfo: ''
     }
   },
   methods: {
     loginModal (info) {
       this.showPersonalModal = !this.showPersonalModal
-      this.modalInfo = info
+      this.loginModalInfo = info
+    },
+    errorNotice (info) {
+      this.showErrorModal = !this.showErrorModal
+      this.loginModalInfo = info
     }
   },
   mounted () {
@@ -73,7 +79,20 @@ export default {
       next((response) => {
         if (response.status === 401) {
           vm.loginModal("You don'e have required permission")
+          return response
+        } else if (!response.ok) {
+          response.json().then((data) => {
+            if (data.message) {
+              alert(data.message)
+            } else {
+              alert('Unknown Error: ' + JSON.stringify(data))
+            }
+          }, () => {
+            alert('Unhandled Error ' + JSON.stringify(response.body))
+          })
+          return response
         }
+        return response
       })
     })
   },
