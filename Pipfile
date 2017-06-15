@@ -2,10 +2,14 @@
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 
+[dev-packages]
+flake8 = "*"
+
 [packages]
 requests = "*"
 gevent = "*"
 flake8 = "*"
+ldap3 = "*"
 Flask = "*"
 SQLAlchemy = "*"
 Flask-RESTful = "*"
@@ -14,10 +18,7 @@ Flask-SQLAlchemy = "*"
 resultsdb_api = "*"
 Flask-SocketIO = "*"
 Flask-Session = "*"
-ldap3 = "*"
-
-[dev-packages]
-flake8 = "*"
+"dogpile.cache" = "*"
 
 [packages.caselink]
 git = "https://github.com/ryncsn/caselink-python"
