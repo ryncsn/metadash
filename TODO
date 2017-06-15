@@ -65,3 +65,7 @@
 * Read theme and layout from cookie
 
 * Cache
+
+* Frontend drawer for Error info
+
+* SocketIO for delay
