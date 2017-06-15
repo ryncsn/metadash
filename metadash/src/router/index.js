@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Dashboard from '@/components/Dashboard'
-import Table from '@/components/Table'
 import Config from '@/components/Config'
 import { PluginRoutes } from '@/plugin'
 
@@ -14,11 +13,6 @@ export default new Router({
       path: '/dashboard',
       name: 'Dashboard',
       component: Dashboard
-    },
-    {
-      path: '/table',
-      name: 'Table',
-      component: Table
     },
     {
       path: '/config',

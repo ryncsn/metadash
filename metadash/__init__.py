@@ -58,9 +58,7 @@ app.register_blueprint(login, url_prefix="/api")
 
 
 # Load Views
-from metadash.apis.result import Blueprint as result # noqa
 from metadash.apis.metadata import Blueprint as metadata # noqa
-app.register_blueprint(result, url_prefix="/api")
 app.register_blueprint(metadata, url_prefix="/api")
 
 
