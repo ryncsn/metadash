@@ -4,12 +4,13 @@ Basic infrastructures
 Provides logging, DB acccess, config etc.
 """
 import logging
+import json
+import os
 import config
 
 # Load Flask and config
 from flask import Flask, jsonify
 app = Flask(__name__, static_url_path="", static_folder="dist/")
-
 app.config.from_object('config.ActiveConfig')
 
 
@@ -40,8 +41,6 @@ db = SQLAlchemy(app)
 
 
 # Load default configs
-import json # noqa
-import os # noqa
 from .config import Config, load_meta # noqa
 from .apis.config import Blueprint as ConfigBlueprint # noqa
 defaults = os.path.abspath(os.path.join(os.path.dirname(__file__), "./config/defaults.json"))
@@ -60,6 +59,11 @@ app.register_blueprint(login, url_prefix="/api")
 # Load Views
 from metadash.apis.metadata import Blueprint as metadata # noqa
 app.register_blueprint(metadata, url_prefix="/api")
+
+
+# Load socket worker
+from metadash.async import socketio # noqa
+socketio.init_app(app)
 
 
 from metadash.plugins import Plugins as plugins # noqa
