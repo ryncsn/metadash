@@ -25,12 +25,21 @@ new Vue({
   components: { App },
   created () {
     this.$store.dispatch('fetchMe')
-    let vm = this
-    Vue.http.interceptors.push((request, next) => {
+    Vue.http.interceptors.push(function (request, next) {
       next((response) => {
+        // Handle 401 error
         if (response.status === 401) {
-          vm.$store.dispatch('fetchMe')
+          this.$store.dispatch('fetchMe')
         }
+
+        // Regist entity
+        return response.json()
+          .then(json => {
+            if (json.uuid) {
+              this.$store.commit('registEntity', json)
+            }
+          }, () => {})
+          .then(() => response)
       })
     })
   }

@@ -5,6 +5,7 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
+    entities: {},
     username: null,
     role: 'anonymous'
   },
@@ -34,6 +35,20 @@ const store = new Vuex.Store({
           state.username = data.username
           state.role = data.role
         })
+    }
+  },
+  mutations: {
+    registEntity (state, entity) {
+      if (!entity.uuid) {
+        throw new Error('Received an Entity with no UUID! ' + entity)
+      }
+      state.entities[entity.uuid] = entity
+    },
+    updateEntity (state, entity) {
+      if (!entity.uuid) {
+        throw new Error('Received an Entity with no UUID! ' + entity)
+      }
+      Object.assign(state.entities[entity.uuid], entity)
     }
   }
 })
