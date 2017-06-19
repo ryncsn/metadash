@@ -14,8 +14,9 @@ basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../metadash")
 class Config(object):
     DEBUG = True
     TESTING = False
-    SECRET_KEY = ""  # Replace with some random string please
+    SECRET_KEY = ''  # Replace with some random string please
     SECURITY = False
+    CACHE_DEFAULT_BACKEND = 'dogpile.cache.memory'
 
     SQLALCHEMY_DATABASE_URI = 'sqlite:///{basedir}/test.db'.format(basedir=basedir)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
