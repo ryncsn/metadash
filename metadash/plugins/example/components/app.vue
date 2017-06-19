@@ -13,13 +13,11 @@ export default {
     }
   },
   mounted () {
-    setTimeout(() => {
-      this.$http.get('/api/example/').then(res => {
-        res.json().then(json => {
-          this.msg = `Plugins works! Response: "${json.name}", created a entity with UUID ${json.uuid}`
-        })
+    this.$http.get('/api/example/').then(res => {
+      res.json().then(json => {
+        this.msg = `Plugins works! Response: "${json.name}", created a entity with UUID ${json.uuid}`
       })
-    }, 1000)
+    })
   }
 }
 </script>

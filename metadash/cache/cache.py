@@ -20,7 +20,7 @@ def cache_on_entity(expiration_time=3600):
         def keyer(namesapce, fn):
             def generate_key(entity, *arg, **kw):
                 return "_".join(
-                    [entity.uuid, fn.__name__] +
+                    [str(entity.uuid), fn.__name__] +
                     [str(x) for x in arg] +
                     ["{}:{}".format(k, v) for k, v in kw.items()]
                 )
