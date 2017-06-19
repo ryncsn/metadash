@@ -35,6 +35,11 @@ def setup_logger():
 logger = setup_logger()
 
 
+# Load Flask and config
+from metadash.exceptions import init_app as init_exceptions # noqa
+init_exceptions(app)
+
+
 # Load ORM
 from flask_sqlalchemy import SQLAlchemy # noqa
 db = SQLAlchemy(app)
