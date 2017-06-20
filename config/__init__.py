@@ -17,6 +17,8 @@ class Config(object):
     SECRET_KEY = ''  # Replace with some random string please
     SECURITY = False
     CACHE_DEFAULT_BACKEND = 'dogpile.cache.memory'
+    DEFERD_ENABLED = False
+    DEBOUNCE_ENABLED = False
 
     SQLALCHEMY_DATABASE_URI = 'sqlite:///{basedir}/test.db'.format(basedir=basedir)
     SQLALCHEMY_TRACK_MODIFICATIONS = False

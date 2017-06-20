@@ -4,7 +4,7 @@ Example Plugin, also used for testing and debug
 import time
 
 from metadash.models.base import EntityModel
-from metadash.models.service import provide
+from metadash.injector import provide
 from metadash.cache import cache_on_entity, cached_entity_property
 from metadash import db
 
