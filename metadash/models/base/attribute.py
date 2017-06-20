@@ -231,78 +231,80 @@ class SharedAttributeModel(_Jsonable, Model, metaclass=SharedAttributeMeta):
         return dict_
 
 
-def init_attributes():
+def init_attribute(attribute):
     # TODO: DRY
-    for attribute in _all_leaf_class(AttributeModel):
-        entities = (
-            [_find_entity(e) for e in attribute.__entities__]
-            if attribute.__entities__ is not None else _all_leaf_class(EntityModel)
-        )
-        for model in entities:
-            model.attribute_models.append(attribute)
-            parentname = _get_alias_dict(model.__dict__)
-            attribute.entity_models.append(parentname)
+    entities = (
+        [_find_entity(e) for e in attribute.__entities__]
+        if attribute.__entities__ is not None else _all_leaf_class(EntityModel)
+    )
+    for model in entities:
+        model.attribute_models.append(attribute)
+        parentname = _get_alias_dict(model.__dict__)
+        attribute.entity_models.append(parentname)
 
-            backref_name = attribute.__backref_name__
-            proxy_name = attribute.__proxy_name__
-            collector = attribute.__collector__
-            composer = attribute.__composer__
-            creator = attribute.__creator__
-            unique_attribute = attribute.__unique_attr__
+        backref_name = attribute.__backref_name__
+        proxy_name = attribute.__proxy_name__
+        collector = attribute.__collector__
+        composer = attribute.__composer__
+        creator = attribute.__creator__
+        unique_attribute = attribute.__unique_attr__
 
-            setattr(attribute, parentname, db.relationship(
-                model,
-                primaryjoin=foreign(attribute.entity_uuid) == remote(model.uuid),
-                backref=backref(
-                    backref_name, uselist=not unique_attribute, collection_class=collector
-                ),
-                uselist=False, single_parent=True,
-                cascade="all, delete-orphan",
-            ))
-            if composer:
-                setattr(model, proxy_name, association_proxy(backref_name, composer),
-                        **({'creator': creator} if creator else {}))
+        setattr(attribute, parentname, db.relationship(
+            model,
+            primaryjoin=foreign(attribute.entity_uuid) == remote(model.uuid),
+            backref=backref(
+                backref_name, uselist=not unique_attribute, collection_class=collector
+            ),
+            uselist=False, single_parent=True,
+            cascade="all, delete-orphan",
+        ))
+        if composer:
+            setattr(model, proxy_name, association_proxy(backref_name, composer),
+                    **({'creator': creator} if creator else {}))
 
 
-def init_shared_attributes():
-    for attribute in _all_leaf_class(SharedAttributeModel):
-        entities = (
-            [_find_entity(e) for e in attribute.__entities__]
-            if attribute.__entities__ is not None else _all_leaf_class(EntityModel)
-        )
-        for model in entities:
-            model.attribute_models.append(attribute)
-            parentname = _get_alias_dict(model.__dict__)
-            parentsname = _pluralize(parentname)
-            attribute.entity_models.append(parentname)
+def init_shared_attribute(attribute):
+    entities = (
+        [_find_entity(e) for e in attribute.__entities__]
+        if attribute.__entities__ is not None else _all_leaf_class(EntityModel)
+    )
+    for model in entities:
+        model.attribute_models.append(attribute)
+        parentname = _get_alias_dict(model.__dict__)
+        parentsname = _pluralize(parentname)
+        attribute.entity_models.append(parentname)
 
-            backref_name = attribute.__backref_name__
-            proxy_name = attribute.__proxy_name__
-            collector = attribute.__collector__
-            composer = attribute.__composer__
-            creator = attribute.__creator__
+        backref_name = attribute.__backref_name__
+        proxy_name = attribute.__proxy_name__
+        collector = attribute.__collector__
+        composer = attribute.__composer__
+        creator = attribute.__creator__
 
-            setattr(attribute, parentsname, db.relationship(
-                model,
-                secondary=attribute.__secondary__,
-                primaryjoin=attribute.__secondary__.c.attr_uuid == attribute.uuid,
-                secondaryjoin=foreign(attribute.__secondary__.c.entity_uuid) == remote(model.uuid),
-                backref=backref(backref_name,
-                                primaryjoin=attribute.__secondary__.c.entity_uuid == model.uuid,
-                                secondaryjoin=foreign(attribute.__secondary__.c.attr_uuid) == remote(attribute.uuid), collection_class=collector),
-                uselist=True,
-                cascade="save-update, merge, refresh-expire, expunge",
-            ))
+        setattr(attribute, parentsname, db.relationship(
+            model,
+            secondary=attribute.__secondary__,
+            primaryjoin=attribute.__secondary__.c.attr_uuid == attribute.uuid,
+            secondaryjoin=foreign(attribute.__secondary__.c.entity_uuid) == remote(model.uuid),
+            backref=backref(backref_name,
+                            primaryjoin=attribute.__secondary__.c.entity_uuid == model.uuid,
+                            secondaryjoin=foreign(attribute.__secondary__.c.attr_uuid) == remote(attribute.uuid), collection_class=collector),
+            uselist=True,
+            cascade="save-update, merge, refresh-expire, expunge",
+        ))
 
-            if composer:
-                setattr(model, proxy_name,
-                        association_proxy(backref_name, composer,
-                                          **({'creator': creator} if creator else {})))
+        if composer:
+            setattr(model, proxy_name,
+                    association_proxy(backref_name, composer,
+                                      **({'creator': creator} if creator else {})))
 
 
 def init():
     """
     Build relationship
+
+    Only called after all entities are declared
     """
-    init_attributes()
-    init_shared_attributes()
+    for attribute in _all_leaf_class(AttributeModel):
+        init_attribute(attribute)
+    for attribute in _all_leaf_class(SharedAttributeModel):
+        init_shared_attribute(attribute)

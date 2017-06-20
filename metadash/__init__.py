@@ -51,6 +51,20 @@ with open(defaults) as default_configs:
     load_meta(json.load(default_configs))
 
 
+# Load buildin models
+import metadash.models.metadata # noqa
+
+
+# Load plugins
+from metadash.plugins import Plugins as plugins # noqa
+plugins.regist(app)
+
+
+# Initialize attribute models
+from metadash.models.base.attribute import init as attribute_init # noqa
+attribute_init()
+
+
 # Load auth
 from .apis.auth import Blueprint as login # noqa
 app.register_blueprint(login, url_prefix="/api")
@@ -64,16 +78,6 @@ app.register_blueprint(metadata, url_prefix="/api")
 # Load socket worker
 from metadash.async import socketio # noqa
 socketio.init_app(app)
-
-
-# Load plugins
-from metadash.plugins import Plugins as plugins # noqa
-plugins.regist(app)
-
-
-# Initialize attribute models
-from metadash.models.base.attribute import init as attribute_init # noqa
-attribute_init()
 
 
 @app.route('/config')
