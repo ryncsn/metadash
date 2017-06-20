@@ -86,7 +86,7 @@ class EntityMeta(type(db.Model)):
 
         dict_['uuid'] = db.Column(
             UUID(), db.ForeignKey(MetadashEntity.uuid, ondelete="CASCADE", onupdate="RESTRICT"),
-            index=True, nullable=False, primary_key=True
+            index=True, nullable=False, primary_key=True, default=uuid.uuid1
         )
 
         dict_['__namespace__'] = __namespace__
@@ -119,9 +119,24 @@ class EntityModel(metaclass=EntityMeta):
     uuid = None  # Just a hint
 
     def identity(self):
+        """
+        Return namespace + uuid
+        """
         return '{}:{}'.format(self.__namespace__, self.uuid)
 
+    def from_dict(self, dict_):
+        """
+        Inflate the instance with dict
+        """
+        for k, v in dict_.items():
+            setattr(self, k, v)
+
     def as_dict(self, detail=True):
+        """
+        Convert this intstance to a dict
+        Use detail=True to load all attributes
+        else, only columns are loaded
+        """
         dict_ = super(EntityModel, self).as_dict()
         if detail:
             for model in self.attribute_models:

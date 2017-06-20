@@ -15,7 +15,7 @@ export default {
   mounted () {
     this.$http.get('/api/example/').then(res => {
       res.json().then(json => {
-        this.msg = `Plugins works! Response: "${json.name}", created a entity with UUID ${json.uuid}`
+        this.msg = `Plugins works! Response: "${json[0].name}", created a entity with UUID ${json[0].uuid}`
       })
     })
   }

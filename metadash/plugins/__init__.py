@@ -4,6 +4,7 @@ Plugin loader
 from flask import Blueprint
 from metadash import logger
 from metadash.config import Config, load_meta
+from metadash.models.base.attribute import init as init_relation
 
 import importlib
 import json
@@ -77,6 +78,8 @@ class Plugins(object):
 
         for plugin in plugin_dirs:
             init_modal(plugin)
+
+        init_relation()
 
         for plugin in plugin_dirs:
             init_api(plugin, app)

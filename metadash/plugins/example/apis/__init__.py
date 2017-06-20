@@ -1,16 +1,46 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify
 from flask_restful import Resource, Api
 from ..models import ExampleEntity
 from metadash.models import db, get_or_create
+from metadash.apis import default_entity_parser
 
 
 Blueprint = Blueprint('example', __name__)
 
 Api = Api(Blueprint)
 
+ExampleParser = default_entity_parser(ExampleEntity)
+
+
+def ensure_default_column():
+    """
+    Ensure there is at least one column for debug
+    """
+    instance, _ = get_or_create(db.session, ExampleEntity, name="Plugin: Hello, World!")
+    if _:
+        db.session.commit()
+
 
 class ExampleAPI(Resource):
     def get(self):
+        ensure_default_column()
+        ret = []
+        for row in ExampleEntity.query.all():
+            dict_ = row.as_dict()
+            dict_['cached_function'] = row.cached_function()
+            dict_['cached_property'] = row.cached_property
+            ret.append(dict_)
+        return ret
+
+    def post(self):
+        args = ExampleParser.parse_args()
+        example_entity = ExampleEntity()
+        example_entity.from_dict(args)
+        db.session.add(example_entity)
+        db.session.commit()
+        return jsonify(example_entity.as_dict())
+
+    def put(self):
         instance, _ = get_or_create(db.session, ExampleEntity, name="Plugin: Hello, World!")
         if _:
             db.session.commit()

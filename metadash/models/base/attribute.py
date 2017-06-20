@@ -50,12 +50,13 @@ class AttributeMeta(type(Model)):
             return type.__new__(mcs, classname, bases, dict_, **kwargs)
 
         # Default values
+        unique_attribute = dict_.setdefault('__unique_attr__', False)
+
         table_args = dict_.setdefault('__table_args__', ())
         entities_only = dict_.setdefault('__entities__', None)
-        collector = dict_.setdefault('__collector__', list)
+        collector = dict_.setdefault('__collector__', list if not unique_attribute else None)
         composer = dict_.setdefault('__composer__', None)
         creator = dict_.setdefault('__creator__', None)
-        unique_attribute = dict_.setdefault('__unique_attr__', False)
 
         tablename = _get_table_name_dict(dict_)
         aliasname = _get_alias_dict(dict_)
@@ -114,6 +115,7 @@ class SharedAttributeMeta(type(Model)):
         table_args = dict_.setdefault('__table_args__', ())
         entities_only = dict_.setdefault('__entities__', None)
         collector = dict_.setdefault('__collector__', list)
+        # TODO: collector = dict_.setdefault('__collector__', list if not unique_attribute else None)
         composer = dict_.setdefault('__composer__', None)
         creator = dict_.setdefault('__creator__', None)
 
@@ -258,9 +260,12 @@ def init_attribute(attribute):
             uselist=False, single_parent=True,
             cascade="all, delete-orphan",
         ))
+
         if composer:
-            setattr(model, proxy_name, association_proxy(backref_name, composer),
-                    **({'creator': creator} if creator else {}))
+            setattr(model, proxy_name,
+                    association_proxy(backref_name, composer,
+                                      **({'creator': lambda *args, **kwargs: attribute.__creator__(*args, **kwargs)}
+                                         if creator else {})))
 
 
 def init_shared_attribute(attribute):
@@ -295,14 +300,13 @@ def init_shared_attribute(attribute):
         if composer:
             setattr(model, proxy_name,
                     association_proxy(backref_name, composer,
-                                      **({'creator': creator} if creator else {})))
+                                      **({'creator': lambda *args, **kwargs: attribute.__creator__(*args, **kwargs)}
+                                         if creator else {})))
 
 
 def init():
     """
     Build relationship
-
-    Only called after all entities are declared
     """
     for attribute in _all_leaf_class(AttributeModel):
         init_attribute(attribute)

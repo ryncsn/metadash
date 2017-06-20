@@ -19,6 +19,10 @@ class Property(AttributeModel):
     key = db.Column(db.String(255), nullable=False, index=True, primary_key=True, unique_attribute=True)
     value = db.Column(db.String(3072), nullable=False, index=True)
 
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+
     def __repr__(self):
         return '<Property "{}":"{}" of Entiry({}): %s, %s:%s>'.format(self.key, self.value, self.entity)
 
@@ -37,6 +41,10 @@ class Detail(AttributeModel):
     key = db.Column(db.String(255), nullable=False, index=True, primary_key=True, unique_attribute=True)
     value = db.Column(db.Text(), nullable=False)
 
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+
     def __repr__(self):
         return '<Detail "{}":"{}" of Entiry({}): %s, %s:%s>'.format(self.key, self.value, self.entity)
 
@@ -51,6 +59,9 @@ class Tag(SharedAttributeModel):
     __composer__ = "name"
 
     name = db.Column(db.String(255), nullable=False, index=True, unique_attribute=True)
+
+    def __init__(self, name):
+        self.name = name
 
     def __repr__(self):
         return '<Tag "{}" of Entity({}): %s, %s:%s>'.format(self.name, self.entity)

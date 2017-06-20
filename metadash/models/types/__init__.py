@@ -3,7 +3,8 @@ import uuid
 from sqlalchemy.types import TypeDecorator, CHAR
 from sqlalchemy.dialects.postgresql import UUID as postgre_UUID
 
-#pylint: disable=no-member
+
+# pylint: disable=no-member
 class UUID(TypeDecorator):
     """
     Add a native UUID type for sqlalchemy.
@@ -41,7 +42,7 @@ class UUID(TypeDecorator):
                 return "%.32x" % value.int
 
     def process_literal_param(self, value, dialect):
-        return uuid.UUID(value) if not value is None else None
+        return uuid.UUID(value) if value is not None else None
 
     def process_result_value(self, value, dialect):
         if value is None:

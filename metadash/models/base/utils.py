@@ -2,6 +2,8 @@
 Helper mostly for internal use
 """
 from ... import logger
+from sqlalchemy.ext.associationproxy import (
+    _AssociationDict, _AssociationSet, _AssociationList)
 
 
 def _extend_column_arg_patch():
@@ -58,10 +60,17 @@ def _pluralize(singular):
 
 
 def _format_for_json(data):
+    """Format into json and load lazy-loading attr to prevent stall"""
     if hasattr(data, 'as_dict'):
         return data.as_dict()
     elif isinstance(data, (int, float, str)):
         return data
+    elif isinstance(data, _AssociationDict):
+        return dict(data)
+    elif isinstance(data, _AssociationList):
+        return list(data)
+    elif isinstance(data, _AssociationSet):
+        return list(data)
     elif isinstance(data, dict):
         return dict([(k, _format_for_json(v)) for k, v in data.items()])
     elif hasattr(data, '__iter__'):
