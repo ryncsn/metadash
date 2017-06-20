@@ -66,8 +66,14 @@ from metadash.async import socketio # noqa
 socketio.init_app(app)
 
 
+# Load plugins
 from metadash.plugins import Plugins as plugins # noqa
 plugins.regist(app)
+
+
+# Initialize attribute models
+from metadash.models.base.attribute import init as attribute_init # noqa
+attribute_init()
 
 
 @app.route('/config')

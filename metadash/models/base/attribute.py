@@ -41,65 +41,45 @@ class AttributeMeta(type(Model)):
     def __init__(cls, classname, bases, dict_, **kwargs):
         if classname == "AttributeModel":
             type.__init__(type, classname, bases, dict_, **kwargs)
-            return
-
-        super(AttributeMeta, cls).__init__(classname, bases, dict_)
-        # TODO: Tidy up __init__ and __new__, remove radunant itrations
-        for model in _all_leaf_class(EntityModel):
-            model.attribute_models.append(cls)
+        else:
+            super(AttributeMeta, cls).__init__(classname, bases, dict_)
 
     def __new__(mcs, classname, bases, dict_, **kwargs):
         # pylint: disable=no-member
         if classname == "AttributeModel":
             return type.__new__(mcs, classname, bases, dict_, **kwargs)
 
+        # Default values
+        table_args = dict_.setdefault('__table_args__', ())
+        entities_only = dict_.setdefault('__entities__', None)
+        collector = dict_.setdefault('__collector__', list)
+        composer = dict_.setdefault('__composer__', None)
+        creator = dict_.setdefault('__creator__', None)
+        unique_attribute = dict_.setdefault('__unique_attr__', False)
+
         tablename = _get_table_name_dict(dict_)
         aliasname = _get_alias_dict(dict_)
-        # TODO: Injection style
-        table_args = dict_.get('__table_args__', ())
-        entities_only = dict_.get('__entities__', [])
-        unique_attribute = dict_.get('__unique_attr__', False)
-        collector = dict_.get('__collector__', list)
-        composer = dict_.get('__composer__', None)
-        creator = dict_.get('__creator__', None)
 
-        entities = [_find_entity(e) for e in entities_only] or _all_leaf_class(EntityModel)
+        proxy_name = dict_.setdefault('__proxy_name__', _pluralize(aliasname))
+        backref_name = dict_.setdefault('__backref_name__', "{}_ref".format(proxy_name))
+        entity_models = dict_.setdefault('entity_models',
+                                         AttributeModel.entity_models[:])
 
-        proxy_name = _pluralize(aliasname) if not unique_attribute else aliasname
-        backref_name = "{}_ref".format(proxy_name)
-        entity_models = AttributeModel.entity_models[:]
+        dict_['ref_name'] = proxy_name if composer else backref_name
 
-        dict_['key_name'] = proxy_name if composer else backref_name
+        # Build foreign key and relationship
         dict_['entity_uuid'] = db.Column(
             UUID(), index=True, nullable=False, primary_key=True)
-        table_args += (
+        table_args = table_args + (
             db.ForeignKeyConstraint(['entity_uuid'], [MetadashEntity.uuid],
                                     name="_metadash_{}_fc".format(tablename),
                                     ondelete="CASCADE"),)
-
         for key, value in dict_.items():
             if isinstance(value, db.Column) and value.unique_attribute:
                 table_args = table_args + (
                     db.UniqueConstraint('entity_uuid', key,
                                         name='_{}_metadash_attr_{}_uc'.format(
                                             tablename, value.name)), )
-
-        for model in entities:
-            parentname = _get_alias_dict(model.__dict__)
-            entity_models.append(parentname)
-            dict_[parentname] = db.relationship(
-                model,
-                primaryjoin=foreign(dict_['entity_uuid']) == remote(model.uuid),
-                backref=backref(
-                    backref_name, uselist=not unique_attribute, collection_class=collector
-                ),
-                uselist=False, single_parent=True,
-                cascade="all, delete-orphan",
-            )
-            if composer:
-                setattr(model, proxy_name, association_proxy(backref_name, composer),
-                        **({'creator': creator} if creator else {}))
-
         dict_['entity'] = db.relationship(
             MetadashEntity,
             primaryjoin=dict_['entity_uuid'] == MetadashEntity.uuid,
@@ -107,8 +87,8 @@ class AttributeMeta(type(Model)):
             uselist=False
         )
 
+        # Apply changes
         dict_['__table_args__'] = table_args
-        dict_['entity_models'] = entity_models
 
         return super(AttributeMeta, mcs).__new__(mcs, classname, bases, dict_, **kwargs)
 
@@ -119,33 +99,35 @@ class SharedAttributeMeta(type(Model)):
     """
     # pylint: disable=no-self-argument
     def __init__(cls, classname, bases, dict_, **kwargs):
-        if classname != "SharedAttributeModel":
-            super(SharedAttributeMeta, cls).__init__(classname, bases, dict_, **kwargs)
-            for model in _all_leaf_class(EntityModel):
-                model.attribute_models.append(cls)
-        else:
+        if classname == "SharedAttributeModel":
             type.__init__(type, classname, bases, dict_, **kwargs, **kwargs)
+        else:
+            super(SharedAttributeMeta, cls).__init__(classname, bases, dict_, **kwargs)
 
     def __new__(mcs, classname, bases, dict_, **kwargs):
         # XXX: This looks more like another kind of entity...
         if classname == "SharedAttributeModel":
             return type.__new__(mcs, classname, bases, dict_)
 
+        # TODO: Injection style
+        # Default values
+        table_args = dict_.setdefault('__table_args__', ())
+        entities_only = dict_.setdefault('__entities__', None)
+        collector = dict_.setdefault('__collector__', list)
+        composer = dict_.setdefault('__composer__', None)
+        creator = dict_.setdefault('__creator__', None)
+
         tablename = _get_table_name_dict(dict_)
         aliasname = _get_alias_dict(dict_)
-        # TODO: Injection style
-        table_args = dict_.get('__table_args__', ())
-        entities_only = dict_.get('__entities__', [])
-        collector = dict_.get('__collector__', list)
-        composer = dict_.get('__composer__', None)
-        creator = dict_.get('__creator__', None)
 
-        entities = [_find_entity(e) for e in entities_only] or _all_leaf_class(EntityModel)
+        proxy_name = dict_.setdefault('__proxy_name__', _pluralize(aliasname))
+        backref_name = dict_.setdefault('__backref_name__', "{}_ref".format(proxy_name))
+        entity_models = dict_.setdefault('entity_models',
+                                         SharedAttributeModel.entity_models[:])
 
-        proxy_name = _pluralize(aliasname)
-        backref_name = "{}_ref".format(proxy_name)
-        entity_models = AttributeModel.entity_models[:]
+        dict_['ref_name'] = proxy_name if composer else backref_name
 
+        # Build foreign key and relationship
         has_primary_key = False
         for value in dict_.values():
             if isinstance(value, db.Column):
@@ -153,11 +135,8 @@ class SharedAttributeMeta(type(Model)):
                     has_primary_key = True
                 if value.unique_attribute:
                     value.unique = True
-
-        dict_['key_name'] = proxy_name if composer else backref_name
         dict_['uuid'] = db.Column(UUID(), index=True, nullable=False, unique=True,
                                   primary_key=not has_primary_key, default=uuid.uuid1)
-
         dict_['__secondary__'] = (
             db.Table("metadash_entities_{}".format(tablename),
                      db.Column('entity_uuid', UUID(), index=True),
@@ -168,28 +147,6 @@ class SharedAttributeMeta(type(Model)):
                          ['entity_uuid'], [MetadashEntity.uuid], ondelete="CASCADE")
                      )
         )
-
-        for model in entities:
-            parentname = _get_alias_dict(model.__dict__)
-            parentsname = _pluralize(parentname)
-            entity_models.append(parentsname)
-            dict_[parentsname] = db.relationship(
-                model,
-                secondary=dict_['__secondary__'],
-                primaryjoin=dict_['__secondary__'].c.attr_uuid == dict_['uuid'],
-                secondaryjoin=foreign(dict_['__secondary__'].c.entity_uuid) == remote(model.uuid),
-                backref=backref(backref_name,
-                                primaryjoin=dict_['__secondary__'].c.entity_uuid == model.uuid,
-                                secondaryjoin=foreign(dict_['__secondary__'].c.attr_uuid) == remote(dict_['uuid']), collection_class=collector),
-                uselist=True,
-                cascade="save-update, merge, refresh-expire, expunge",
-            )
-
-            if composer:
-                setattr(model, proxy_name,
-                        association_proxy(backref_name, composer,
-                                          **({'creator': creator} if creator else {})))
-
         dict_['entity'] = db.relationship(
             MetadashEntity,
             secondary=dict_['__secondary__'],
@@ -197,9 +154,6 @@ class SharedAttributeMeta(type(Model)):
             secondaryjoin=dict_['__secondary__'].c.entity_uuid == MetadashEntity.uuid,
             # backref=backref("shared_attributes"), TODO
         )
-
-        dict_['__table_args__'] = table_args
-        dict_['entity_models'] = entity_models
 
         return super(SharedAttributeMeta, mcs).__new__(mcs, classname, bases, dict_, **kwargs)
 
@@ -275,3 +229,80 @@ class SharedAttributeModel(_Jsonable, Model, metaclass=SharedAttributeMeta):
         if detail:
             dict_['parents'] = _format_for_json(self.parents)
         return dict_
+
+
+def init_attributes():
+    # TODO: DRY
+    for attribute in _all_leaf_class(AttributeModel):
+        entities = (
+            [_find_entity(e) for e in attribute.__entities__]
+            if attribute.__entities__ is not None else _all_leaf_class(EntityModel)
+        )
+        for model in entities:
+            model.attribute_models.append(attribute)
+            parentname = _get_alias_dict(model.__dict__)
+            attribute.entity_models.append(parentname)
+
+            backref_name = attribute.__backref_name__
+            proxy_name = attribute.__proxy_name__
+            collector = attribute.__collector__
+            composer = attribute.__composer__
+            creator = attribute.__creator__
+            unique_attribute = attribute.__unique_attr__
+
+            setattr(attribute, parentname, db.relationship(
+                model,
+                primaryjoin=foreign(attribute.entity_uuid) == remote(model.uuid),
+                backref=backref(
+                    backref_name, uselist=not unique_attribute, collection_class=collector
+                ),
+                uselist=False, single_parent=True,
+                cascade="all, delete-orphan",
+            ))
+            if composer:
+                setattr(model, proxy_name, association_proxy(backref_name, composer),
+                        **({'creator': creator} if creator else {}))
+
+
+def init_shared_attributes():
+    for attribute in _all_leaf_class(SharedAttributeModel):
+        entities = (
+            [_find_entity(e) for e in attribute.__entities__]
+            if attribute.__entities__ is not None else _all_leaf_class(EntityModel)
+        )
+        for model in entities:
+            model.attribute_models.append(attribute)
+            parentname = _get_alias_dict(model.__dict__)
+            parentsname = _pluralize(parentname)
+            attribute.entity_models.append(parentname)
+
+            backref_name = attribute.__backref_name__
+            proxy_name = attribute.__proxy_name__
+            collector = attribute.__collector__
+            composer = attribute.__composer__
+            creator = attribute.__creator__
+
+            setattr(attribute, parentsname, db.relationship(
+                model,
+                secondary=attribute.__secondary__,
+                primaryjoin=attribute.__secondary__.c.attr_uuid == attribute.uuid,
+                secondaryjoin=foreign(attribute.__secondary__.c.entity_uuid) == remote(model.uuid),
+                backref=backref(backref_name,
+                                primaryjoin=attribute.__secondary__.c.entity_uuid == model.uuid,
+                                secondaryjoin=foreign(attribute.__secondary__.c.attr_uuid) == remote(attribute.uuid), collection_class=collector),
+                uselist=True,
+                cascade="save-update, merge, refresh-expire, expunge",
+            ))
+
+            if composer:
+                setattr(model, proxy_name,
+                        association_proxy(backref_name, composer,
+                                          **({'creator': creator} if creator else {})))
+
+
+def init():
+    """
+    Build relationship
+    """
+    init_attributes()
+    init_shared_attributes()

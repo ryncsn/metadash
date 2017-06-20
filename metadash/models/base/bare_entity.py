@@ -79,5 +79,5 @@ class BareEntityModel(metaclass=BareEntityMeta):
         dict_ = super(BareEntityModel, self).as_dict()
         if detail:
             for model in self.attribute_models:
-                dict_[model.key_name] = _format_for_json(getattr(self, model.key_name))
+                dict_[model.ref_name] = _format_for_json(getattr(self, model.ref_name))
         return dict_

@@ -121,9 +121,9 @@ class EntityModel(metaclass=EntityMeta):
     def identity(self):
         return '{}:{}'.format(self.__namespace__, self.uuid)
 
-    def as_dict(self, detail=False):
+    def as_dict(self, detail=True):
         dict_ = super(EntityModel, self).as_dict()
         if detail:
             for model in self.attribute_models:
-                dict_[model.key_name] = _format_for_json(getattr(self, model.key_name))
+                dict_[model.ref_name] = _format_for_json(getattr(self, model.ref_name))
         return dict_
