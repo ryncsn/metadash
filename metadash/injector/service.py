@@ -6,13 +6,11 @@ Explict, using decorator.
 """
 
 from metadash.models.base import EntityModel
-from typing import ClassVar, Callable
+from typing import ClassVar
 
 SERVICES = {}
 PENDING_EXTENDS = {}
 
-DEFERED_ENABLE = False  # TODO: move this to config
-LAZY_DEFERED = False  # If enabled, a defered object is not pushed until requested
 ATTR_PREFIX = "__md_srv_"
 # TODO: Aware of what attribute is provided
 # TODO: Warn on not initialized service
@@ -114,7 +112,7 @@ def _provider_extend(provider_name: str, extend_name: str, cls: ClassVar,
     if queryable is True:
         # TODO: if query is true, can be called with .<attr>().filter()?
         raise NotImplementedError()
-    if sql is True and not isinstance(provider, db.Model):
+    if sql is True and not isinstance(cls, EntityModel):
         # TODO: I guess we can inject some attribute using sqlalchemy object,
         # Something like a associateProxy, detect the relation and
         # wrap get/set?

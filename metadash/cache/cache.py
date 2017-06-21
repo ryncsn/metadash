@@ -16,7 +16,7 @@ def cache_on_entity(expiration_time=3600):
     Cache a function for an entity, by argruments
     """
     def decorator(fn):
-        # TODO: cached defered?
+        # TODO: cached deferred?
         def keyer(namesapce, fn):
             def generate_key(entity, *arg, **kw):
                 return "_".join(
@@ -39,7 +39,7 @@ def cached_entity_property(expiration_time=3600):
     Whenever the entity is accessed and the cached is not expired, it's avaliable
     """
     def decorator(fn):
-        # TODO: cached defered?
+        # TODO: cached deferred?
         cache_name = '__cache__' + fn.__name__
         keyer = partial("{uuid}{cache_name}".format, cache_name=cache_name)
 
@@ -63,7 +63,7 @@ def cached_property(fn):
     this cache only work for a single object and expire when object if freed.
     Always memory only.
     """
-    # TODO: cached defered?
+    # TODO: cached deferred?
     cache_name = '__cache__' + fn.__name__
 
     @property

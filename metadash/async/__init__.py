@@ -1,3 +1,3 @@
 from .socketio import socketio
-from .defered import defered
+from .deferred import deferred
 from .debounce import debounce

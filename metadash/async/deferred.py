@@ -5,7 +5,7 @@ from config import ActiveConfig
 from typing import Callable
 
 
-def defered(fn: Callable) -> Callable:
+def deferred(fn: Callable) -> Callable:
     """
     Return "loading..." when called, and queue actuall operation,
     will push actual result using a connection when it's ready.
@@ -17,13 +17,13 @@ def defered(fn: Callable) -> Callable:
     When applied to a property with @propery, have to apply before @property
     If not, it can track which the return value belongs to.
     """
-    # TODO: Break recursion: A defered return a defered that returns a defered that r..(repeat)
-    # TODO: use a defered class, so can set __getattr__ on defered, so we can have a defered loop.
+    # TODO: Break recursion: A deferred return a deferred that returns a deferred that r..(repeat)
+    # TODO: use a deferred class, so can set __getattr__ on deferred, so we can have a deferred loop.
     def op(*args, **kwargs):
-        if ActiveConfig.DEFERED_ENABLE:
+        if ActiveConfig.DEFERRED_ENABLE:
             entity = args[0]
             if not entity.uuid:
-                raise RuntimeError("@defered can only be used with entity with valid uuid")
+                raise RuntimeError("@deferred can only be used with entity with valid uuid")
             raise NotImplementedError()
         else:
             return fn(*args, **kwargs)
