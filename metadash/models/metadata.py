@@ -27,6 +27,18 @@ class Property(AttributeModel):
         return '<Property "{}":"{}" of Entiry({}): %s, %s:%s>'.format(self.key, self.value, self.entity)
 
 
+def list_property_creator(key, value):
+    if not isinstance(value, list):
+        return Property(key, value)
+    else:
+        if len(value) > 1 or len(value) == 0:
+            raise NotImplementedError()
+        return [Property(key, value) for value in value]
+
+
+Property.__creator__ = list_property_creator
+
+
 class Detail(AttributeModel):
     """
     Detail, key-value pair with big value, for logs, huge parameters.
