@@ -3,20 +3,26 @@ Some basic metadata
 """
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from .base import SharedAttributeModel, AttributeModel
+from .types import UUID
+from .collections import attribute_mapped_list_collection
 from . import db
 
 
 class Property(AttributeModel):
     """
-    Property, key-value pair, indexed for querying
+    Property, key-value pairs, indexed for querying
     Object <-- Property
     """
     __alias__ = 'property'
     __tablename__ = 'metadash_property'
-    __collector__ = attribute_mapped_collection("key")
+    __collector__ = attribute_mapped_list_collection("key")
     __composer__ = "value"
 
-    key = db.Column(db.String(255), nullable=False, index=True, primary_key=True, unique_attribute=True)
+    # Use a standalone id, a surrogate key to allow a entity to have multiple
+    # property with same 'key' value
+    id = db.Column(db.Integer, nullable=False, primary_key=True, autoincrement=True)
+
+    key = db.Column(db.String(255), nullable=False, index=True)
     value = db.Column(db.String(3072), nullable=False, index=True)
 
     def __init__(self, key, value):
@@ -31,8 +37,6 @@ def list_property_creator(key, value):
     if not isinstance(value, list):
         return Property(key, value)
     else:
-        if len(value) > 1 or len(value) == 0:
-            raise NotImplementedError()
         return [Property(key, value) for value in value]
 
 
@@ -41,16 +45,13 @@ Property.__creator__ = list_property_creator
 
 class Detail(AttributeModel):
     """
-    Detail, key-value pair with big value, for logs, huge parameters.
-    Only key is indexed.
-    Object <-- Detail
     """
     __alias__ = 'detail'
     __tablename__ = 'metadash_detail'
     __collector__ = attribute_mapped_collection("key")
     __composer__ = "value"
 
-    key = db.Column(db.String(255), nullable=False, index=True, primary_key=True, unique_attribute=True)
+    key = db.Column(db.String(255), nullable=False, index=True, unique_attribute=True)
     value = db.Column(db.Text(), nullable=False)
 
     def __init__(self, key, value):

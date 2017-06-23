@@ -69,18 +69,23 @@ class AttributeMeta(type(Model)):
         dict_['ref_name'] = proxy_name if composer else backref_name
 
         # Build foreign key and relationship
+        has_primary_key = False
+        for key, value in dict_.items():
+            if isinstance(value, db.Column):
+                if value.unique_attribute:
+                    table_args = table_args + (
+                        db.UniqueConstraint('entity_uuid', key,
+                                            name='_{}_metadash_attr_{}_uc'.format(
+                                                tablename, value.name)), )
+                if value.primary_key:
+                    has_primary_key = True
+
         dict_['entity_uuid'] = db.Column(
-            UUID(), index=True, nullable=False, primary_key=True)
+            UUID(), index=True, nullable=False, primary_key=not has_primary_key)
         table_args = table_args + (
             db.ForeignKeyConstraint(['entity_uuid'], [MetadashEntity.uuid],
                                     name="_metadash_{}_fc".format(tablename),
                                     ondelete="CASCADE"),)
-        for key, value in dict_.items():
-            if isinstance(value, db.Column) and value.unique_attribute:
-                table_args = table_args + (
-                    db.UniqueConstraint('entity_uuid', key,
-                                        name='_{}_metadash_attr_{}_uc'.format(
-                                            tablename, value.name)), )
         dict_['entity'] = db.relationship(
             MetadashEntity,
             primaryjoin=dict_['entity_uuid'] == MetadashEntity.uuid,
