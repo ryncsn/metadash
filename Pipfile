@@ -15,6 +15,7 @@ Flask-SQLAlchemy = "*"
 resultsdb_api = "*"
 Flask-SocketIO = "*"
 Flask-Session = "*"
+uWSGI = "*"
 
 [dev-packages]
 flake8 = "*"
