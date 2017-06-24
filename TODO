@@ -60,13 +60,9 @@
 
 * CSRF
 
-* Unified error handling for front
-
 * Read theme and layout from cookie
 
-* Cache
-
-* Frontend drawer for Error info
+* Frontend drawer
 
 * SocketIO for delay
 

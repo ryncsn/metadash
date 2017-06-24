@@ -1,9 +1,11 @@
 <template>
   <pf-layout id="app" :icons="true">
-    <bs-modal title="User Info" effect="fade" width="800" :value="showPersonalModal" @closed="showPersonalModal = false">
-      <user v-show="loggedIn" slot="modal-body" class="modal-body" @success="showPersonalModal = false">
+    <pf-notifications ref="notifications">
+    </pf-notifications>
+    <bs-modal title="User Info" effect="fade" width="800" :value="showTopModal" @closed="showTopModal = false">
+      <user v-show="loggedIn" slot="modal-body" class="modal-body" @success="showTopModal = false">
       </user>
-      <login v-show="!loggedIn" slot="modal-body" class="modal-body" @success="showPersonalModal = false">
+      <login v-show="!loggedIn" slot="modal-body" class="modal-body" @success="showTopModal = false">
       </login>
       <div slot="modal-footer">
         <div v-if="loginModalInfo" class="alert alert-danger">
@@ -57,7 +59,7 @@ export default {
   components: { Login, User },
   data () {
     return {
-      showPersonalModal: false,
+      showTopModal: false,
       showErrorModal: false,
       loginModalInfo: '',
       errorModalInfo: ''
@@ -65,7 +67,7 @@ export default {
   },
   methods: {
     loginModal (info) {
-      this.showPersonalModal = !this.showPersonalModal
+      this.showTopModal = !this.showTopModal
       this.loginModalInfo = info
     },
     errorNotice (info) {
@@ -83,12 +85,12 @@ export default {
         } else if (!response.ok) {
           response.json().then((data) => {
             if (data.message) {
-              alert(data.message)
+              this.$refs.notifications.add(data.message, 'danger')
             } else {
-              alert('Unknown Error: ' + JSON.stringify(data))
+              this.$refs.notifications.add('Unknown Error: ' + JSON.stringify(data), 'danger')
             }
           }, () => {
-            alert('Unhandled Error ' + JSON.stringify(response.body))
+            this.$refs.notifications.add(response.body, 'danger')  // TODO: Danger!!!
           })
           return response
         }
