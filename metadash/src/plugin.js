@@ -5,8 +5,13 @@ const PluginRoutes = []
 for (let pluginName in Plugins) {
   let plugin = Plugins[pluginName]
 
+  if (plugin.path.indexOf('/') !== 0) {
+    console.log("Plugin's path should start with '/'")
+    plugin.path = '/' + plugin.path
+  }
+
   let pluginRoute = {
-    path: '/' + plugin.path,
+    path: plugin.path,
     name: plugin.title,
     component: plugin.entry
   }
