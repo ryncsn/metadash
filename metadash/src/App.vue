@@ -75,7 +75,7 @@ export default {
       this.loginModalInfo = info
     }
   },
-  mounted () {
+  created () {
     let vm = this
     Vue.http.interceptors.push((request, next) => {
       next((response) => {
@@ -90,13 +90,15 @@ export default {
               this.$refs.notifications.add('Unknown Error: ' + JSON.stringify(data), 'danger')
             }
           }, () => {
-            this.$refs.notifications.add(response.body, 'danger')  // TODO: Danger!!!
+            this.$refs.notifications.add(response.body || 'No Response', 'danger')  // TODO: Danger!!!
           })
           return response
         }
         return response
       })
     })
+  },
+  mounted () {
   },
   computed: {
     loggedIn () {
