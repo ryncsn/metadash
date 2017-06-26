@@ -66,28 +66,32 @@ class DependencyError(MetadashException):
     status_code = 503
 
 
+def response_exception(error):
+    response = jsonify({
+        'message': error.message,
+    })
+    response.status_code = error.status_code
+
+    if isinstance(error, RemoteAuthError):
+        if error.mech == 'global-kerberos':
+            try:
+                utils.kinit()
+            except RuntimeError as new_error:
+                response = jsonify({
+                    'message': 'Kerberos init failed with "{}", caused by "{}"'.format(new_error, error.message),
+                })
+                response.status_code = error.status_code
+            else:
+                response = jsonify({
+                    'message': 'Kerberos crenditional expired and just refreshed, please refresh this page to try again.',
+                })
+                response.status_code = 202
+
+    logger.exception(error)
+    return response
+
+
 def init_app(app):
     @app.errorhandler(MetadashException)
     def handle_invalid_usage(error):
-        response = jsonify({
-            'message': error.message,
-        })
-        response.status_code = error.status_code
-
-        if isinstance(error, RemoteAuthError):
-            if error.mech == 'global-kerberos':
-                try:
-                    utils.kinit()
-                except RuntimeError as new_error:
-                    response = jsonify({
-                        'message': 'Kerberos init failed with "{}", caused by "{}"'.format(new_error, error.message),
-                    })
-                    response.status_code = error.status_code
-                else:
-                    response = jsonify({
-                        'message': 'Kerberos crenditional expired and just refreshed, please refresh this page to try again.',
-                    })
-                    response.status_code = 202
-
-        logger.exception(error)
-        return response
+        response_exception(error)

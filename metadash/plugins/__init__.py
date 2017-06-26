@@ -28,7 +28,7 @@ def process_configs(plugin_meta):
     load_meta(config_meta, plugin_name)
 
 
-def init_meta(plugin_dir):
+def init_meta(plugin_dir, app):
     with open(os.path.join(plugin_base, plugin_dir, "plugin.json")) as meta_file:
         plugin_meta = json.load(meta_file)
         if not plugin_meta.get('name'):
@@ -43,6 +43,9 @@ def init_meta(plugin_dir):
 
             # XXX: strange workaround for sqlalchemy dialect loading
             setattr(Plugins, plugin_dir, importlib.import_module("metadash.plugins.{}".format(plugin_dir)))
+            module = importlib.import_module("metadash.plugins.{}".format(plugin_dir))
+            if hasattr(module, 'regist'):
+                module.regist(app)
         except Exception:
             # Just crash on plugin loading error, it's trouble some to clean up a failed plugin
             logger.error("Got exception during initializing plugin: {}".format(plugin_meta["name"]))
@@ -74,7 +77,7 @@ class Plugins(object):
         plugin_dirs = get_plugin_dirs()
 
         for plugin in plugin_dirs:
-            init_meta(plugin)
+            init_meta(plugin, app)
 
         for plugin in plugin_dirs:
             init_modal(plugin)
