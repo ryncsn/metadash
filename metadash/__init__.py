@@ -85,11 +85,6 @@ from metadash.async import socketio # noqa
 socketio.init_app(app)
 
 
-@app.route('/config')
-def send_config(path):
-    return jsonify(config.PUBLIC)
-
-
 # If not catch by any view, fallback to index on non-static
 @app.route('/', defaults={"path": ""})
 @app.route('/<path>')
