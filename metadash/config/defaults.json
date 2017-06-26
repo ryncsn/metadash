@@ -1,15 +1,8 @@
 {
-    "RESULTSDB_API": {
-        "description": "URL for ResultsDB API",
-        "default": null,
-        "secret": false,
-        "nullable": false
-    },
     "LDAP_SERVER": {
         "description": "LDAP server for authentication",
         "default": null,
         "secret": false,
         "nullable": false
     }
-
 }
