@@ -10,7 +10,7 @@ app = Blueprint = Blueprint("jobs", __name__)
 
 @app.route("/get-jobs", methods=["POST"])
 def get_jobs():
-    res = requests.post(Config.get("GET_JOBS_URL"), request.json)
+    res = requests.get(Config.get("GET_JOBS_URL"), request.json)
     res.raise_for_status()
     return res.text
 
