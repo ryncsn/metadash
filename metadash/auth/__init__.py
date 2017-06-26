@@ -30,7 +30,12 @@ def get_current_user_role():
     else:
         username = session.get('username')
         if username:
-            return User.query.filter(User.username == username).first().role
+            user = User.query.filter(User.username == username).first()
+            if not user:
+                del session['username']
+                return 'anonymous'
+            else:
+                return user.role
         else:
             return 'anonymous'
 
