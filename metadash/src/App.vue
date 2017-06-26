@@ -15,7 +15,7 @@
       </div>
     </bs-modal>
     <li slot="utility-menu">
-      <a class="nav-item-iconic" @click="loginModal()">
+      <a class="nav-item-iconic" @click="loginModal(true)">
         <span class="fa fa-user" title="User" data-toggle="modal" data-target=".bs-example-modal-sm"></span>
       </a>
     </li>
@@ -66,8 +66,8 @@ export default {
     }
   },
   methods: {
-    loginModal (info) {
-      this.showTopModal = !this.showTopModal
+    loginModal (show, info) {
+      this.showTopModal = show
       this.loginModalInfo = info
     },
     errorNotice (info) {
@@ -80,7 +80,7 @@ export default {
     Vue.http.interceptors.push((request, next) => {
       next((response) => {
         if (response.status === 401) {
-          vm.loginModal("You don'e have required permission")
+          vm.loginModal(true, "You don'e have required permission")
           return response
         } else if (response.status === 202) {
           response.json().then((data) => {

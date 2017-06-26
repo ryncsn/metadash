@@ -12,7 +12,7 @@
           {{ role }}
           <br>
           <br>
-          <button v-if="username" class="btn btn-danger btn-lg" :class="" type="button" @click="logout">Logout</button>
+          <button v-if="username" class="btn btn-danger btn-lg" :class="{'disabled': logoutInProgress}" type="button" @click="logout">Logout</button>
         </div>
       </div>
     </div>
@@ -23,16 +23,20 @@
 export default {
   name: 'user',
   data () {
-    return {}
+    return {
+      logoutInProgress: false
+    }
   },
   methods: {
     logout () {
+      this.logoutInProgress = true
       this.$store.dispatch('logout')
         .then(() => {
           this.$emit('success')
         }, () => {
           this.$emit('failed')
         })
+        .then(() => { this.logoutInProgress = false })
     }
   },
   computed: {
