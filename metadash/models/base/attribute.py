@@ -106,7 +106,7 @@ class SharedAttributeMeta(type(Model)):
     # pylint: disable=no-self-argument
     def __init__(cls, classname, bases, dict_, **kwargs):
         if classname == "SharedAttributeModel":
-            type.__init__(type, classname, bases, dict_, **kwargs, **kwargs)
+            type.__init__(type, classname, bases, dict_, **kwargs)
         else:
             super(SharedAttributeMeta, cls).__init__(classname, bases, dict_, **kwargs)
 
