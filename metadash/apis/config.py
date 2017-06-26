@@ -39,7 +39,6 @@ class ConfigDetail(Resource):
     def put(self, key):
         args = ConfigParser.parse_args()
         Config.set(key, args['value'])
-        Config.save()
         return _format(Config.get_config(key))
 
     def get(self, key):

@@ -85,14 +85,14 @@ from metadash.async import socketio # noqa
 socketio.init_app(app)
 
 
-# If not catch by any view, fallback to index on non-static
 @app.route('/', defaults={"path": ""})
 @app.route('/<path>')
 def index(path):
     return app.send_static_file('index.html')
+
+
+# If not catch by any view, fallback to index on non-static
+@app.errorhandler(404)
+def page_not_found(e):
+    return app.send_static_file('index.html'), 200
 # Then fallback to static files
-
-
-# Load saved configs
-with app.app_context():
-    Config.load()

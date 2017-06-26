@@ -12,6 +12,7 @@ basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../metadash")
 
 
 class ConfigItem(object):
+
     def __init__(self, key, value=None, **kwargs):
         self.description = kwargs.pop("description", "No description")
         self.nullable = kwargs.pop("nullable", False)
@@ -24,8 +25,6 @@ class ConfigItem(object):
 
         if kwargs:
             raise ConfigError("Unrecognized params: {}".format(",".join(kwargs.keys())))
-
-        self.value = value or self.default
         self.key = key
 
     def validate(self):
@@ -35,6 +34,26 @@ class ConfigItem(object):
         if self.nullable is False and self.value is None:
             raise ConfigError("Config {} don't have a value"
                               .format(self.key))
+
+    @property
+    def value(self):
+        if self.secret:
+            raise NotImplementedError()
+        session = db.create_scoped_session()
+        db_instance, _ = get_or_create(session, ConfigItemModel, key=self.key)
+        if _:
+            db_instance.value = self.default
+        session.commit()
+        return db_instance.value
+
+    @value.setter
+    def value(self, value):
+        if self.secret:
+            raise NotImplementedError()
+        session = db.create_scoped_session()
+        db_instance, _ = get_or_create(session, ConfigItemModel, key=self.key)
+        db_instance.value = value
+        session.commit()
 
 
 class Config(object):
@@ -50,31 +69,6 @@ class Config(object):
         """
         session = db.create_scoped_session()
         ConfigItemModel.__table__.create(session.bind, checkfirst=True)
-        session.commit()
-
-    @staticmethod
-    def save():
-        """
-        Save to database
-        """
-        session = db.create_scoped_session()
-        for key, item in Config.__all__.items():
-            if item.secret:
-                continue
-            db_instance, _ = get_or_create(session, ConfigItemModel, key=key)
-            db_instance.value = item.value
-        session.commit()
-
-    @staticmethod
-    def load():
-        """
-        Load from database,
-        only load existing config items.
-        """
-        session = db.create_scoped_session()
-        for db_instance in session.query(ConfigItemModel).filter(
-                ConfigItemModel.key.in_(Config.__all__.keys())).all():
-            Config.__all__[db_instance.key].value = db_instance.value
         session.commit()
 
     @staticmethod
@@ -121,6 +115,7 @@ class Config(object):
         """
         Set value of a config item
         """
+        global __all__
         ret = Config.__all__.get(key)
         if not ret:
             raise ConfigError("Trying to access non-exist config item {}"
