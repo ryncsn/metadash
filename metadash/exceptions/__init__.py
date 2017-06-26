@@ -2,22 +2,20 @@
 Some built in Exceptions
 """
 from flask import jsonify
+from .. import utils
 from .. import logger
 
 
 class MetadashException(Exception):
     def __init__(self, *args, **kwargs):
         super(MetadashException, self).__init__(*args, **kwargs)
-
-    @property
-    def message(self):
-        return " ".join(self.args) if len(self.args) != 0 else "Unknown Error"
+        self.message = " ".join(self.args) if len(self.args) != 0 else "Unknown Error"
 
     handlers = []
     status_code = 500
 
 
-class CriticalError(Exception):
+class CriticalError(MetadashException):
     """
     Dont't Panic!
     """
@@ -46,6 +44,10 @@ class RemoteAuthError(MetadashException):
     Metadash should be able to handle it and try again, but if
     it failed, maybe 511 code could be used?
     """
+    def __init__(self, mech, message):
+        self.mech = mech
+        self.message = message
+
     handlers = []
     status_code = 511
 
@@ -71,5 +73,21 @@ def init_app(app):
             'message': error.message,
         })
         response.status_code = error.status_code
+
+        if isinstance(error, RemoteAuthError):
+            if error.mech == 'global-kerberos':
+                try:
+                    utils.kinit()
+                except RuntimeError as new_error:
+                    response = jsonify({
+                        'message': 'Kerberos init failed with "{}", caused by "{}"'.format(new_error, error.message),
+                    })
+                    response.status_code = error.status_code
+                else:
+                    response = jsonify({
+                        'message': 'Kerberos crenditional expired and just refreshed, please refresh this page to try again.',
+                    })
+                    response.status_code = 202
+
         logger.exception(error)
         return response

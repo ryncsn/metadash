@@ -82,6 +82,12 @@ export default {
         if (response.status === 401) {
           vm.loginModal("You don'e have required permission")
           return response
+        } else if (response.status === 202) {
+          response.json().then((data) => {
+            this.$refs.notifications.add(data.message, 'info')
+          }, () => {
+            this.$refs.notifications.add(response.body || 'No Response', 'warning')  // TODO: Danger!!!
+          })
         } else if (!response.ok) {
           response.json().then((data) => {
             if (data.message) {

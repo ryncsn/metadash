@@ -1,6 +1,5 @@
 from flask import jsonify, session, abort, make_response
 from functools import wraps
-from ..exceptions import AuthError  # TODO
 from config import ActiveConfig as config
 from .user import User
 

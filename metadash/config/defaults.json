@@ -4,5 +4,17 @@
         "default": null,
         "secret": false,
         "nullable": false
+    },
+    "KERBEROS_KEYTAB_FILE": {
+        "description": "Keytab for kerberos authentication, if any plugin requires kerberos authentication to work, this can help to reauth on authentication failure",
+        "default": null,
+        "secret": false,
+        "nullable": false
+    },
+    "KERBEROS_PRINCIPLE": {
+        "description": "Principle for kerberos authentication, if any plugin requires kerberos authentication to work, this can help to reauth on authentication failure",
+        "default": null,
+        "secret": false,
+        "nullable": false
     }
 }
