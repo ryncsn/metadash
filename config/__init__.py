@@ -17,6 +17,7 @@ class Config(object):
     SECRET_KEY = ''  # Replace with some random string please
     SECURITY = False
     CACHE_DEFAULT_BACKEND = 'dogpile.cache.memory'
+    CACHE_ARGUEMENTS = {}
     DEFERD_ENABLED = False
     DEBOUNCE_ENABLED = False
 
