@@ -1,0 +1,20 @@
+{
+    "name": "resultsdb-plugin",
+    "author": "Kairui Song",
+    "description": "Provide test result management using ResultsDB as backend",
+    "configs": {
+        "RESULTSDB_API_URL": {
+            "description": "API URL for ResultsDB",
+            "default": null,
+            "secret": false,
+            "nullable": false
+        },
+        "TESTCASE_NAMESPACE": {
+            "description": "Limit testcase namespace, when quering from resultsdb",
+            "default": null,
+            "secret": false,
+            "nullable": false
+        }
+    },
+    "version": "0.0.0"
+}
