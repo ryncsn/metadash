@@ -30,7 +30,7 @@ class ExampleAPI(Resource):
             dict_['cached_function'] = row.cached_function()
             dict_['cached_property'] = row.cached_property
             ret.append(dict_)
-        return ret
+        return jsonify(ret)
 
     def post(self):
         args = ExampleParser.parse_args()

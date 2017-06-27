@@ -8,6 +8,7 @@ from dogpile.cache.util import sha1_mangle_key
 from metadash import logger
 
 backend = ActiveConfig.CACHE_DEFAULT_BACKEND
+arguments = ActiveConfig.CACHE_ARGUEMENTS
 
 
 def flatten(obj, recusrsion=3):
@@ -37,7 +38,7 @@ def universal_key_mangler(key):
 default_region = make_region(key_mangler=universal_key_mangler).configure(
     backend,
     expiration_time=-1,
-    arguments={}
+    arguments=arguments
 )
 
 # TODO: backend using redis

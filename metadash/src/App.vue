@@ -70,6 +70,8 @@
 import Vue from 'vue'
 import Login from '@/components/Login.vue'
 import User from '@/components/User.vue'
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 export default {
   name: 'app',
   props: ['plugins'],
@@ -97,7 +99,11 @@ export default {
   created () {
     let vm = this
     Vue.http.interceptors.push((request, next) => {
+      NProgress.start()
+      console.log('start')
       next((response) => {
+        NProgress.done()
+        console.log('stop')
         if (response.status === 401) {
           vm.userModal(true, "You don'e have required permission")
           return response

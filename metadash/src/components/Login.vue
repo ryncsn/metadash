@@ -3,13 +3,13 @@
     <div class="form-group" :class="{ 'has-error': error }">
       <label class="col-sm-2 control-label" for="textInput-markup">Username</label>
       <div class="col-sm-10">
-        <input type="text" id="textInput-markup" class="form-control" v-model="username">
+        <input type="text" id="textInput-markup" class="form-control" v-model="username" @keyup.enter="login">
       </div>
     </div>
     <div class="form-group" :class="{ 'has-error': error }">
       <label class="col-sm-2 control-label" for="inputError-markup">Password</label>
       <div class="col-sm-10">
-        <input type="password" id="inputError-markup" class="form-control" v-model="password">
+        <input type="password" id="inputError-markup" class="form-control" v-model="password" @keyup.enter="login">
         <span v-if="error" class="help-block">{{ error }}</span>
       </div>
     </div>

@@ -11,3 +11,6 @@ pip env install
 python manager.py runserver
 
 It should be running, create a config/config.py for instance config.
+
+
+Run with UWSGI and Docker:
