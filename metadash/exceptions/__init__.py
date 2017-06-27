@@ -94,4 +94,4 @@ def response_exception(error):
 def init_app(app):
     @app.errorhandler(MetadashException)
     def handle_invalid_usage(error):
-        response_exception(error)
+        return response_exception(error)
