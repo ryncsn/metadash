@@ -23,4 +23,5 @@ class ExampleEntity(EntityModel):  # Inherit from EntityModel, so have a UUID
 
     @cached_entity_property()
     def cached_property(self):
+        time.sleep(1)
         return 'Cached Property'

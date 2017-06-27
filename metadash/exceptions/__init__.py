@@ -83,7 +83,7 @@ def response_exception(error):
                 response.status_code = error.status_code
             else:
                 response = jsonify({
-                    'message': 'Kerberos crenditional expired ({}) and just refreshed, please refresh this page to try again.'.format(error.messsage),
+                    'message': 'Kerberos crenditional expired ({}) and just refreshed, please refresh this page to try again.'.format(error),
                 })
                 response.status_code = 202
 
