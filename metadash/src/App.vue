@@ -100,10 +100,8 @@ export default {
     let vm = this
     Vue.http.interceptors.push((request, next) => {
       NProgress.start()
-      console.log('start')
       next((response) => {
         NProgress.done()
-        console.log('stop')
         if (response.status === 401) {
           vm.userModal(true, "You don'e have required permission")
           return response
