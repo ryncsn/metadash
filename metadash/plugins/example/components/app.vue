@@ -12,12 +12,17 @@ export default {
       msg: 'Plugin Works, will try to read from API...'
     }
   },
-  mounted () {
-    this.$http.get('/api/example/').then(res => {
-      res.json().then(json => {
-        this.msg = `Plugins works! Response: "${json[0].name}", created a entity with UUID ${json[0].uuid}`
+  methods: {
+    refresh () {
+      this.$http.get('/api/example/').then(res => {
+        res.json().then(json => {
+          this.msg = `Plugins works! Response: "${json[0].name}", created a entity with UUID ${json[0].uuid}`
+        })
       })
-    })
+    }
+  },
+  mounted () {
+    this.refresh()
   }
 }
 </script>

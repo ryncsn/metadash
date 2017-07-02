@@ -27,7 +27,7 @@
     </bs-modal>
     <ul slot="utility-menu" class="nav navbar-nav navbar-right">
       <li>
-        <a class="nav-item-iconic"> <span title="Reload Current Page" class="fa fa-refresh"></span> </a>
+        <a class="nav-item-iconic"> <span title="Reload Current Page" class="fa fa-refresh" @click="refreshCurrentPage"></span> </a>
       </li>
       <li>
         <a class="nav-item-iconic" @click="notificationDrawer(!showNotificationDrawer)"> <span title="Notifications" class="fa fa-bell"></span> </a>
@@ -61,7 +61,7 @@
       </router-link>
     </template>
     <keep-alive>
-      <router-view></router-view>
+      <router-view ref="currentRouteComponent"></router-view>
     </keep-alive>
   </pf-layout>
 </template>
@@ -72,6 +72,7 @@ import Login from '@/components/Login.vue'
 import User from '@/components/User.vue'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
+import _ from 'lodash'
 export default {
   name: 'app',
   props: ['plugins'],
@@ -94,6 +95,13 @@ export default {
     },
     makeToast (text, level) {
       this.$refs.notifications.add(text, level)
+    },
+    refreshCurrentPage () {
+      if (_.isFunction(this.$refs.currentRouteComponent.refresh)) {
+        this.$refs.currentRouteComponent.refresh()
+      } else {
+        this.makeToast("This page or this plugin doesn't support inpage refreshing, please reload the page manually.")
+      }
     }
   },
   created () {
