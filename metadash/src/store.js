@@ -35,6 +35,13 @@ const store = new Vuex.Store({
           state.username = data.username
           state.role = data.role
         })
+    },
+    fetchConfigs ({state}) {
+      return Vue.http.get('/api/configs')
+        .then(res => res.json())
+        .then(data => {
+          state.configs = data
+        })
     }
   },
   mutations: {
