@@ -67,7 +67,7 @@
         <transition-group name="job-list" tag="p">
           <job-card v-for="job in jobs" :key="job" class="job-list-item"
             @deleteJob="excludeSingleJob(job)"
-            :arch="job.arch" :product="job.product" :version="job.version" :component="job.component" :job-name="job.job_name" :jenkins-url="jenkinsUrl">
+            :arch="job.arch" :product="job.product" :version="job.version" :component="job.component" :job-name="job.job_name" :jenkins-url="jenkinsUrl" :name="job.name">
           </job-card>
         </transition-group>
         <button type="submit" class="btn btn-default btn-lg pull-right" v-on:click.stop.prevent="submit"> Trigger </button>
@@ -123,7 +123,9 @@ export default {
     getMatchedJobs: _.debounce(function () {
       this.$http.post('api/get-jobs', this.dataForSubmit())
         .then(res => res.json())
-        .then(data => { this.jobs = data })
+        .then(data => {
+          this.jobs = data
+        })
     }, 500),
 
     addArch (arch) {

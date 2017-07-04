@@ -14,7 +14,7 @@ import Dropdown from 'vue-strap/src/Dropdown'
 export default {
   name: 'job-card',
   components: { Dropdown },
-  props: [ 'arch', 'product', 'version', 'component', 'jobName', 'jenkinsUrl' ],
+  props: [ 'arch', 'product', 'version', 'component', 'jobName', 'jenkinsUrl', 'name' ],
   data () {
     return {}
   },
@@ -25,7 +25,7 @@ export default {
   },
   computed: {
     fullName () {
-      return `${this.component}-${this.product}-${this.version}-${this.arch}-${this.jobName}`
+      return this.name
     },
     runtestName () {
       return `${this.component}-${this.product}-${this.version}-runtest-${this.arch}-${this.jobName}`
