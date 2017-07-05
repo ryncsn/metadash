@@ -2,6 +2,7 @@
 Helper mostly for internal use
 """
 from ... import logger
+from functools import wraps
 from sqlalchemy.ext.associationproxy import (
     _AssociationDict, _AssociationSet, _AssociationList)
 
@@ -88,3 +89,27 @@ class _Jsonable(object):
         return dict([(_c.name, _format_for_json(getattr(self, _c.name)))
                      for _c in
                      only or set(self.__table__.columns + (extra or [])) - set(exclude or [])])
+
+
+class hybridmethod(object):
+    """
+    High performance hybrid function wrapper
+    """
+    __slot__ = ['context', 'method', 'clsmethod']
+
+    def __init__(self, func):
+        self.clsmethod = self.method = wraps(func)(lambda *a, **kw: func(self.context, *a, **kw))
+
+    def classmethod(self, func):
+        """
+        Function to call when calling with class
+        """
+        self.clsmethod = wraps(func)(lambda *a, **kw: func(self.context, *a, **kw))
+        return self
+
+    def __get__(self, instance, cls):
+        if instance is None:
+            self.context = cls
+            return self.clsmethod
+        self.context = instance
+        return self.method
