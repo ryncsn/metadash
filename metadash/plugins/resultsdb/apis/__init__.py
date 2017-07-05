@@ -15,7 +15,7 @@ TestResultParser.add_argument('testcase', type=str, required=True, location='jso
 TestResultParser.add_argument('testgroups', type=list, required=True, location='json', default=[])
 TestResultParser.add_argument('ref_url', type=str, required=True, location='json')
 
-Blueprint = Blueprint('result', __name__)
+Blueprint = Blueprint('results-db', __name__)
 
 Api = Api(Blueprint)
 
