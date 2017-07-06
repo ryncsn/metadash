@@ -1,34 +1,34 @@
 from flask import Blueprint, request
 from flask_restful import Resource, Api, abort
 
-from ..models import TestResult, TestCase, TestGroup
+from ..models import ResultsDBTestResult, ResultsDBTestCase, ResultsDBTestGroup
 from metadash.models import db
 from metadash.apis import default_entity_parser
 
-TestGroupParser = default_entity_parser(TestGroup)
-TestGroupParser.add_argument('descrition', type=str, required=True, location='json')
-TestGroupParser.add_argument('ref_url', type=str, default='', location='json')
+ResultsDBTestGroupParser = default_entity_parser(ResultsDBTestGroup)
+ResultsDBTestGroupParser.add_argument('descrition', type=str, required=True, location='json')
+ResultsDBTestGroupParser.add_argument('ref_url', type=str, default='', location='json')
 
-TestResultParser = default_entity_parser(TestResult)
-TestResultParser.add_argument('outcome', type=str, required=True, location='json')
-TestResultParser.add_argument('testcase', type=str, required=True, location='json')
-TestResultParser.add_argument('testgroups', type=list, required=True, location='json', default=[])
-TestResultParser.add_argument('ref_url', type=str, required=True, location='json')
+ResultsDBTestResultParser = default_entity_parser(ResultsDBTestResult)
+ResultsDBTestResultParser.add_argument('outcome', type=str, required=True, location='json')
+ResultsDBTestResultParser.add_argument('testcase', type=str, required=True, location='json')
+ResultsDBTestResultParser.add_argument('testgroups', type=list, required=True, location='json', default=[])
+ResultsDBTestResultParser.add_argument('ref_url', type=str, required=True, location='json')
 
 Blueprint = Blueprint('results-db', __name__)
 
 Api = Api(Blueprint)
 
 
-class TestCaseList(Resource):
+class ResultsDBTestCaseList(Resource):
     def get(self):
-        return [result.as_dict() for result in TestCase.query.all()]
+        return [result.as_dict() for result in ResultsDBTestCase.query.all()]
 
 
-class TestResultList(Resource):
+class ResultsDBTestResultList(Resource):
     def post(self):
-        args = TestResultParser.parse_args()
-        result = TestResult()
+        args = ResultsDBTestResultParser.parse_args()
+        result = ResultsDBTestResult()
         result.from_dict(args)
         result.tags.append("statistic")
         db.session.add(result)
@@ -36,21 +36,21 @@ class TestResultList(Resource):
         return result.as_dict()
 
     def get(self):
-        return TestResult.fetch(**request.args)  # TODO: Danger!!!
+        return ResultsDBTestResult.fetch(**request.args)  # TODO: Danger!!!
 
 
-class TestResultDetail(Resource):
+class ResultsDBTestResultDetail(Resource):
     def get(self, uuid_):
-        result = TestResult.query.get(uuid_)
+        result = ResultsDBTestResult.query.get(uuid_)
         if not result:
-            abort(404, message="TestResult {} doesn't exist".format(uuid_))
+            abort(404, message="ResultsDBTestResult {} doesn't exist".format(uuid_))
         return result.as_dict()
 
 
-class TestGroupList(Resource):
+class ResultsDBTestGroupList(Resource):
     def post(self):
-        args = TestGroupParser.parse_args()
-        group = TestGroup()
+        args = ResultsDBTestGroupParser.parse_args()
+        group = ResultsDBTestGroup()
         group.from_dict(args)
         group.tags.append("statistic")
         db.session.add(group)
@@ -58,28 +58,28 @@ class TestGroupList(Resource):
         return group.as_dict()
 
     def get(self):
-        return [group.as_dict() for group in TestGroup.query.all()]
+        return [group.as_dict() for group in ResultsDBTestGroup.query.all()]
 
 
-class TestGroupDetail(Resource):
+class ResultsDBTestGroupDetail(Resource):
     def put(self, uuid_):
-        group = TestGroup.query.get(uuid_)
+        group = ResultsDBTestGroup.query.get(uuid_)
         if not group:
-            abort(404, message="TestGroup {} doesn't exist".format(uuid_))
-        args = TestGroupParser.parse_args()
+            abort(404, message="ResultsDBTestGroup {} doesn't exist".format(uuid_))
+        args = ResultsDBTestGroupParser.parse_args()
         group.from_dict(args)
         db.session.commit()
         return group.as_dict(detail=True)
 
     def get(self, uuid_):
-        group = TestGroup.query.get(uuid_)
+        group = ResultsDBTestGroup.query.get(uuid_)
         if not group:
-            abort(404, message="TestGroup {} doesn't exist".format(uuid_))
+            abort(404, message="ResultsDBTestGroup {} doesn't exist".format(uuid_))
         return group.as_dict(detail=True)
 
 
-Api.add_resource(TestCaseList, '/cases/', endpoint='cases')
-Api.add_resource(TestResultList, '/results/', endpoint='results')
-Api.add_resource(TestResultDetail, '/results/<uuid_>', endpoint='result_details')
-Api.add_resource(TestGroupList, '/groups/', endpoint='groups')
-Api.add_resource(TestGroupDetail, '/groups/<uuid_>', endpoint='group_details')
+Api.add_resource(ResultsDBTestCaseList, '/cases/', endpoint='cases')
+Api.add_resource(ResultsDBTestResultList, '/results/', endpoint='results')
+Api.add_resource(ResultsDBTestResultDetail, '/results/<uuid_>', endpoint='result_details')
+Api.add_resource(ResultsDBTestGroupList, '/groups/', endpoint='groups')
+Api.add_resource(ResultsDBTestGroupDetail, '/groups/<uuid_>', endpoint='group_details')

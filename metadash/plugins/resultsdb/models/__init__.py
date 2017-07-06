@@ -37,7 +37,7 @@ def handle_404(func):
     return fn
 
 
-class TestCase(EntityModel):  # Inherit from EntityModel, so have a UUID
+class ResultsDBTestCase(EntityModel):  # Inherit from EntityModel, so have a UUID
     """
     Stands for a test case
     """
@@ -65,14 +65,14 @@ class TestCase(EntityModel):  # Inherit from EntityModel, so have a UUID
         self.raw['ref_url'] = value
 
     def as_dict(self, detail=True):
-        ret = super(TestCase, self).as_dict(detail=detail)
+        ret = super(ResultsDBTestCase, self).as_dict(detail=detail)
         ret['name'] = self.name
         ret['results'] = self.results
         ret['ref_url'] = self.ref_url
         return ret
 
 
-class TestResult(EntityModel):
+class ResultsDBTestResult(EntityModel):
     """
     Reference to a Test Result on ResultDB
     Used to maintain local constraints, and make metadata tracking easier
@@ -148,7 +148,7 @@ class TestResult(EntityModel):
         self.raw['groups'] = value
 
     def as_dict(self, detail=True):
-        ret = super(TestResult, self).as_dict(detail)
+        ret = super(ResultsDBTestResult, self).as_dict(detail)
         ret['id'] = self.id
         ret['outcome'] = self.outcome
         ret['testcase'] = self.testcase
@@ -157,7 +157,7 @@ class TestResult(EntityModel):
         return ret
 
 
-class TestGroup(BareEntityModel):
+class ResultsDBTestGroup(BareEntityModel):
     """
     Reference to a Test Group on ResultDB
     Used to maintain local constraints, and make metadata tracking easier
@@ -187,11 +187,11 @@ class TestGroup(BareEntityModel):
 
     @cached_entity_property
     @deferred
-    def results(self) -> List[TestResult]:
+    def results(self) -> List[ResultsDBTestResult]:
         return API().get_results(groups=self.uuid, limit=FOREIGN_OBJECT_LIMIT)['data']
 
     def as_dict(self, detail=True):
-        ret = super(TestGroup, self).as_dict()
+        ret = super(ResultsDBTestGroup, self).as_dict()
         ret['ref_url'] = self.ref_url
         ret['results'] = self.results
         ret['description'] = self.description
