@@ -3,14 +3,12 @@ Helper to define Entity models.
 """
 import uuid
 
-from sqlalchemy import event
-from sqlalchemy.ext.associationproxy import association_proxy
-
-from .utils import _get_table_name_dict
-from .utils import _format_for_json, _Jsonable
+from .utils import (
+    _get_table_name_dict, _format_for_json, _Jsonable, hybridmethod)
 
 from .. import db
 from ..types import UUID
+from sqlalchemy.inspection import inspect
 
 
 Model = db.Model
@@ -124,12 +122,24 @@ class EntityModel(metaclass=EntityMeta):
         """
         return '{}:{}'.format(self.__namespace__, self.uuid)
 
+    @hybridmethod
     def from_dict(self, dict_):
         """
         Inflate the instance with dict
         """
         for k, v in dict_.items():
             setattr(self, k, v)
+        return self
+
+    @from_dict.classmethod
+    def from_dict(cls, dict_):
+        """
+        Inflate the instance with dict
+        """
+        instance = cls()
+        for k, v in dict_.items():
+            setattr(instance, k, v)
+        return instance
 
     def as_dict(self, detail=True):
         """

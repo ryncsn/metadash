@@ -1,6 +1,6 @@
 from sqlalchemy.util import duck_type_collection
 from flask_restful import reqparse
-from flask import request
+from flask import request, g, jsonify
 
 from .. import logger
 
@@ -46,7 +46,30 @@ def pager(query, page=None, limit=None):
     """
     Apply limit and offset to a given SQLAlchemy query object
     """
-    page = page or request.args.get('page') or 0
-    limit = limit or request.args.get('limit') or 50
-
+    g['paged'] = True
+    g['page'] = page = page or request.args.get('page') or 0
+    g['limit'] = limit = limit or request.args.get('limit') or 50
     return query.limit(limit).offset(limit * page)
+
+
+def envolop(data, **kw):
+    """
+    Envolop return value for jsonify, if pager was used, will add
+    """
+    url = request.url
+    ret = {'data': data}
+    if g.get('paged'):
+        _ = '&' if request.args else '?'
+        template = '{url}{_}limit={limit}&page={page}'
+        page, limit = g['page'], g['limit']
+        ret['prev'] = template.format(url, _, page=page - 1, limit=limit) if page else None
+        ret['next'] = template.format(url, _, page=page - 1, limit=limit) if data else None  # FIXME: no next when next page is not avaliable
+    ret.update(kw)
+    return jsonify(ret)
+
+
+def jsonp(json, callback=None):
+    callback = callback or request.args.get('callback') or request.args.get('_')
+    if not callback:
+        raise RuntimeError('No Callback for JSONP founded')
+    return "{callback}({json})".format(callback=callback, json=json)
