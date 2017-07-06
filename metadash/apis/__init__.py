@@ -19,6 +19,7 @@ class EntityParser(reqparse.RequestParser):
     def __init__(self, entity, *a, **kw):
         kw.setdefault('bundle_errors', True)
         self.default_location = kw.pop('location', [])
+        self.relation_overlay = kw.pop('relation_overlay', True)
         super(EntityParser, self).__init__(*a, **kw)
         self.entity = entity
         self.lazy_initialized = False
@@ -26,13 +27,16 @@ class EntityParser(reqparse.RequestParser):
     def initialize(self):
         if self.entity:
             columns = inspect(self.entity).columns
-            relationships = inspect(self.entity).relationships
-            print([str(i) for i in columns])
-            print([str(i) for i in relationships])
+            relation_column = {}
+            for relationship in inspect(self.entity).relationships:
+                if len(relationship.local_columns):
+                    column, = relationship.local_columns
+                    relation_column[column.name] = relationship.key
+
             for column in columns:
                 # TODO: better validation
                 self.add_argument(
-                    column.name,
+                    column.name if column.name not in relation_column else relation_column[column.name],
                     type=column.type.python_type,
                     location=self.default_location,
                     store_missing=False,
