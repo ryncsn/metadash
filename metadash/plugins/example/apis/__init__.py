@@ -2,14 +2,14 @@ from flask import Blueprint, jsonify
 from flask_restful import Resource, Api
 from ..models import ExampleEntity
 from metadash.models import db, get_or_create
-from metadash.apis import default_entity_parser
+from metadash.apis import EntityParser
 
 
 Blueprint = Blueprint('example', __name__)
 
 Api = Api(Blueprint)
 
-ExampleParser = default_entity_parser(ExampleEntity)
+ExampleParser = EntityParser(ExampleEntity)
 
 
 def ensure_default_column():

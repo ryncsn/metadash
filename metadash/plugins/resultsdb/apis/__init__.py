@@ -3,13 +3,13 @@ from flask_restful import Resource, Api, abort
 
 from ..models import ResultsDBTestResult, ResultsDBTestCase, ResultsDBTestGroup
 from metadash.models import db
-from metadash.apis import default_entity_parser
+from metadash.apis import EntityParser
 
-ResultsDBTestGroupParser = default_entity_parser(ResultsDBTestGroup)
+ResultsDBTestGroupParser = EntityParser(ResultsDBTestGroup)
 ResultsDBTestGroupParser.add_argument('descrition', type=str, required=True, location='json')
 ResultsDBTestGroupParser.add_argument('ref_url', type=str, default='', location='json')
 
-ResultsDBTestResultParser = default_entity_parser(ResultsDBTestResult)
+ResultsDBTestResultParser = EntityParser(ResultsDBTestResult)
 ResultsDBTestResultParser.add_argument('outcome', type=str, required=True, location='json')
 ResultsDBTestResultParser.add_argument('testcase', type=str, required=True, location='json')
 ResultsDBTestResultParser.add_argument('testgroups', type=list, required=True, location='json', default=[])
