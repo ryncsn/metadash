@@ -8,7 +8,6 @@ from .utils import (
 
 from .. import db
 from ..types import UUID
-from sqlalchemy.inspection import inspect
 
 
 Model = db.Model

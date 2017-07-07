@@ -62,9 +62,7 @@ def _pluralize(singular):
 
 def _format_for_json(data):
     """Format into json and load lazy-loading attr to prevent stall"""
-    if hasattr(data, 'as_dict'):
-        return data.as_dict()
-    elif isinstance(data, (int, float, str)):
+    if isinstance(data, (int, float, str)):
         return data
     elif isinstance(data, _AssociationDict):
         return dict(data)
@@ -74,6 +72,8 @@ def _format_for_json(data):
         return list(data)
     elif isinstance(data, dict):
         return dict([(k, _format_for_json(v)) for k, v in data.items()])
+    elif hasattr(data, 'as_dict'):
+        return data.as_dict()
     elif hasattr(data, '__iter__'):
         return [_format_for_json(_value) for _value in data]
     else:
@@ -88,7 +88,8 @@ class _Jsonable(object):
         """
         return dict([(_c.name, _format_for_json(getattr(self, _c.name)))
                      for _c in
-                     only or set(self.__table__.columns + (extra or [])) - set(exclude or [])])
+                     only or (self.__table__.columns + extra if extra else self.__table__.columns)
+                     if not exclude or _c not in exclude])
 
 
 class hybridmethod(object):

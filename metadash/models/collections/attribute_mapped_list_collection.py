@@ -27,17 +27,18 @@ class ProxyList(list):
         """
         Suppose to be used with associate proxy
         """
-        if not name.startswith('_'):
-            return [getattr(item, name) for item in self]
-        else:
+        if name.startswith('_'):
             raise AttributeError()
+        return [getattr(i, name) for i in self]
 
-    def append(self, value, _sa_initiator=None):
-        value = self._append_event(value, _sa_initiator)
+    def append(self, value, _sa_initiator=None, event=True):
+        if event is not False:
+            value = self._append_event(value, _sa_initiator)
         list.append(self, value)
 
-    def remove(self, value, _sa_initiator=None):
-        self._remove_event(value, _sa_initiator)
+    def remove(self, value, _sa_initiator=None, event=True):
+        if event is not False:
+            self._remove_event(value, _sa_initiator)
         list.remove(self, value)
 
     def pop(self, _sa_initiator=None):
@@ -77,20 +78,21 @@ class MaappedAggregationCollection(collections.defaultdict):
     @collection.appender
     def add(self, value, _sa_initiator=None):
         key = self.keyfunc(value)
-        self.__getitem__(key, raw=True).append(value, _sa_initiator)
+        self.__getitem__(key, raw=True).append(value, _sa_initiator, event=False)
 
     @collection.remover
     def remove(self, value, _sa_initiator=None):
         key = self.keyfunc(value)
-        self[key].remove(value, _sa_initiator)
+        self[key].remove(value, _sa_initiator, event=False)
 
     @collection.internally_instrumented
     def __setitem__(self, key, value):
-        if not isinstance(value, list):
-            value = [value]
         adapter = collection_adapter(self)
-        for item in value:
-            item = adapter.fire_append_event(item, None)
+        if isinstance(value, list):
+            for item in value:
+                item = adapter.fire_append_event(item, None)
+        else:
+            value = [adapter.fire_append_event(item)]
         collections.defaultdict.__setitem__(self, key, value)
 
     @collection.internally_instrumented
@@ -102,27 +104,21 @@ class MaappedAggregationCollection(collections.defaultdict):
 
     def __getitem__(self, key, raw=False):
         collection_or_item = collections.defaultdict.__getitem__(self, key)
-        if len(collection_or_item) == 1 and not self.always_use_list and not raw:
-            return collection_or_item[0]
-        return collection_or_item
+        if len(collection_or_item) != 1 or self.always_use_list or raw:
+            return collection_or_item
+        return collection_or_item[0]
 
     @collection.iterator
     def iterate(self):
         for collection_or_item in self.values():
-            if isinstance(collection_or_item, (list, set)):
-                for item in collection_or_item:
-                    yield item
-            else:
-                yield collection_or_item
+            for item in collection_or_item:
+                yield item
 
     @collection.converter
     def _convert(self, target):
         for collection_or_item in target.values():
-            if isinstance(collection_or_item, (list, set)):
-                for item in collection_or_item:
-                    yield item
-            else:
-                yield collection_or_item
+            for item in collection_or_item:
+                yield item
 
 
 def attribute_mapped_list_collection(attr_name):

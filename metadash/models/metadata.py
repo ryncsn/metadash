@@ -3,7 +3,6 @@ Some basic metadata
 """
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from .base import SharedAttributeModel, AttributeModel
-from .types import UUID
 from .collections import attribute_mapped_list_collection
 from . import db
 
@@ -51,6 +50,7 @@ class Detail(AttributeModel):
     __collector__ = attribute_mapped_collection("key")
     __composer__ = "value"
 
+    id = db.Column(db.Integer, nullable=False, primary_key=True, autoincrement=True)
     key = db.Column(db.String(255), nullable=False, index=True, unique_attribute=True)
     value = db.Column(db.Text(), nullable=False)
 
