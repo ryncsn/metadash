@@ -108,8 +108,8 @@ def pager(query, page=None, limit=None):
     Apply limit and offset to a given SQLAlchemy query object
     """
     g.paged = True
-    g.page = page = page or request.args.get('page') or 0
-    g.limit = limit = limit or request.args.get('limit') or 50
+    g.page = page = page or int(request.args.get('page') or 0)
+    g.limit = limit = limit or int(request.args.get('limit') or 50)
     return query.limit(limit).offset(limit * page)
 
 
