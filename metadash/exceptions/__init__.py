@@ -1,6 +1,8 @@
 """
 Some built in Exceptions
 """
+from sqlalchemy.exc import (
+    SQLAlchemyError, NoSuchTableError, IntegrityError, StatementError)
 from flask import jsonify
 from .. import utils
 from .. import logger
@@ -91,7 +93,32 @@ def response_exception(error):
     return response
 
 
+def response_sqlalchemy_exception(error):
+    if isinstance(error, IntegrityError):
+        response = jsonify({
+            'message': 'Failed create new data, maybe the object you are tring to create already exists.',
+        })
+        response.status_code = 409
+    elif isinstance(error, StatementError):
+        response = jsonify({
+            'message': 'Failed querying for data, there could be something wrong with your input.',
+        })
+        response.status_code = 400
+    else:
+        response = jsonify({
+            'message': 'Unknown Database error, please check your input.',
+        })
+        response.status_code = 500
+
+    logger.exception(error)
+    return response
+
+
 def init_app(app):
     @app.errorhandler(MetadashException)
-    def handle_invalid_usage(error):
+    def handle_metadash_error(error):
         return response_exception(error)
+
+    @app.errorhandler(SQLAlchemyError)
+    def handler_sqlalchemy_error(error):
+        return response_sqlalchemy_exception(error)
