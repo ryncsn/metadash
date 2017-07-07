@@ -67,3 +67,5 @@
 * SocketIO for delay
 
 * Event
+
+* Handle SQLALCHEMY Integrity check exceptions

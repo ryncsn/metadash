@@ -6,6 +6,22 @@ from flask import request, g, jsonify
 from .. import logger
 
 
+class FuncBool(object):
+    """
+    Return overlay_func's return value as bool, if return value
+    is None, return default
+    """
+    def __init__(self, func, default):
+        self.func = func
+        self.default = default
+
+    def __bool__(self):
+        ret = self.func()
+        return self.default if ret is None else ret
+
+    __nonzero__ = __bool__
+
+
 class EntityParser(reqparse.RequestParser):
     """
     A wrapper flask-restful parser, for entity
@@ -20,9 +36,16 @@ class EntityParser(reqparse.RequestParser):
         kw.setdefault('bundle_errors', True)
         self.default_location = kw.pop('location', [])
         self.relation_overlay = kw.pop('relation_overlay', True)
+        self.ignore_required_on_get = kw.pop('ignore_required_on_get', True)
         super(EntityParser, self).__init__(*a, **kw)
         self.entity = entity
         self.lazy_initialized = False
+
+    def wrapped_required(self):
+        if self.ignore_required_on_get and request.method == 'GET':
+            return False
+        else:
+            return None
 
     def initialize(self):
         if self.entity:
@@ -35,6 +58,8 @@ class EntityParser(reqparse.RequestParser):
 
             for column in columns:
                 # TODO: better validation
+                if column.name in ['namespace']:  # TODO: move this to columns defination
+                    continue
                 self.add_argument(
                     column.name if (
                         column.name not in relation_column or not self.relation_overlay
@@ -42,7 +67,7 @@ class EntityParser(reqparse.RequestParser):
                     type=column.type.python_type,
                     location=self.default_location,
                     store_missing=False,
-                    required=(column.default is None and not column.nullable),
+                    required=FuncBool(self.wrapped_required, column.default is None and not column.nullable),
                     dest=column.name
                 )
 
@@ -78,7 +103,6 @@ class EntityParser(reqparse.RequestParser):
         return super(EntityParser, self).parse_args(*a, **kw)
 
 
-
 def pager(query, page=None, limit=None):
     """
     Apply limit and offset to a given SQLAlchemy query object
@@ -95,12 +119,13 @@ def envolop(data, **kw):
     """
     url = request.url
     ret = {'data': data}
+    count = len(data)  # TODO: what if data is not countable
     if hasattr(g, 'paged'):
         _ = '&' if request.args else '?'
         template = '{url}{_}limit={limit}&page={page}'
         page, limit = g.page, g.limit
-        ret['prev'] = template.format(url, _, page=page - 1, limit=limit) if page else None
-        ret['next'] = template.format(url, _, page=page - 1, limit=limit) if data else None  # FIXME: no next when next page is not avaliable
+        ret['prev'] = template.format(url=url, _=_, page=page - 1, limit=limit) if page else None
+        ret['next'] = template.format(url=url, _=_, page=page + 1, limit=limit) if data and limit == count else None  # FIXME: no next when next page is not avaliable
     ret.update(kw)
     return jsonify(ret)
 
