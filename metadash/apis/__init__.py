@@ -36,11 +36,14 @@ class EntityParser(reqparse.RequestParser):
             for column in columns:
                 # TODO: better validation
                 self.add_argument(
-                    column.name if column.name not in relation_column else relation_column[column.name],
+                    column.name if (
+                        column.name not in relation_column or not self.relation_overlay
+                    ) else relation_column[column.name],
                     type=column.type.python_type,
                     location=self.default_location,
                     store_missing=False,
-                    required=(column.default is None and not column.nullable)
+                    required=(column.default is None and not column.nullable),
+                    dest=column.name
                 )
 
             for attr in self.entity.attribute_models:
