@@ -72,6 +72,13 @@ class EntityMeta(type(db.Model)):
 
         dict_ = dict(dict_)  # Make it writable
 
+        has_primary_key = False
+
+        for key, value in dict_.items():
+            if isinstance(value, db.Column):
+                if value.primary_key:
+                    has_primary_key = True
+
         __namespace__ = dict_.get('__namespace__',
                                   uuid.uuid5(uuid.UUID(URN), _get_table_name_dict(dict_)))
         if isinstance(__namespace__, str):
@@ -84,7 +91,7 @@ class EntityMeta(type(db.Model)):
 
         dict_['uuid'] = db.Column(
             UUID(), db.ForeignKey(MetadashEntity.uuid, ondelete="CASCADE", onupdate="RESTRICT"),
-            index=True, nullable=False, primary_key=True, default=uuid.uuid1
+            index=True, nullable=False, primary_key=not has_primary_key, default=uuid.uuid1
         )
 
         dict_['__namespace__'] = __namespace__
