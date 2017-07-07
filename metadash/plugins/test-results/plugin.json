@@ -1,0 +1,20 @@
+{
+    "name": "test-results",
+    "author": "Kairui Song",
+    "description": "Provide test result management",
+    "configs": {
+        "URL_PREFIX": {
+            "description": "If given all valid ref_url should start with this value",
+            "default": null,
+            "secret": false,
+            "nullable": false
+        },
+        "OVERVIEW_TESTRUN_PROPS": {
+            "description": "which prop should be shown on overview page",
+            "default": "component,",
+            "secret": false,
+            "nullable": false
+        }
+    },
+    "version": "0.0.0"
+}

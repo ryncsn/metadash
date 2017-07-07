@@ -92,7 +92,7 @@ class MaappedAggregationCollection(collections.defaultdict):
             for item in value:
                 item = adapter.fire_append_event(item, None)
         else:
-            value = [adapter.fire_append_event(item)]
+            value = [adapter.fire_append_event(value)]
         collections.defaultdict.__setitem__(self, key, value)
 
     @collection.internally_instrumented

@@ -69,3 +69,5 @@
 * Event
 
 * Handle SQLALCHEMY Integrity check exceptions
+
+* UUID for Config, config in store, and dynamic config update
