@@ -51,10 +51,10 @@ class TestRun(EntityModel):
 
     def as_dict(self, detail=True):
         ret = super(TestRun, self).as_dict()
-        ret['results'] = db.session.query(
-            label('count', func.count(TestResult.result)), TestResult.result)\
-            .filter(TestResult.testrun_uuid == self.uuid)\
-            .group_by(TestResult.result).all()
+        ret['results'] = dict(db.session.query(
+            TestResult.result, label('count', func.count(TestResult.result)))
+            .filter(TestResult.testrun_uuid == self.uuid)
+            .group_by(TestResult.result).all())
         return ret
 
 

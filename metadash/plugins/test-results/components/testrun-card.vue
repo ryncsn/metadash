@@ -3,7 +3,7 @@
     <div clss="pull-right">
       <a :href="ref_url" target="_blank">Testrun Page</a>
       <span class="test-summary pull-right">
-        <a href="#"><span class="pficon pficon-error-circle-o"></span> {{error}} </a>
+        <a href="#"><span class="pficon pficon-error-circle-o"></span> {{failed}} </a>
       </span>
       <span class="test-summary pull-right">
         <a href="#"><span class="pficon pficon-warning-triangle-o"></span> {{skipped}} </a>
@@ -12,7 +12,7 @@
         <a href="#"><span class="pficon pficon-ok"></span> {{passed}} </a>
       </span>
       <router-link :to="{ path: '/test-results/testrun/' + uuid }"
-        tag="button" class="btn btn-primary pull-right" type="button">Details</router-link>
+        tag="a" class="btn btn-primary pull-right" type="button">Details</router-link>
     </div>
   </pf-card>
 </template>
@@ -40,6 +40,15 @@ export default {
     },
     uuid () {
       return this.testrun.uuid
+    },
+    passed () {
+      return this.testrun.results.PASSED || 'N/a'
+    },
+    failed () {
+      return this.testrun.results.FAILED || 'N/a'
+    },
+    skipped () {
+      return this.testrun.results.SKIPPED || 'N/a'
     }
   },
   created () {
