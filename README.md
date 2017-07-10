@@ -1,16 +1,32 @@
-A webservice to manage testrun, testcase, statistic and metadata, powered by Flask.
+# Metadash
 
-Virtualenv is recommented. To get started, you need pip and npm:
+## What is it?
 
-pip install pipenv
+ * Metadash is a (meta)data manager, a data aggregator, or a data gateway, a dashboard center, and supports plugins.
+ * Metadash make use of concepts like "Generic Foreign Key(GKF)", "Entity attribute value model(EAV)", and there are two type of data in metadash, entity and attribute, each entitie have UUID for indexing and caching. Though sometimes, some of thoes conceptions are considered anti-pattern, but with powerful ORM and helpers, it's extremely flexible with acceptable performence.
+ * Metadash uses Flask, SQLAlchemy, Vue, Webpack, and some plugins for them. There are some 'magic' and workaround, by which I try to make the model and api layer neat and clean, and make plugins as simple as possible. More documents is comming later.
 
+## Get started
+(Before you get stared, you need npm and pipenv installed, and python > 3.5)
+
+```
+# Install dependencies
+pipenv install
 npm install
 
-pip env install
+# Config
+cp config/__init__.py config/config.py
+# Use you favourite editor to edit config/config.py #
 
+# Start devel server
+npm run ui-dev
 python manager.py runserver
 
-It should be running, create a config/config.py for instance config.
 
+# Build for production
+npm run build
+# Deploy it as a wsgi app, then it should work #
+```
 
-Run with UWSGI and Docker:
+Any contribute, suggestion, issue is high welcomed!
+It's not well documented and not fully implemented yet, so everything could go wrong.
