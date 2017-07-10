@@ -96,7 +96,7 @@ def response_exception(error):
 def response_sqlalchemy_exception(error):
     if isinstance(error, IntegrityError):
         response = jsonify({
-            'message': 'Failed create new data, maybe the object you are tring to create already exists.',
+            'message': 'Failed create new data, maybe the object you are tring to create already exists, or it is refering a non exist object.',
         })
         response.status_code = 409
     elif isinstance(error, StatementError):

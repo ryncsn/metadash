@@ -44,6 +44,8 @@ class TestRun(EntityModel):
     Used to maintain local constraints, and make metadata tracking easier
     """
     __tablename__ = __alias__ = __namespace__ = 'testrun'
+    STATUS = ['PENDING', 'RUNNING', 'FINISHED']  # Just reminder
+    status = db.Column(db.Enum(*STATUS), index=True, default='PENDING')
     timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated = db.Column(db.DateTime(timezone=True), onupdate=func.now())
     name = db.Column(db.String(512), nullable=False, unique=False)
