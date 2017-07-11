@@ -2,7 +2,7 @@
   <div class="container">
     <pf-toolbar :filter-fields="filterFields" views="table,card">
     </pf-toolbar>
-    <testrun-card v-for="testrun in testruns" :testrun="testrun">
+    <testrun-card v-for="testrun in testruns" :testrun="testrun" key="uuid">
     </testrun-card>
   </div>
 </template>

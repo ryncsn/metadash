@@ -35,7 +35,7 @@ class EntityParser(reqparse.RequestParser):
     def __init__(self, entity, *a, **kw):
         kw.setdefault('bundle_errors', True)
         self.default_location = kw.pop('location', [])
-        self.relation_overlay = kw.pop('relation_overlay', True)
+        self.relation_overlay = kw.pop('relation_overlay', False)
         self.ignore_required_on_get = kw.pop('ignore_required_on_get', True)
         super(EntityParser, self).__init__(*a, **kw)
         self.entity = entity
@@ -62,7 +62,7 @@ class EntityParser(reqparse.RequestParser):
                     continue
                 self.add_argument(
                     column.name if (
-                        column.name not in relation_column or not self.relation_overlay
+                        not self.relation_overlay or column.name not in relation_column
                     ) else relation_column[column.name],
                     type=column.type.python_type,
                     location=self.default_location,
