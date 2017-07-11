@@ -74,6 +74,7 @@ class TestResult(EntityModel):
     result = db.Column(db.Enum(*RESULTS), index=True, nullable=False)
     timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated = db.Column(db.DateTime(timezone=True), onupdate=func.now())
+    duration = db.Column(db.Float(), default=0.0, nullable=True)
     ref_url = db.Column(db.String(URL_LENGTH), unique=True, nullable=True)
 
     testrun_uuid = db.Column(UUID, db.ForeignKey('testrun.uuid'), nullable=False)

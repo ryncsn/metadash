@@ -7,6 +7,19 @@
     <div class="jumbotron" :style=" {'background-color': backgroundColor} ">
       <h1> {{ data.name || 'Loading...' }} </h1>
       <h3> {{ passed + " passed, " + failed + " failed, " + skipped + " skipped. " }} </h3>
+      <h6 v-for="value, key in data.properties"> {{key}}: {{value}} </h6>
+    </div>
+    <div v-if="passed">
+      <h2> Failed Test Cases: </h2>
+      <hr>
+    </div>
+    <div>
+      <h2> Skipped Test Cases: </h2>
+      <hr>
+    </div>
+    <div>
+      <h2> All Test Cases: </h2>
+      <hr>
     </div>
   </div>
 </template>
@@ -35,13 +48,13 @@ export default {
   },
   computed: {
     passed () {
-      return this.data.results.PASSED || 'N/a'
+      return this.data.results.PASSED || 0
     },
     failed () {
-      return this.data.results.FAILED || 'N/a'
+      return this.data.results.FAILED || 0
     },
     skipped () {
-      return this.data.results.SKIPPED || 'N/a'
+      return this.data.results.SKIPPED || 0
     },
     backgroundColor () {
       if (this.data.results) {
