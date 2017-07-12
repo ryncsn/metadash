@@ -22,7 +22,7 @@ class Property(AttributeModel):
     id = db.Column(db.Integer, nullable=False, primary_key=True, autoincrement=True)
 
     key = db.Column(db.String(255), nullable=False, index=True)
-    value = db.Column(db.String(3072), nullable=False, index=True)
+    value = db.Column(db.String(3072), nullable=True, index=True)
 
     def __init__(self, key, value):
         self.key = key
@@ -52,7 +52,7 @@ class Detail(AttributeModel):
 
     id = db.Column(db.Integer, nullable=False, primary_key=True, autoincrement=True)
     key = db.Column(db.String(255), nullable=False, index=True, unique_attribute=True)
-    value = db.Column(db.Text(), nullable=False)
+    value = db.Column(db.Text(), nullable=True)
 
     def __init__(self, key, value):
         self.key = key
@@ -68,8 +68,8 @@ class Tag(SharedAttributeModel):
     """
     __alias__ = 'tag'
     __tablename__ = 'metadash_tag'
-    __collector__ = set
-    __composer__ = "name"
+    __collector__ = list
+    __composer__ = 'name'
 
     name = db.Column(db.String(255), nullable=False, index=True, unique_attribute=True)
 

@@ -303,10 +303,18 @@ def init_shared_attribute(attribute):
         ))
 
         if composer:
+            def get_or_create_attribute(*args, **kwargs):
+                attribute_dict = {composer: args[0]}
+                attr = attribute.query.filter_by(**attribute_dict).first()
+                if not attr:
+                    if creator:
+                        attr = creator(*args, **kwargs)
+                    else:
+                        attr = attribute(*args, **kwargs)
+                return attr
+
             setattr(model, proxy_name,
-                    association_proxy(backref_name, composer,
-                                      **({'creator': lambda *args, **kwargs: attribute.__creator__(*args, **kwargs)}
-                                         if creator else {})))
+                    association_proxy(backref_name, composer, creator=get_or_create_attribute))
 
 
 def init():

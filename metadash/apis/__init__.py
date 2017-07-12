@@ -1,7 +1,8 @@
 from sqlalchemy import inspect
 from sqlalchemy.util import duck_type_collection
-from flask_restful import reqparse
+from flask_restful import reqparse, inputs
 from flask import request, g, jsonify
+from datetime import datetime
 
 from .. import logger
 
@@ -41,8 +42,8 @@ class EntityParser(reqparse.RequestParser):
         self.entity = entity
         self.lazy_initialized = False
 
-    def wrapped_required(self):
-        if self.ignore_required_on_get and request.method == 'GET':
+    def default_required(self):
+        if self.ignore_required_on_get and request.method in ('GET', 'PUT'):
             return False
         else:
             return None
@@ -60,14 +61,17 @@ class EntityParser(reqparse.RequestParser):
                 # TODO: better validation
                 if column.name in ['namespace']:  # TODO: move this to columns defination
                     continue
+                type_ = column.type.python_type
+                if type_ == datetime:
+                    type_ = inputs.datetime_from_iso8601
                 self.add_argument(
                     column.name if (
                         not self.relation_overlay or column.name not in relation_column
                     ) else relation_column[column.name],
-                    type=column.type.python_type,
+                    type=type_,
                     location=self.default_location,
                     store_missing=False,
-                    required=FuncBool(self.wrapped_required, column.default is None and not column.nullable),
+                    required=FuncBool(self.default_required, column.default is None and not column.nullable),
                     dest=column.name
                 )
 
@@ -76,8 +80,15 @@ class EntityParser(reqparse.RequestParser):
                 default = None
 
                 # Don't give None on empty for compatibility with associate proxy
-                if duck_type in (list, dict, set):
+                action = 'store'
+                if duck_type in (dict,):
                     default = duck_type()
+                elif duck_type in (list, set):
+                    type_ = duck_type
+                    action = 'append'
+
+                    def duck_type(x):
+                        return x
                 else:
                     default = None
 
@@ -90,6 +101,7 @@ class EntityParser(reqparse.RequestParser):
                     location=self.default_location,
                     store_missing=False,
                     default=default,
+                    action=action
                 )
 
     def parse_args(self, *a, **kw):
