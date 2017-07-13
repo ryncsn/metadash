@@ -114,6 +114,21 @@ class EntityParser(reqparse.RequestParser):
             self.default_location.extend(['json'])
         return super(EntityParser, self).parse_args(*a, **kw)
 
+    def parse_extra(self, *a, **kw):
+        """
+        Using with GET only, parse all extra aguements
+        """
+        assert (request.method == 'GET')
+        if not self.lazy_initialized:
+            self.initialize()
+        normal_arg_names = [arg.name for arg in self.args]
+        extra_args = {}  # Use MultiDict
+        for key, value in request.args.items():
+            if key in normal_arg_names:
+                continue
+            extra_args.setdefault(key, []).append(value)
+        return dict((k, v[0]) if len(v) == 1 else v for k, v in extra_args.items())
+
 
 def pager(query, page=None, limit=None):
     """

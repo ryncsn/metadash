@@ -31,6 +31,17 @@ class Property(AttributeModel):
     def __repr__(self):
         return '<Property "{}":"{}" of Entiry({}): %s, %s:%s>'.format(self.key, self.value, self.entity)
 
+    @staticmethod
+    def all_values(entity_model, key, limit=None):
+        """
+        Get all candidate value of properties belongs to a entity model
+        """
+        q = db.session.query(Property.value)\
+            .select_from(entity_model).join(Property)\
+            .filter(Property.key == key)\
+            .distinct().limit(limit or 50)
+        return [r.value for r in q.all()]
+
 
 def list_property_creator(key, value):
     if not isinstance(value, list):
@@ -78,3 +89,13 @@ class Tag(SharedAttributeModel):
 
     def __repr__(self):
         return '<Tag "{}" of Entity({}): %s, %s:%s>'.format(self.name, self.entity)
+
+    @staticmethod
+    def all_tags(entity_model, limit=None):
+        """
+        Get all candidate tags belongs to a entity model
+        """
+        q = db.session.query(Tag.name)\
+            .select_from(entity_model).join(Tag.__secondary__).join(Tag)\
+            .distinct().limit(limit or 50)
+        return [r.name for r in q.all()]

@@ -4,6 +4,7 @@ from flask_restful import Resource, Api, abort
 from ..models import TestResult, TestCase, TestRun
 from metadash.models import db, get_or_create
 from metadash.apis import EntityParser, pager, envolop
+from metadash.models.metadata import Property, Tag
 
 TestCaseParser = EntityParser(TestCase)
 TestRunParser = EntityParser(TestRun)
@@ -23,7 +24,9 @@ def create_testcase(result, args):
 class TestCaseList(Resource):
     def get(self):
         args = TestCaseParser.parse_args()
-        return envolop([result.as_dict() for result in pager(TestCase.query.filter_by(**args)).all()])
+        return envolop(
+            [result.as_dict() for result in pager(TestCase.query.filter_by(**args)).all()],
+        )
 
     def post(self):
         args = TestCaseParser.parse_args()
@@ -76,8 +79,29 @@ class TestResultDetail(Resource):
 class TestRunList(Resource):
     def get(self):
         args = TestRunParser.parse_args()
-        return envolop([testrun.as_dict() for testrun in
-                        pager(TestRun.query.filter_by(**args)).all()])
+        q = TestRun.query.filter_by(**args)
+
+        extra_args = TestRunParser.parse_extra()
+        if extra_args:
+            tags = extra_args.pop('tags', None)
+            if tags:
+                q = q.filter(TestRun.tags.contains(tags))
+            for k, v in extra_args.items():
+                q = q.filter(TestRun.properties.contains(v))  # TODO: not querying for key which is wrong
+
+        sq = q.subquery()
+        return envolop(
+            [testrun.as_dict() for testrun in
+             pager(q).all()],
+            filter_properties={
+                'build': Property.all_values(sq, 'build'),
+                'arch': Property.all_values(sq, 'arch'),
+                'component': Property.all_values(sq, 'component'),
+                'type': Property.all_values(sq, 'type'),
+                'version': Property.all_values(sq, 'version')
+            },
+            filter_tags=Tag.all_tags(TestRun)
+        )
 
     def post(self):
         args = TestRunParser.parse_args()
