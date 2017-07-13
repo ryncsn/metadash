@@ -221,14 +221,15 @@ export default {
 }
 
 .job-list-item {
-  transition: all 0.2s;
+  transition: all 0.3s;
 }
 
-.job-list-enter, .job-list-leave-to {
+.job-list-enter-active {
   opacity: 0;
 }
 
 .job-list-leave-active {
-  display: none;
+  opacity: 0;
+  float: right;
 }
 </style>

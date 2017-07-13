@@ -1,12 +1,14 @@
 <template>
   <div class="container">
     <pf-toolbar :filter-fields="filterFields" views="table,card" :filters="filters">
-      <bs-dropdown v-for="values, prop in filterProperties" :text="prop">
-        <li v-for="v in values"><a @click="applyFilter(prop, v)" href="#">{{ v }}</a></li>
+      <bs-dropdown v-for="values, prop in filterProperties" :text="prop" :key="prop">
+        <li v-for="v in values" :key="v"><a @click="applyFilter(prop, v)" href="#">{{ v }}</a></li>
       </bs-dropdown>
     </pf-toolbar>
-    <testrun-card v-for="testrun in testruns" :testrun="testrun" key="uuid">
-    </testrun-card>
+    <transition-group tag="div" name="testrun-list">
+      <testrun-card v-for="testrun in testruns" :testrun="testrun" :key="testrun.uuid" class="testrun-list-item">
+      </testrun-card>
+    </transition-group>
   </div>
 </template>
 
@@ -73,4 +75,21 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.testrun-list-item {
+  transition: all 0.5s;
+}
+.testrun-list-enter-active {
+  opacity: 0;
+}
+.testrun-list-leave-active {
+  opacity: 0;
+  height: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-top-width: 0;
+  border-bottom-width: 0;
+  float: right;
+}
 </style>

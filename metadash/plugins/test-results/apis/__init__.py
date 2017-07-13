@@ -94,11 +94,12 @@ class TestRunList(Resource):
             [testrun.as_dict() for testrun in
              pager(q).all()],
             filter_properties={
-                'build': Property.all_values(sq, 'build'),
-                'arch': Property.all_values(sq, 'arch'),
                 'component': Property.all_values(sq, 'component'),
+                'product': Property.all_values(sq, 'product'),
+                'arch': Property.all_values(sq, 'arch'),
+                'build': Property.all_values(sq, 'build'),
                 'type': Property.all_values(sq, 'type'),
-                'version': Property.all_values(sq, 'version')
+                'sub_type': Property.all_values(sq, 'sub_type'),
             },
             filter_tags=Tag.all_tags(TestRun)
         )
