@@ -5,12 +5,14 @@ from ..models import TestResult, TestCase, TestRun
 from metadash.models import db, get_or_create
 from metadash.apis import EntityParser, pager, envolop
 from metadash.models.metadata import Property, Tag
+from metadash.config import Config
 
 TestCaseParser = EntityParser(TestCase)
 TestRunParser = EntityParser(TestRun)
 TestResultParser = EntityParser(TestResult)
 
 Blueprint = Blueprint('test-results', __name__)
+
 
 Api = Api(Blueprint)
 
@@ -93,14 +95,10 @@ class TestRunList(Resource):
         return envolop(
             [testrun.as_dict() for testrun in
              pager(q).all()],
-            filter_properties={
-                'component': Property.all_values(sq, 'component'),
-                'product': Property.all_values(sq, 'product'),
-                'arch': Property.all_values(sq, 'arch'),
-                'build': Property.all_values(sq, 'build'),
-                'type': Property.all_values(sq, 'type'),
-                'sub_type': Property.all_values(sq, 'sub_type'),
-            },
+            filter_properties=dict(
+                (prop, Property.all_values(sq, prop))
+                for prop in Config.get("OVERVIEW_TESTRUN_PROPS").split(",") if prop
+            ),
             filter_tags=Tag.all_tags(TestRun)
         )
 
