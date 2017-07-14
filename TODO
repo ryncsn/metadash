@@ -71,3 +71,5 @@
 * Handle SQLALCHEMY Integrity check exceptions
 
 * UUID for Config, config in store, and dynamic config update
+
+* Cache for entity method with keyword not working

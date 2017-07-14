@@ -9,6 +9,7 @@ and often used attributes as columns.
 from sqlalchemy.sql import func, label
 
 from metadash.injector import provide
+from metadash.cache import cache_on_arguments
 from metadash.models import db
 from metadash.models.base import EntityModel
 from metadash.models.types import UUID
@@ -51,8 +52,8 @@ class TestRun(EntityModel):
     name = db.Column(db.String(512), nullable=False, unique=False)
     ref_url = db.Column(db.String(URL_LENGTH), unique=True, nullable=True)
 
-    def as_dict(self, detail=True):
-        ret = super(TestRun, self).as_dict()
+    def as_dict(self, **kwargs):
+        ret = super(TestRun, self).as_dict(**kwargs)
         ret['results'] = dict(db.session.query(
             TestResult.result, label('count', func.count(TestResult.result)))
             .filter(TestResult.testrun_uuid == self.uuid)
@@ -82,6 +83,6 @@ class TestResult(EntityModel):
     testcase_name = db.Column(db.String(512), db.ForeignKey('testcase.name'), nullable=False)
     testcase = db.relationship("TestCase", foreign_keys=[testcase_name], backref="testresults")
 
-    def as_dict(self, detail=True):
-        ret = super(TestResult, self).as_dict(detail)
+    def as_dict(self, **kwargs):
+        ret = super(TestResult, self).as_dict(**kwargs)
         return ret

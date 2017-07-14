@@ -75,9 +75,9 @@ class BareEntityModel(metaclass=BareEntityMeta):
     def identity(self):
         return '{}:{}(bare)'.format(self.__namespace__, self.uuid)
 
-    def as_dict(self, detail=False):
-        dict_ = super(BareEntityModel, self).as_dict()
-        if detail:
-            for model in self.attribute_models:
-                dict_[model.ref_name] = _format_for_json(getattr(self, model.ref_name))
+    def as_dict(self, only=None, exclude=None, extra=None):
+        extra = extra or []
+        for model in self.attribute_models:
+            extra.append(model.ref_name)
+        dict_ = super(BareEntityModel, self).as_dict(only=only, exclude=exclude, extra=extra)
         return dict_

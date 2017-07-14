@@ -147,14 +147,13 @@ class EntityModel(metaclass=EntityMeta):
             setattr(instance, k, v)
         return instance
 
-    def as_dict(self, detail=True):
+    def as_dict(self, only=None, exclude=None, extra=None):
         """
         Convert this intstance to a dict
-        Use detail=True to load all attributes
         else, only columns are loaded
         """
-        dict_ = super(EntityModel, self).as_dict()
-        if detail:
-            for model in self.attribute_models:
-                dict_[model.ref_name] = _format_for_json(getattr(self, model.ref_name))
+        extra = extra or []
+        for model in self.attribute_models:
+            extra.append(model.ref_name)
+        dict_ = super(EntityModel, self).as_dict(only=only, exclude=exclude, extra=extra)
         return dict_

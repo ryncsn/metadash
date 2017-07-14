@@ -117,6 +117,7 @@ class EntityParser(reqparse.RequestParser):
     def parse_extra(self, *a, **kw):
         """
         Using with GET only, parse all extra aguements
+        TODO: delclare property/tag explitily, limit/page is confusing
         """
         assert (request.method == 'GET')
         if not self.lazy_initialized:
@@ -124,7 +125,7 @@ class EntityParser(reqparse.RequestParser):
         normal_arg_names = [arg.name for arg in self.args]
         extra_args = {}  # Use MultiDict
         for key, value in request.args.items():
-            if key in normal_arg_names:
+            if key in normal_arg_names or key in ['limit', 'page']:
                 continue
             extra_args.setdefault(key, []).append(value)
         return dict((k, v[0]) if len(v) == 1 else v for k, v in extra_args.items())

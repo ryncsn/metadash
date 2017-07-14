@@ -86,9 +86,9 @@ class _Jsonable(object):
         """
         Format a model instance into json.
         """
-        return dict([(_c.name, _format_for_json(getattr(self, _c.name)))
+        return dict([(_c, _format_for_json(getattr(self, _c)))
                      for _c in
-                     only or (self.__table__.columns + extra if extra else self.__table__.columns)
+                     only or ([c.name for c in self.__table__.columns] + extra or [])
                      if not exclude or _c not in exclude])
 
 

@@ -58,7 +58,7 @@ class TestCaseDetail(Resource):
 class TestResultList(Resource):
     def get(self):
         args = TestResultParser.parse_args()
-        return envolop([result.as_dict() for result in
+        return envolop([result.as_dict(exclude=['details']) for result in
                         pager(TestResult.query.filter_by(**args)).all()])
 
     def post(self):
@@ -93,7 +93,7 @@ class TestRunList(Resource):
 
         sq = q.subquery()
         return envolop(
-            [testrun.as_dict() for testrun in
+            [testrun.as_dict(exclude=['details']) for testrun in
              pager(q).all()],
             filter_properties=dict(
                 (prop, Property.all_values(sq, prop))
@@ -119,12 +119,12 @@ class TestRunDetail(Resource):
         args = TestRunParser.parse_args()
         testrun.from_dict(args)
         db.session.commit()
-        return testrun.as_dict(detail=True)
+        return testrun.as_dict()
 
     def get(self, uuid_):
         testrun = TestRun.query.filter_by(uuid=uuid_).first() or abort(
             404, message="TestRun {} doesn't exist".format(uuid_))
-        return testrun.as_dict(detail=True)
+        return testrun.as_dict()
 
 
 Api.add_resource(TestCaseList, '/testcases/', endpoint='testcases')

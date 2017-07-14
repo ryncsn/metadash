@@ -6,19 +6,28 @@
     <hr>
     <div class="jumbotron" :style=" {'background-color': backgroundColor} ">
       <h1> {{ data.name || 'Loading...' }} </h1>
-      <h3> {{ passed + " passed, " + failed + " failed, " + skipped + " skipped. " }} </h3>
+      <h3> {{ passed.length + " passed, " + failed.length + " failed, " + skipped.length + " skipped. " }} </h3>
       <h6 v-for="value, key in data.properties"> {{key}}: {{value}} </h6>
     </div>
-    <div v-if="passed">
+    <div v-if="failed.length">
       <h2> Failed Test Cases: </h2>
+      <ul class="list-group">
+        <li v-for="result in failed" class="list-group-item"> {{result.testcase_name}} </li>
+      </ul>
       <hr>
     </div>
-    <div>
+    <div v-if="skipped.length">
       <h2> Skipped Test Cases: </h2>
+      <ul class="list-group">
+        <router-link tag="li" v-for="result in skipped" :to="{ path: 'test-result/' + result.uuid }" class="list-group-item"> {{result.testcase_name}} </router-link>
+      </ul>
       <hr>
     </div>
-    <div>
+    <div v-if="passed.length">
       <h2> All Test Cases: </h2>
+      <ul class="list-group">
+        <router-link tag="li" v-for="result in results" :to="{ path: 'test-result/' + result.uuid }" class="list-group-item"> {{result.testcase_name}} </router-link>
+      </ul>
       <hr>
     </div>
   </div>
@@ -30,8 +39,8 @@ export default {
   props: ['uuid'],
   data () {
     return {
-      data: {
-      }
+      data: {},
+      results: []
     }
   },
   mounted () {
@@ -43,26 +52,32 @@ export default {
         .then(res => res.json())
         .then(data => {
           this.data = data
+        }).then(() => {
+          this.$http.get('/api/testresults/?testrun_uuid=' + this.uuid)
+            .then(res => res.json())
+            .then(data => {
+              this.results = data.data
+            })
         })
     }
   },
   computed: {
     passed () {
-      return this.data.results.PASSED || 0
+      return this.results.filter(r => r.result === 'PASSED')
     },
     failed () {
-      return this.data.results.FAILED || 0
+      return this.results.filter(r => r.result === 'FAILED')
     },
     skipped () {
-      return this.data.results.SKIPPED || 0
+      return this.results.filter(r => r.result === 'SKIPPED')
     },
     backgroundColor () {
-      if (this.data.results) {
-        if (this.failed) {
+      if (this.results) {
+        if (this.failed.length) {
           return '#FFDBD8'
-        } else if (this.skipped) {
+        } else if (this.skipped.length) {
           return '#F9E79F'
-        } else if (this.passed) {
+        } else if (this.passed.length) {
           return '#D5F5E3'
         }
       }
