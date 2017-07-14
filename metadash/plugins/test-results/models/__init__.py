@@ -45,7 +45,7 @@ class TestRun(EntityModel):
     """
     __tablename__ = __alias__ = __namespace__ = 'testrun'
     STATUS = ['PENDING', 'RUNNING', 'FINISHED']  # Just reminder
-    status = db.Column(db.Enum(*STATUS), index=True, default='PENDING')
+    status = db.Column(db.Enum(*STATUS, name='testrun_status'), index=True, default='PENDING')
     timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated = db.Column(db.DateTime(timezone=True), onupdate=func.now())
     name = db.Column(db.String(512), nullable=False, unique=False)
@@ -71,7 +71,7 @@ class TestResult(EntityModel):
     RESULTS = ['PASSED', 'FAILED', 'SKIPPED', 'ERROR']  # Just reminder
     RESULTSDB_MAP = ['PASSED', 'FAILED', 'INFO', 'NEEDS_INSPECTION']  # Just reminder
 
-    result = db.Column(db.Enum(*RESULTS), index=True, nullable=False)
+    result = db.Column(db.Enum(*RESULTS, name='testresult_result'), index=True, nullable=False)
     timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated = db.Column(db.DateTime(timezone=True), onupdate=func.now())
     duration = db.Column(db.Float(), default=0.0, nullable=True)

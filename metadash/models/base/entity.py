@@ -25,14 +25,14 @@ class MetadashEntity(Model):
     """
     __tablename__ = "metadash_entity"
     __table_args__ = (
-        db.UniqueConstraint('namespace', 'uuid', name='_metadash_entity_uc'),
+        db.UniqueConstraint('namespace', 'index_uuid', name='_metadash_entity_uc'),
     )
     __namespace_map__ = {}
     __namespace__ = uuid.uuid5(uuid.UUID(URN), __tablename__)
 
     namespace = db.Column(UUID(), index=True, nullable=False, primary_key=True)
-    uuid = db.Column(UUID(), index=True, nullable=False, unique=True, primary_key=True,
-                     default=uuid.uuid1)
+    index_uuid = db.Column(UUID(), index=True, nullable=False, unique=True, primary_key=True,
+                           default=uuid.uuid1)
 
     __mapper_args__ = {
         'polymorphic_on': namespace,
@@ -89,7 +89,7 @@ class EntityMeta(type(db.Model)):
         __mapper_args__['polymorphic_identity'] = __namespace__  # TODO: Error on already set?
 
         dict_['uuid'] = db.Column(
-            UUID(), db.ForeignKey(MetadashEntity.uuid, ondelete="CASCADE", onupdate="RESTRICT"),
+            UUID(), db.ForeignKey(MetadashEntity.index_uuid, ondelete="CASCADE", onupdate="RESTRICT"),
             index=True, nullable=False, primary_key=not has_primary_key, default=uuid.uuid1
         )
 

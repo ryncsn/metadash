@@ -104,7 +104,7 @@ class MaappedAggregationCollection(collections.defaultdict):
 
     def __getitem__(self, key, raw=False):
         collection_or_item = collections.defaultdict.__getitem__(self, key)
-        if len(collection_or_item) != 1 or self.always_use_list or raw:
+        if raw or len(collection_or_item) != 1 or self.always_use_list:
             return collection_or_item
         return collection_or_item[0]
 

@@ -83,12 +83,12 @@ class AttributeMeta(type(Model)):
         dict_['entity_uuid'] = db.Column(
             UUID(), index=True, nullable=False, primary_key=not has_primary_key)
         table_args = table_args + (
-            db.ForeignKeyConstraint(['entity_uuid'], [MetadashEntity.uuid],
+            db.ForeignKeyConstraint(['entity_uuid'], [MetadashEntity.index_uuid],
                                     name="_metadash_{}_fc".format(tablename),
                                     ondelete="CASCADE"),)
         dict_['entity'] = db.relationship(
             MetadashEntity,
-            primaryjoin=dict_['entity_uuid'] == MetadashEntity.uuid,
+            primaryjoin=dict_['entity_uuid'] == MetadashEntity.index_uuid,
             # backref=backref("attributes"), TODO
             uselist=False
         )
@@ -151,14 +151,14 @@ class SharedAttributeMeta(type(Model)):
                      db.ForeignKeyConstraint(
                          ['attr_uuid'], [dict_['uuid']], ondelete="CASCADE"),
                      db.ForeignKeyConstraint(
-                         ['entity_uuid'], [MetadashEntity.uuid], ondelete="CASCADE")
+                         ['entity_uuid'], [MetadashEntity.index_uuid], ondelete="CASCADE")
                      )
         )
         dict_['entity'] = db.relationship(
             MetadashEntity,
             secondary=dict_['__secondary__'],
             primaryjoin=dict_['__secondary__'].c.attr_uuid == dict_['uuid'],
-            secondaryjoin=dict_['__secondary__'].c.entity_uuid == MetadashEntity.uuid,
+            secondaryjoin=dict_['__secondary__'].c.entity_uuid == MetadashEntity.index_uuid,
             # backref=backref("shared_attributes"), TODO
         )
 
@@ -225,7 +225,7 @@ class SharedAttributeModel(_Jsonable, Model, metaclass=SharedAttributeMeta):
     parents = association_proxy(
         'entity',
         'uuid',
-        creator=lambda uuid: MetadashEntity.query.filter(MetadashEntity.uuid == uuid).first()  # TODO: Error on empty query
+        creator=lambda uuid: MetadashEntity.query.filter(MetadashEntity.index_uuid == uuid).first()  # TODO: Error on empty query
     )
 
     def __repr__(self):
