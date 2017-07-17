@@ -9,6 +9,11 @@ export default {
   title: 'Test Results',
   children: [
     {
+      path: 'testrun/:uuid/:testcase_name',
+      component: testrunDetail,
+      props: true
+    },
+    {
       path: 'testrun/:uuid',
       component: testrunDetail,
       props: true
