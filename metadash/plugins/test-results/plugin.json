@@ -11,7 +11,7 @@
         },
         "OVERVIEW_TESTRUN_PROPS": {
             "description": "Which prop should be shown and selectable on overview page",
-            "default": "component,product,arch,build,type,sub_type",
+            "default": "component,arch,build,type,sub_type",
             "secret": false,
             "nullable": false
         }
