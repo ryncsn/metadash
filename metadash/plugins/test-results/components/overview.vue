@@ -5,6 +5,7 @@
         <li v-for="v in values" :key="v"><a @click="applyFilter(prop, v)" href="#">{{ v }}</a></li>
       </bs-dropdown>
     </pf-toolbar>
+    <horizon-loader :loading="loading"></horizon-loader>
     <transition-group tag="div" name="testrun-list">
       <testrun-card v-for="testrun in testruns" :testrun="testrun" :key="testrun.uuid" class="testrun-list-item">
       </testrun-card>
@@ -14,11 +15,14 @@
 
 <script>
 import TestrunCard from './testrun-card.vue'
+import HorizonLoader from '@/components/HorizonLoader'
 import _ from 'lodash'
+
 export default {
-  components: {TestrunCard},
+  components: {TestrunCard, HorizonLoader},
   data () {
     return {
+      loading: false,
       testruns: [],
       filterProperties: {},
       filterTags: [],
@@ -30,12 +34,14 @@ export default {
   },
   methods: {
     refresh () {
+      this.loading = true
       this.$http.get('/api/testruns?' + this.filters.map(f => `${f.name}=${f.value}`).join('&'))
         .then(res => res.json())
         .then(data => {
           this.testruns = data.data
           this.filterProperties = data.filter_properties
           this.filterTags = data.filter_tags
+          this.loading = false
         })
     },
     applyFilter (key, value) {
