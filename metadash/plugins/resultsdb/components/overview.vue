@@ -1,12 +1,16 @@
 <template>
   <div>
-    <pf-toolbar :filter-fields="filterFields" @filters="applyFilters">
+    <pf-toolbar :filter-fields="filterFields" :filters="filters">
     </pf-toolbar>
+    <horizon-loader :loading="loading"></horizon-loader>
     <pf-table :columns="['Testcase', 'Outcome', 'Data', 'Note', 'Submit Time', 'Link']" :rows="results" :page="page" :pages="pages" @change-page="changePage">
       <template scope="props">
         <td> {{ props.row.testcase.name }} </td>
         <td> {{ props.row.outcome }} </td>
-        <td class="trapped"> <span class="label label-primary" style="margin-right: 5px;" v-for="(value, key) in props.row.data"> {{ key + ":" + value.join(", ") }} </span></td>
+        <td class="trapped">
+          <a class="label label-primary" style="margin-right: 5px;" v-for="(value, key) in props.row.data" @click="applyFilter(key, value[0])">
+            {{ key + ":" + value.join(", ") }} </a>
+        </td>
         <td> {{ props.row.note }} </td>
         <td> {{ props.row.submit_time }} </td>
         <td> <a :href="props.row.ref_url"> Ref </a> </td>
@@ -22,9 +26,12 @@
 </template>
 
 <script>
+import HorizonLoader from '@/components/HorizonLoader'
 export default {
+  components: { HorizonLoader },
   data () {
     return {
+      loading: false,
       name: 'resultsdb-testresults',
       page: 1,
       sortable: true,
@@ -35,6 +42,7 @@ export default {
   },
   methods: {
     refresh () {
+      this.loading = true
       let appliedFilter = ''
       for (let filter of this.filters) {
         if (filter.value.indexOf('*') !== -1) {
@@ -54,13 +62,18 @@ export default {
           }
           this.filterFields = Array.from(availablefilters)
           this.results = data.data
+          this.loading = false
         })
     },
     changePage (page) {
       this.page = page
     },
-    applyFilters (filters) {
-      this.filters = filters
+    applyFilter (key, value) {
+      this.filters.push({
+        label: key,
+        name: key,
+        value: value
+      })
     }
   },
   mounted () {
