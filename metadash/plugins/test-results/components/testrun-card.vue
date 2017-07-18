@@ -103,17 +103,5 @@ export default {
     transparent 75%,
     transparent
   );
-  transform: translateZ(0);
-}
-
-/* animations */
-@keyframes move {
-  0% {background-position: 0 0;}
-  100% {background-position: 40px 40px;}
-}
-
-@-webkit-keyframes move {
-  0% {background-position: 0 0;}
-  100% {background-position: 40px 40px;}
 }
 </style>

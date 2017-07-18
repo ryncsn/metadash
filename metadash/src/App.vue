@@ -1,5 +1,5 @@
 <template>
-  <pf-layout id="app" :icons="true">
+  <pf-layout :class="{ 'nav-loading': loading }" id="app" :icons="true">
     <pf-notifications ref="notifications"> </pf-notifications>
     <pf-drawer :hidden="!showNotificationDrawer" :allow-expand="true" title="Notifications">
       <pf-drawer-group title="Recent Activities" action="Mark All Read">
@@ -70,8 +70,6 @@
 import Vue from 'vue'
 import Login from '@/components/Login.vue'
 import User from '@/components/User.vue'
-import NProgress from 'nprogress'
-import 'nprogress/nprogress.css'
 import _ from 'lodash'
 export default {
   name: 'app',
@@ -79,6 +77,7 @@ export default {
   components: { Login, User },
   data () {
     return {
+      loading: false,
       showNotificationDrawer: false,
       showTopModal: false,
       loginModalInfo: '',
@@ -107,9 +106,9 @@ export default {
   created () {
     let vm = this
     Vue.http.interceptors.push((request, next) => {
-      NProgress.start()
+      this.loading = true
       next((response) => {
-        NProgress.done()
+        this.loading = false
         if (response.status === 401) {
           vm.userModal(true, "You don'e have required permission")
           return response
@@ -178,4 +177,37 @@ Fix for pattern fly side bar animation
   -o-transition:width 300ms ease-in-out, height 300ms ease-in-out;
   transition:width 300ms ease-in-out, height 300ms ease-in-out;
 }
+
+nav {
+  -webkit-transition: background-image 0.2s ease-in-out;
+  transition: background-image 0.2s ease-in-out;
+}
+
+.nav-loading nav {
+  background-size: 40px 40px;
+  background-image: -webkit-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, .2) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, .2) 50%,
+    rgba(255, 255, 255, .2) 75%,
+    transparent 75%,
+    transparent
+  );
+  transform: translateZ(0);
+  animation: move 2s linear infinite;
+}
+
+/* animations */
+@keyframes move {
+  0% {background-position: 0 0;}
+  100% {background-position: 40px 40px;}
+}
+
+@-webkit-keyframes move {
+  0% {background-position: 0 0;}
+  100% {background-position: 40px 40px;}
+}
+
 </style>
