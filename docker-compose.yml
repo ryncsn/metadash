@@ -1,0 +1,21 @@
+metadash:
+    restart: always
+    image: metadash
+    command: hs
+    links:
+        - metadash-redis:redis
+        - metadash-postgres:postgres
+    volumes:
+        - ./:/var/www/metadash
+        - /var/run:/var/run
+    command: pipenv run uwsgi -s /var/run/metadash.sock -w wsgi --chown-socket=48:48 --catch-exceptions --processes 32
+
+metadash-redis:
+    image: redis
+
+metadash-postgres:
+    image: postgres
+    environment:
+        POSTGRES_USER: 'metadash'
+        POSTGRES_DB: 'metadash'
+        POSTGRES_PASSWORD: 'password'
