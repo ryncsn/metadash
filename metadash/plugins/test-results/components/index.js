@@ -1,6 +1,7 @@
 import app from './app.vue'
 import overview from './overview.vue'
 import testrunDetail from './testrun-detail.vue'
+import testresultDetail from './testresult-detail.vue'
 
 export default {
   path: 'test-results', // Need to be uniq, and will be used for url routing
@@ -9,8 +10,8 @@ export default {
   title: 'Test Results',
   children: [
     {
-      path: 'testrun/:uuid/:testcase_name',
-      component: testrunDetail,
+      path: 'testresult/:uuid',
+      component: testresultDetail,
       props: true
     },
     {

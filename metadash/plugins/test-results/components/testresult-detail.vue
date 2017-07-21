@@ -1,18 +1,31 @@
 <template>
-  <div>
-    <h1>
-      Test Result
-    </h1>
+  <div v-if="data">
+    <div v-for="value, key in data.details">
+      <h2> {{key}} </h2>
+      <h6 v-for="line in value.split('|')"> {{line}} </h6>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'test-result',
+  props: ['uuid'],
   data () {
-    return {}
+    return {
+      data: {}
+    }
   },
   mounted () {
+    this.refresh()
+  },
+  methods: {
+    refresh () {
+      this.$http.get(`/api/testresults/${this.uuid}`)
+        .then(res => res.json())
+        .then(data => {
+          this.data = data
+        })
+    }
   }
 }
 </script>

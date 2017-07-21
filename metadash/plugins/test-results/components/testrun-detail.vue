@@ -1,14 +1,35 @@
 <template>
   <div>
-    <h1>
-      <router-link tag="a" :to="{ path: '/test-results/' }" class="back-button"><i class="fa fa-angle-left" aria-hidden="true"></i></router-link> Test Run
-    </h1>
+    <h1> <router-link tag="a" :to="{ path: '/test-results/' }" class="back-button"><i class="fa fa-angle-left" aria-hidden="true"></i></router-link> Test Run </h1>
     <hr>
-    <div class="jumbotron" :style=" {'background-color': backgroundColor} ">
-      <h1> {{ data.name || 'Loading...' }} </h1>
-      <h3> {{ passed.length + " passed, " + failed.length + " failed, " + skipped.length + " skipped. " }} </h3>
-      <h6 v-for="value, key in data.properties"> {{key}}: {{value}} </h6>
-    </div>
+    <h1> {{ data.name || 'Loading...' }} </h1>
+    <h3> Results: {{ passed.length + " passed, " + failed.length + " failed, " + skipped.length + " skipped. " }} </h3>
+    <hr>
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#">Properties</a></li>
+      <li class="active"><a href="#">Details</a></li>
+      <li><a href="#">Test Results</a></li>
+      <li><a href="#">Short cuts</a></li>
+    </ul>
+
+    <table class="table">
+      <thead>
+        <tr><td>Property</td><td>Value</td></tr>
+      </thead>
+      <tbody>
+        <tr v-for="value, key in data.properties"><td> {{key}} </td> <td> {{value}} </td> </tr>
+      </tbody>
+    </table>
+
+    <table class="table">
+      <thead>
+        <tr><td>Detail</td><td>Value</td></tr>
+      </thead>
+      <tbody>
+        <tr v-for="value, key in data.details"><td> {{key}} </td> <td> {{value}} </td> </tr>
+      </tbody>
+    </table>
+
     <div v-if="failed.length">
       <h2> Failed Test Cases: </h2>
       <ul class="list-group">
@@ -19,14 +40,14 @@
     <div v-if="skipped.length">
       <h2> Skipped Test Cases: </h2>
       <ul class="list-group">
-        <router-link tag="a" v-for="result in skipped" :key="result.testcase_name" :to="{ path: `/test-results/testrun/${uuid}/${result.testcase_name} `}" class="list-group-item"> {{result.testcase_name}} </router-link>
+        <router-link tag="a" v-for="result in skipped" :key="result.testcase_name" :to="{ path: `/test-results/testresult/${result.uuid}` }" class="list-group-item"> {{result.testcase_name}} </router-link>
       </ul>
       <hr>
     </div>
     <div v-if="passed.length">
       <h2> All Test Cases: </h2>
       <ul class="list-group">
-        <router-link tag="a" v-for="result in results" :key="result.testcase_name" :to="{ path: `/test-results/testrun/${uuid}/${result.testcase_name}` }" class="list-group-item"> {{result.testcase_name}} </router-link>
+        <router-link tag="a" v-for="result in results" :key="result.testcase_name" :to="{ path: `/test-results/testresult/${result.uuid}` }" class="list-group-item"> {{result.testcase_name}} </router-link>
       </ul>
       <hr>
     </div>
