@@ -61,7 +61,8 @@
       </router-link>
     </template>
     <keep-alive>
-      <router-view ref="currentRouteComponent"></router-view>
+      <router-view v-if="allLoaded" ref="currentRouteComponent"></router-view>
+      <h1 v-else> Loading Config and Identification... </h1>
     </keep-alive>
   </pf-layout>
 </template>
@@ -77,6 +78,7 @@ export default {
   components: { Login, User },
   data () {
     return {
+      allLoaded: false,
       loading: false,
       showNotificationDrawer: false,
       showTopModal: false,
@@ -104,6 +106,10 @@ export default {
     }
   },
   created () {
+    this.$store.dispatch('fetchMe').then(() =>
+      this.$store.dispatch('fetchConfigs')
+    ).then(() => { this.allLoaded = true })
+
     let vm = this
     Vue.http.interceptors.push((request, next) => {
       this.loading = true

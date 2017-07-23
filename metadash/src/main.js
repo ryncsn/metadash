@@ -24,7 +24,6 @@ new Vue({
   },
   components: { App },
   created () {
-    this.$store.dispatch('fetchMe')
     Vue.http.interceptors.push(function (request, next) {
       next((response) => {
         // Handle 401 error

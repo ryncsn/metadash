@@ -1,10 +1,14 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import _ from 'lodash'
 
 Vue.use(Vuex)
 
+let _changedConfigs = {} // XXX: ugly
+
 const store = new Vuex.Store({
   state: {
+    configs: {},
     entities: {},
     username: null,
     role: 'anonymous'
@@ -39,9 +43,39 @@ const store = new Vuex.Store({
     fetchConfigs ({state}) {
       return Vue.http.get('/api/configs')
         .then(res => res.json())
+        .then(data => data.data)
         .then(data => {
           state.configs = data
+          for (let config of state.configs) {
+            if (!config.nullable && !config.value) {
+              config.error = "Can't be empty"
+            }
+          }
         })
+    },
+    saveConfigs: _.debounce(function ({state, dispatch}) {
+      let configsToSubmit = _changedConfigs
+      _changedConfigs = {}
+      for (let key in configsToSubmit) {
+        let value = configsToSubmit[key]
+        let config = _.find(state.configs, {key})
+        Vue.http.put('/api/configs/' + key, {
+          value: value
+        }).then(() => {
+          config.value = value
+          config.error = null
+        }).catch((errRes) => {
+          config.error = 'Failed to save due to ' + errRes
+        }).then(() => {
+          if (!config.nullable && !config.value) {
+            config.error = "Can't be empty" // TODO: move to a standalone file for config handling
+          }
+        })
+      }
+    }, 1000),
+    updateConfig ({state, dispatch}, {key, value}) {
+      _changedConfigs[key] = value
+      dispatch('saveConfigs')
     }
   },
   mutations: {
