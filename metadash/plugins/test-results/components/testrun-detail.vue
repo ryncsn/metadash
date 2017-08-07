@@ -6,51 +6,11 @@
     <h3> Results: {{ passed.length + " passed, " + failed.length + " failed, " + skipped.length + " skipped. " }} </h3>
     <hr>
     <ul class="nav nav-tabs">
-      <li class="active"><a href="#">Properties</a></li>
-      <li class="active"><a href="#">Details</a></li>
-      <li><a href="#">Test Results</a></li>
-      <li><a href="#">Short cuts</a></li>
+      <router-link tag="li" active-class="active" to="results"><a>Results</a></router-link>
+      <router-link tag="li" active-class="active" to="parameters"><a>Parameter</a></router-link>
+      <router-link tag="li" active-class="active" to="short-cuts"><a>Short Cuts</a></router-link>
     </ul>
-
-    <table class="table">
-      <thead>
-        <tr><td>Property</td><td>Value</td></tr>
-      </thead>
-      <tbody>
-        <tr v-for="value, key in data.properties"><td> {{key}} </td> <td> {{value}} </td> </tr>
-      </tbody>
-    </table>
-
-    <table class="table">
-      <thead>
-        <tr><td>Detail</td><td>Value</td></tr>
-      </thead>
-      <tbody>
-        <tr v-for="value, key in data.details"><td> {{key}} </td> <td> {{value}} </td> </tr>
-      </tbody>
-    </table>
-
-    <div v-if="failed.length">
-      <h2> Failed Test Cases: </h2>
-      <ul class="list-group">
-        <li v-for="result in failed" :key="result.testcase_name" class="list-group-item"> {{result.testcase_name}} </li>
-      </ul>
-      <hr>
-    </div>
-    <div v-if="skipped.length">
-      <h2> Skipped Test Cases: </h2>
-      <ul class="list-group">
-        <router-link tag="a" v-for="result in skipped" :key="result.testcase_name" :to="{ path: `/test-results/testresult/${result.uuid}` }" class="list-group-item"> {{result.testcase_name}} </router-link>
-      </ul>
-      <hr>
-    </div>
-    <div v-if="passed.length">
-      <h2> All Test Cases: </h2>
-      <ul class="list-group">
-        <router-link tag="a" v-for="result in results" :key="result.testcase_name" :to="{ path: `/test-results/testresult/${result.uuid}` }" class="list-group-item"> {{result.testcase_name}} </router-link>
-      </ul>
-      <hr>
-    </div>
+    <router-view :testrun="data" :results="results"></router-view>
   </div>
 </template>
 

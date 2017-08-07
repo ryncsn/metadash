@@ -1,6 +1,10 @@
 import app from './app.vue'
 import overview from './overview.vue'
 import testrunDetail from './testrun-detail.vue'
+import testrunResults from './testrun-results.vue'
+import testrunResultDetail from './testrun-result-detail.vue'
+import testrunParameters from './testrun-parameters.vue'
+import testrunShortCuts from './testrun-short-cuts.vue'
 import testresultDetail from './testresult-detail.vue'
 
 export default {
@@ -17,7 +21,29 @@ export default {
     {
       path: 'testrun/:uuid',
       component: testrunDetail,
-      props: true
+      props: true,
+      children: [
+        {
+          path: '',
+          redirect: 'results'
+        },
+        {
+          path: 'results',
+          component: testrunResults
+        },
+        {
+          path: 'results/:name',
+          component: testrunResultDetail
+        },
+        {
+          path: 'parameters',
+          component: testrunParameters
+        },
+        {
+          path: 'short-cuts',
+          component: testrunShortCuts
+        }
+      ]
     },
     {
       path: '',

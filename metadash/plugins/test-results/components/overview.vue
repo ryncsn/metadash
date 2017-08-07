@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import TestrunCard from './testrun-card.vue'
+import TestrunCard from './shared/testrun-card.vue'
 import HorizonLoader from '@/components/HorizonLoader'
 import _ from 'lodash'
 

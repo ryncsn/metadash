@@ -13,6 +13,7 @@
     "lint": "eslint --ext .js,.vue metadash/src metadash/test/unit/specs metadash/test/e2e/specs"
   },
   "dependencies": {
+    "highlight.js": "^9.12.0",
     "js-cookie": "^2.1.4",
     "lodash": "^4.17.4",
     "socket.io": "^2.0.3",
