@@ -62,13 +62,9 @@
 
 * Read theme and layout from cookie
 
-* Frontend drawer
-
 * SocketIO for delay
 
 * Event
-
-* Handle SQLALCHEMY Integrity check exceptions
 
 * UUID for Config, config in store, and dynamic config update
 

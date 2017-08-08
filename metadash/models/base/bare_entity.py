@@ -3,14 +3,9 @@ Helper to define Entity models.
 """
 import uuid
 
-from sqlalchemy import event
-from sqlalchemy.ext.associationproxy import association_proxy
-
 from .. import db
-from ..types import UUID
 
-from .utils import _get_table_name_dict
-from .utils import _format_for_json, _Jsonable
+from .utils import _Jsonable
 from .entity import MetadashEntity, URN
 
 

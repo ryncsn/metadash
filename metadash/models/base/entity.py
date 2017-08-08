@@ -4,7 +4,7 @@ Helper to define Entity models.
 import uuid
 
 from .utils import (
-    _get_table_name_dict, _format_for_json, _Jsonable, hybridmethod)
+    _get_table_name_dict, _Jsonable, hybridmethod)
 
 from .. import db
 from ..types import UUID

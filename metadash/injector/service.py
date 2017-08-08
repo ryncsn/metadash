@@ -17,7 +17,7 @@ ATTR_PREFIX = "__md_srv_"
 # TODO: Life cycle
 
 
-def NoServiceError(Exception):
+class NoServiceError(Exception):
     pass
 
 
