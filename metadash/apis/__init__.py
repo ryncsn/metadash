@@ -138,7 +138,11 @@ def pager(query, page=None, limit=None):
     g.paged = True
     g.page = page = page or int(request.args.get('page') or 0)
     g.limit = limit = limit or int(request.args.get('limit') or 50)
-    return query.limit(limit).offset(limit * page)
+    if limit:
+        query = query.limit(limit)
+    if page:
+        query = query.offset(limit * page)
+    return query
 
 
 def envolop(data, **kw):

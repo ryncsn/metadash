@@ -38,16 +38,18 @@ export default {
         .then(res => res.json())
         .then(data => {
           this.data = data
-          console.log(data)
         })
     }
   },
+  watch: {
+    uuid () { this.refresh() }
+  },
   computed: {
     resultLabel () {
-      if (this.data.result === 'passed') {
+      if (this.data.result === 'PASSED') {
         return 'label-success'
       }
-      if (this.data.result === 'failed') {
+      if (this.data.result === 'FAILED') {
         return 'label-danger'
       }
       return 'label-warning'

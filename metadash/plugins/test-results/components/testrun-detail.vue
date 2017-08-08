@@ -29,18 +29,23 @@ export default {
   },
   methods: {
     refresh () {
+      this.data = {}
+      this.results = []
       this.$http.get('/api/testruns/' + this.uuid)
         .then(res => res.json())
         .then(data => {
           this.data = data
         }).then(() => {
-          this.$http.get('/api/testresults/?testrun_uuid=' + this.uuid)
+          this.$http.get('/api/testresults/?testrun_uuid=' + this.uuid + '&limit=0')
             .then(res => res.json())
             .then(data => {
               this.results = data.data
             })
         })
     }
+  },
+  watch: {
+    uuid () { this.refresh() }
   },
   computed: {
     passed () {

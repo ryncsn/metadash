@@ -16,12 +16,20 @@ export default {
     {
       path: 'testresult/:uuid',
       component: testresultDetail,
+      beforeEnter: (to, from, next) => {
+        window.scrollTo(0, 0)
+        next()
+      },
       props: true
     },
     {
       path: 'testrun/:uuid',
       component: testrunDetail,
       props: true,
+      beforeEnter: (to, from, next) => {
+        window.scrollTo(0, 0)
+        next()
+      },
       children: [
         {
           path: '',

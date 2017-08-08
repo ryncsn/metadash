@@ -24,7 +24,8 @@
 export default {
   props: ['testrun'],
   data () {
-    return {}
+    return {
+    }
   }
 }
 </script>
