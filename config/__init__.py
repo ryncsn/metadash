@@ -18,7 +18,7 @@ class Config(object):
     SECURITY = False
     CACHE_DEFAULT_BACKEND = 'dogpile.cache.memory'
     CACHE_ARGUEMENTS = {}
-    DEFERD_ENABLED = False
+    DEFERRED_ENABLE = False
     DEBOUNCE_ENABLED = False
 
     SQLALCHEMY_DATABASE_URI = 'sqlite:///{basedir}/test.db'.format(basedir=basedir)
