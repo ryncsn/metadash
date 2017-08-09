@@ -5,7 +5,7 @@
         <tr><td>Property</td><td>Value</td></tr>
       </thead>
       <tbody>
-        <tr v-for="value, key in testrun.properties"><td> {{key}} </td> <td> {{value}} </td> </tr>
+        <tr v-for="key in Object.keys(testrun.properties)"><td> {{key}} </td> <td> {{testrun.properties[key]}} </td> </tr>
       </tbody>
     </table>
 
@@ -14,7 +14,7 @@
         <tr><td>Detail</td><td>Value</td></tr>
       </thead>
       <tbody>
-        <tr v-for="value, key in testrun.details"><td> {{key}} </td> <td> {{value}} </td> </tr>
+        <tr v-for="key in Object.keys(testrun.details)"><td> {{key}} </td> <td> {{testrun.details[key]}} </td> </tr>
       </tbody>
     </table>
   </div>
@@ -24,8 +24,7 @@
 export default {
   props: ['testrun'],
   data () {
-    return {
-    }
+    return {}
   }
 }
 </script>
