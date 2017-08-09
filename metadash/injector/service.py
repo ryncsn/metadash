@@ -8,7 +8,7 @@ Explict, using decorator.
 from metadash.models.base import EntityModel
 from typing import ClassVar
 
-SERVICES = {}
+PROVIDERS = {}
 PENDING_EXTENDS = {}
 
 ATTR_PREFIX = "__md_srv_"
@@ -39,14 +39,14 @@ def use(provider):
     pass
 
 
-def _split_provider(name: str):
+def _split_provider_extend(name: str):
     splitted_name = name.split(".")
     if len(splitted_name) == 1:
         return name, None
     elif len(splitted_name) == 2:
         return splitted_name[0], splitted_name[1]
     else:
-        raise RuntimeError()
+        raise RuntimeError('Illegal provider name {}'.format(name))
 
 
 def provide(name: str):
@@ -64,7 +64,7 @@ def provide(name: str):
     """
     def fn(provider: ClassVar):
         # TODO: provider should inherit something?
-        provider_name, extend_name = _split_provider(name)
+        provider_name, extend_name = _split_provider_extend(name)
         if extend_name:
             return _provider_extend(provider_name, extend_name, provider)
         else:
@@ -78,11 +78,13 @@ def require(name: str, **kwargs) -> ClassVar:
     A service that provide some interface
     """
     # provider_name, extend_name = _split_provider(name)
-    service = SERVICES.get(name, None)
+    service = PROVIDERS.get(name, None)
+    if not service:
+        raise NoServiceError('No such service: {}'.format(name))
     for key, value in kwargs:
         if getattr(service, "__md_srv__{}".format(key)) != value:
             raise NoServiceError()
-    provider_name, extend_name = _split_provider(name)
+    provider_name, extend_name = _split_provider_extend(name)
     return service
 
 
@@ -90,8 +92,8 @@ def _provider_regist(provider_name: str, cls: ClassVar):
     """
     A service that provide some interface
     """
-    service = SERVICES.get(provider_name)
-    if service:
+    service = PROVIDERS.setdefault(provider_name, cls)
+    if service != cls:
         raise RuntimeError("Already exist: {}".format(provider_name))  # FIXME: exception type
     extends = PENDING_EXTENDS.pop(service, None)
     if extends:
@@ -147,7 +149,7 @@ def _provider_extend(provider_name: str, extend_name: str, cls: ClassVar,
 
     # TODO: cls should inherit something, using simple duck type check now
     def regist(cls):
-        service = SERVICES.get(provider_name)
+        service = PROVIDERS.get(provider_name)
         if not service:
             PENDING_EXTENDS.setdefault(provider_name, []).append(cls)
         else:

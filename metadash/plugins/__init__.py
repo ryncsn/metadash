@@ -3,6 +3,7 @@ Plugin loader
 """
 from flask import Blueprint
 from metadash import logger
+from metadash.injector import NoServiceError
 from metadash.config import Config, load_meta
 from metadash.models.base.attribute import init as init_relation
 
@@ -33,10 +34,10 @@ def init_meta(plugin_dir, app):
         plugin_meta = json.load(meta_file)
         if not plugin_meta.get('name'):
             logger.error('Plugin {} don\'t have a valid name!'.format(plugin_dir))
-            raise RuntimeError()
+            raise RuntimeError('Plugin name invalid')
         elif plugin_meta.get('name') in ENABLED:
             logger.error('Plugin {} name conflict!'.format(plugin_dir))
-            raise RuntimeError()
+            raise RuntimeError('Plugin name conflict')
 
         try:
             process_configs(plugin_meta)
@@ -68,6 +69,28 @@ def init_api(plugin_dir, app):
         app.register_blueprint(blueprint, url_prefix="/api")
 
 
+def resolve_deps_loading(plugins: list, loader):
+    """
+    loader should be idempotent on failure
+
+    TODO
+    """
+    plugins_to_load = plugins.copy()
+
+    loop_limit = 100
+
+    while plugins_to_load:
+        plugin = plugins_to_load.pop(0)
+        try:
+            loader(plugin)
+        except NoServiceError:
+            if not loop_limit:
+                raise
+            plugins_to_load.append(plugin)
+        finally:
+            loop_limit -= 1
+
+
 class Plugins(object):
     @staticmethod
     def regist(app):
@@ -76,16 +99,19 @@ class Plugins(object):
         """
         plugin_dirs = get_plugin_dirs()
 
-        for plugin in plugin_dirs:
-            init_meta(plugin, app)
+        resolve_deps_loading(
+            plugin_dirs,
+            lambda plugin: init_meta(plugin, app))
 
-        for plugin in plugin_dirs:
-            init_modal(plugin)
+        resolve_deps_loading(
+            plugin_dirs,
+            lambda plugin: init_modal(plugin))
 
         init_relation()
 
-        for plugin in plugin_dirs:
-            init_api(plugin, app)
+        resolve_deps_loading(
+            plugin_dirs,
+            lambda plugin: init_api(plugin, app))
 
         logger.info("Loaded Plugins {}".format(ENABLED))
 
