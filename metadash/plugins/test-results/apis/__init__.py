@@ -91,7 +91,7 @@ class TestRunList(Resource):
             for k, v in extra_args.items():
                 q = q.filter(TestRun.properties.contains(v))  # TODO: not querying for key which is wrong
 
-        q = q.order_by(TestRun.timestamp)
+        q = q.order_by(TestRun.timestamp.desc())
 
         sq = q.subquery()
         return envolop(
