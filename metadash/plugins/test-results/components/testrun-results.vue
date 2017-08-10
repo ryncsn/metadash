@@ -3,21 +3,27 @@
     <div v-if="failed.length">
       <h2> Failed Test Cases: </h2>
       <ul class="list-group">
-        <router-link tag="a" v-for="result in failed" :key="result.testcase_name" :to="{ path: `/test-results/testresult/${result.uuid}` }" class="list-group-item"> {{result.testcase_name}} </router-link>
+        <router-link tag="a" v-for="result in failed" :key="result.testcase_name" :to="{ path: `/test-results/testresult/${result.uuid}` }" class="list-group-item">
+          {{result.testcase_name}}
+        </router-link>
       </ul>
       <hr>
     </div>
     <div v-if="skipped.length">
       <h2> Skipped Test Cases: </h2>
       <ul class="list-group">
-        <router-link tag="a" v-for="result in skipped" :key="result.testcase_name" :to="{ path: `/test-results/testresult/${result.uuid}` }" class="list-group-item"> {{result.testcase_name}} </router-link>
+        <router-link tag="a" v-for="result in skipped" :key="result.testcase_name" :to="{ path: `/test-results/testresult/${result.uuid}` }" class="list-group-item">
+          {{result.testcase_name}}
+        </router-link>
       </ul>
       <hr>
     </div>
     <div v-if="passed.length">
       <h2> All Test Cases: </h2>
       <ul class="list-group">
-        <router-link tag="a" v-for="result in results" :key="result.testcase_name" :to="{ path: `/test-results/testresult/${result.uuid}` }" class="list-group-item"> {{result.testcase_name}} </router-link>
+        <router-link tag="a" v-for="result in results" :key="result.testcase_name" :to="{ path: `/test-results/testresult/${result.uuid}` }" class="list-group-item">
+          {{result.testcase_name}}
+        </router-link>
       </ul>
       <hr>
     </div>

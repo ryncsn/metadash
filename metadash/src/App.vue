@@ -11,7 +11,7 @@
         </pf-drawer-notification>
       </pf-drawer-group>
       <pf-drawer-group title="Server Info">
-        <pf-drawer-notification message="Metadash v0.1 Running">
+        <pf-drawer-notification :message="metadashVersion">
         </pf-drawer-notification>
       </pf-drawer-group>
     </pf-drawer>
@@ -68,6 +68,7 @@
 </template>
 
 <script>
+import version from './libs/metadash-version.js'
 import Vue from 'vue'
 import Login from '@/components/Login.vue'
 import User from '@/components/User.vue'
@@ -78,6 +79,7 @@ export default {
   components: { Login, User },
   data () {
     return {
+      metadashVersion: `Metadash ${version} Running`,
       allLoaded: false,
       loading: false,
       showNotificationDrawer: false,

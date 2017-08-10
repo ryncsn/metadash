@@ -4,6 +4,7 @@ const config = require('./config')
 const vueLoaderConfig = require('./vue-loader.conf')
 
 const pluginLoader = path.resolve(path.join(__dirname, './plugin-loader.js'))
+const metadashVersionLoader = path.resolve(path.join(__dirname, './metadash-version-loader.js'))
 
 function resolveModule (dir) {
   return path.join(__dirname, '../../node_modules', dir)
@@ -38,6 +39,12 @@ module.exports = {
       {
         test: /metadash-plugins\.js$/,
         loaders: [pluginLoader, 'eslint-loader'],
+        enforce: 'pre',
+        include: [resolve('src'), resolve('test')]
+      },
+      {
+        test: /metadash-version\.js$/,
+        loaders: [metadashVersionLoader, 'eslint-loader'],
         enforce: 'pre',
         include: [resolve('src'), resolve('test')]
       },

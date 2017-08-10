@@ -1,7 +1,7 @@
 <template>
   <pf-card :title="title" :foot-note="footer" foot-icon="fa fa-tags" :class="{'card-loading': !finished}">
     <i class="fa title-icon" :class="titleIcon"></i>
-    <a :href="ref_url" target="_blank" v-if="ref_url">Testrun Page</a>
+    <a :href="ref_url" target="_blank" v-if="ref_url"><i class="fa fa-link" aria-hidden="true"></i> Testrun Page</a>
     <span class="test-summary pull-right" v-if="finished">
       <a href="#"><span class="pficon pficon-error-circle-o"></span> {{failed}} </a>
     </span>
@@ -47,7 +47,7 @@ export default {
       return this.testrun.name || 'N/a'
     },
     footer () {
-      return this.testrun.tags.join(' ') || 'No Tag'
+      return (this.testrun.tags.join(' ') || 'No Tag') + `    Executed at: ${this.testrun.timestamp}`
     },
     ref_url () {
       return this.testrun.ref_url || '#'
