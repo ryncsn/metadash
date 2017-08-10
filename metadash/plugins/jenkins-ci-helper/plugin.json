@@ -1,0 +1,7 @@
+{
+    "name": "jenkins-ci-helper",
+    "author": "Kairui Song",
+    "description": "Libvirt CI Helper Plugin, fetch console output if avaliable",
+    "configs": {},
+    "version": "0.0.0"
+}
