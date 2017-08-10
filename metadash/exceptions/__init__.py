@@ -3,6 +3,7 @@ Some built in Exceptions
 """
 from sqlalchemy.exc import (
     SQLAlchemyError, NoSuchTableError, IntegrityError, StatementError)
+
 from flask import jsonify
 from .. import utils
 from .. import logger
@@ -109,7 +110,6 @@ def response_sqlalchemy_exception(error):
             'message': 'Unknown Database error, please check your input.',
         })
         response.status_code = 500
-
     logger.exception(error)
     return response
 

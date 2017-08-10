@@ -14,7 +14,7 @@
         <tr><td>Detail</td><td>Value</td></tr>
       </thead>
       <tbody>
-        <tr v-for="key in Object.keys(testrun.details)"><td> {{key}} </td> <td> {{testrun.details[key]}} </td> </tr>
+        <tr v-for="key in Object.keys(testrun.details)"><td> {{key}} </td> <td> <pre>{{testrun.details[key]}}</pre> </td> </tr>
       </tbody>
     </table>
   </div>

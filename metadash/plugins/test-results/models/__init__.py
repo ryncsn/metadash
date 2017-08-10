@@ -5,6 +5,8 @@ This is tend to play as a test result sumittion center of a CI platform
 So use the model: testrun <- testresult -> testcase to make it clearer to track
 And metadash provides tag and attribute for any entity, so only keep most basic
 and often used attributes as columns.
+
+ref_url should be either null or unique
 """
 from sqlalchemy.sql import func, label
 
