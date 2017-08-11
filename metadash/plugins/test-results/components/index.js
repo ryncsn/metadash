@@ -5,6 +5,7 @@ import testrunResults from './testrun-results.vue'
 import testrunResultDetail from './testrun-result-detail.vue'
 import testrunParameters from './testrun-parameters.vue'
 import testrunShortCuts from './testrun-short-cuts.vue'
+import testrunCompare from './testrun-compare.vue'
 import testresultDetail from './testresult-detail.vue'
 
 export default {
@@ -52,6 +53,11 @@ export default {
           component: testrunShortCuts
         }
       ]
+    },
+    {
+      path: 'testrun-compare/:src-uuid/:dst-uuid',
+      component: testrunCompare,
+      props: true
     },
     {
       path: '',

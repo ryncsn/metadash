@@ -11,6 +11,7 @@ for (let pluginName in Plugins) {
   }
 
   let pluginRoute = {
+    props: plugin.props,
     path: plugin.path,
     name: plugin.title,
     component: plugin.entry
