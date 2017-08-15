@@ -20,6 +20,15 @@ import _ from 'lodash'
 
 export default {
   components: {TestrunCard, HorizonLoader},
+  props: {
+    passedFilters: {
+      default: () => [],
+      type: Object.Array
+    },
+    test: {
+      default: null
+    }
+  },
   data () {
     return {
       loading: false,
@@ -35,6 +44,7 @@ export default {
   methods: {
     refresh () {
       this.loading = true
+      this.$router.replace({query: this.filters.reduce((sum, f) => { sum[[f.name]] = f.value; return sum }, {})})
       this.$http.get('/api/testruns?' + this.filters.map(f => `${f.name}=${f.value}`).join('&'))
         .then(res => res.json())
         .then(data => {
@@ -61,6 +71,7 @@ export default {
     }
   },
   mounted () {
+    this.filters = this.passedFilters
     this.refresh()
   },
   computed: {
