@@ -11,7 +11,7 @@ ref_url should be either null or unique
 from sqlalchemy.sql import func, label
 
 from metadash.injector import provide
-from metadash.cache import cache_on_arguments
+from metadash.cache import cache_on_arguments, cached_entity_property
 from metadash.models import db
 from metadash.models.base import EntityModel
 from metadash.models.types import UUID
@@ -54,8 +54,26 @@ class TestRun(EntityModel):
     name = db.Column(db.String(512), nullable=False, unique=False)
     ref_url = db.Column(db.String(URL_LENGTH), unique=True, nullable=True)
 
+    @cached_entity_property(expiration_time=30)
+    def results(self):
+        return dict(
+            db.session.query(TestResult.result, label('count', func.count(TestResult.result)))
+            .filter(TestResult.testrun_uuid == self.uuid)
+            .group_by(TestResult.result).all())
+
+    @cached_entity_property()
+    def _properties_cache(self):
+        return dict(self.properties)
+
     def as_dict(self, **kwargs):
-        ret = super(TestRun, self).as_dict(**kwargs)
+        # TODO: helper for properties caching
+        exclude = kwargs.setdefault('exclude', [])
+        if 'properties' not in exclude:
+            exclude.append('properties')
+            ret = super(TestRun, self).as_dict(**kwargs)
+            ret['properties'] = self._properties_cache
+        else:
+            ret = super(TestRun, self).as_dict(**kwargs)
         ret['results'] = dict(db.session.query(
             TestResult.result, label('count', func.count(TestResult.result)))
             .filter(TestResult.testrun_uuid == self.uuid)
