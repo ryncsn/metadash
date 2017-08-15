@@ -137,7 +137,7 @@ def pager(query, page=None, limit=None):
     """
     g.paged = True
     g.page = page = page or int(request.args.get('page') or 0)
-    g.limit = limit = limit or int(request.args.get('limit') or 50)
+    g.limit = limit = limit or int(request.args.get('limit') or 30)
     if limit:
         query = query.limit(limit)
     if page:
