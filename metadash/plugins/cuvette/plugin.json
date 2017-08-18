@@ -1,0 +1,14 @@
+{
+    "name": "cuvette-frontend",
+    "author": "Kairui Song",
+    "description": "Cuvette Front-end Plugin",
+    "configs": {
+        "CUVETTE_URL": {
+            "description": "Cuvette URL",
+            "default": null,
+            "secret": false,
+            "nullable": false
+        }
+    },
+    "version": "0.0.0"
+}
