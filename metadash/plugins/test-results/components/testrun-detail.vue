@@ -8,6 +8,7 @@
     <ul class="nav nav-tabs">
       <router-link tag="li" active-class="active" to="results"><a>Results</a></router-link>
       <router-link tag="li" active-class="active" to="parameters"><a>Parameter</a></router-link>
+      <router-link tag="li" active-class="active" to="details"><a>Details</a></router-link>
       <router-link tag="li" active-class="active" to="short-cuts"><a>Short Cuts</a></router-link>
     </ul>
     <router-view :testrun="data" :results="results"></router-view>

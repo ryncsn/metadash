@@ -4,6 +4,7 @@ import testrunDetail from './testrun-detail.vue'
 import testrunResults from './testrun-results.vue'
 import testrunResultDetail from './testrun-result-detail.vue'
 import testrunParameters from './testrun-parameters.vue'
+import testrunDetailParameters from './testrun-detailed-parameters.vue'
 import testrunShortCuts from './testrun-short-cuts.vue'
 import testrunCompare from './testrun-compare.vue'
 import testresultDetail from './testresult-detail.vue'
@@ -47,6 +48,10 @@ export default {
         {
           path: 'parameters',
           component: testrunParameters
+        },
+        {
+          path: 'details',
+          component: testrunDetailParameters
         },
         {
           path: 'short-cuts',
