@@ -30,6 +30,9 @@ export default {
   },
   methods: {
     refresh () {
+      if (!this.uuid) {
+        return
+      }
       this.data = {}
       this.results = []
       this.$http.get('/api/testruns/' + this.uuid)

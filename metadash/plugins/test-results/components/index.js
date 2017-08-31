@@ -35,7 +35,7 @@ export default {
       children: [
         {
           path: '',
-          redirect: 'results'
+          component: testrunResults
         },
         {
           path: 'results',
