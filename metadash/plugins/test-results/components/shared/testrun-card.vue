@@ -11,7 +11,7 @@
     <span class="test-summary pull-right" v-if="finished">
       <a href="#"><span class="pficon pficon-ok"></span> {{passed}} </a>
     </span>
-    <router-link :to="{ path: '/test-results/testrun/' + uuid }"
+    <router-link :to="{ path: '/test-results/testrun/' + uuid + '/' }"
       tag="a" class="btn btn-primary pull-right" type="button">Details</router-link>
   </pf-card>
 </template>

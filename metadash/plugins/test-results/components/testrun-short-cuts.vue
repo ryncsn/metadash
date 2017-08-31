@@ -1,8 +1,6 @@
 <template>
   <div>
-    <h1>
-      Some short cuts here...
-    </h1>
+    <button class="btn btn-primary btn-lg " type="button" :href="testrun.ref_url">Testrun Origin Link</button>
   </div>
 </template>
 
@@ -11,6 +9,10 @@ export default {
   props: ['testrun'],
   data () {
     return {}
+  },
+  computed: {
+    links () {
+    }
   }
 }
 </script>

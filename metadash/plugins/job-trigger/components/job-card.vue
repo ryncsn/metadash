@@ -4,6 +4,7 @@
       <a :href="jenkinsUrl + '/job/' + provisionName" target="_blank">Jenkins Provision Page</a>
       <a :href="jenkinsUrl + '/job/' + runtestName" target="_blank">Jenkins Runtest Page</a>
       <a :href="jenkinsUrl + '/job/' + teardownName" target="_blank">Jenkins Teardown Page</a>
+      <router-link tag="a" :to="`/test-results?arch=${arch}&component=${component}&product=${product}-${version}&`"><a>Results</a></router-link>
       <a class="pull-right" href="javascript:void(0)" @click="deleteJob">Delete from list</a>
     </pf-card>
   </div>

@@ -16,7 +16,7 @@ export default {
   title: 'Test Results',
   children: [
     {
-      path: 'testresult/:uuid',
+      path: 'testresult/:uuid/',
       component: testresultDetail,
       beforeEnter: (to, from, next) => {
         window.scrollTo(0, 0)
@@ -25,7 +25,7 @@ export default {
       props: true
     },
     {
-      path: 'testrun/:uuid',
+      path: 'testrun/:uuid/',
       component: testrunDetail,
       props: true,
       beforeEnter: (to, from, next) => {
