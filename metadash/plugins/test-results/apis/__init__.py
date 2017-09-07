@@ -59,7 +59,7 @@ class TestResultList(Resource):
     def get(self):
         args = TestResultParser.parse_args()
         return envolop([result.as_dict(exclude=['details']) for result in
-                        pager(TestResult.query.filter_by(**args)).all()])
+                        pager(TestResult.query.filter_by(**args).order_by(TestResult.timestamp)).all()])
 
     def post(self):
         args = TestResultParser.parse_args()

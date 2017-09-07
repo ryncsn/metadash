@@ -8,7 +8,7 @@ metadash:
     volumes:
         - ./:/var/www/metadash
         - /var/run:/var/run
-    command: pipenv run uwsgi -s /var/run/metadash.sock -w wsgi --chown-socket=48:48 --catch-exceptions --processes 32
+    command: pipenv run uwsgi -s /var/run/metadash.sock -w wsgi --chown-socket=48:48 --catch-exceptions --processes 10
 
 metadash-redis:
     image: redis

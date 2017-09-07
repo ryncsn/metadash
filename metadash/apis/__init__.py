@@ -149,15 +149,19 @@ def envolop(data, **kw):
     """
     Envolop return value for jsonify, if pager was used, will add
     """
-    url = request.url
+    url = request.base_url
+    args = dict(request.args)
+    args['limit'] = [g.limit]
     ret = {'data': data}
     count = len(data)  # TODO: what if data is not countable
     if hasattr(g, 'paged'):
-        _ = '&' if request.args else '?'
-        template = '{url}{_}limit={limit}&page={page}'
-        page, limit = g.page, g.limit
-        ret['prev'] = template.format(url=url, _=_, page=page - 1, limit=limit) if page else None
-        ret['next'] = template.format(url=url, _=_, page=page + 1, limit=limit) if data and limit == count else None  # FIXME: no next when next page is not avaliable
+        template = '{url}?{args}'
+        args['page'] = [g.page - 1]
+        args_str = '&'.join('{}={}'.format(k, v[0]) for k, v in args.items())
+        ret['prev'] = template.format(url=url, args=args_str) if g.page else None
+        args['page'] = [g.page + 1]
+        args_str = '&'.join('{}={}'.format(k, v[0]) for k, v in args.items())
+        ret['next'] = template.format(url=url, args=args_str) if data and g.limit == count else None  # FIXME: no next when next page is not avaliable
     ret.update(kw)
     return jsonify(ret)
 
