@@ -1,7 +1,6 @@
 metadash:
     restart: always
     image: metadash
-    command: hs
     links:
         - metadash-redis:redis
         - metadash-postgres:postgres
