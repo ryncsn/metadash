@@ -2,7 +2,7 @@ import requests
 
 from flask import Blueprint, request, redirect
 from metadash.config import Config
-from metadash.auth import requires_roles
+from metadash.auth import requires_roles, get_identity
 from metadash import logger
 
 app = Blueprint = Blueprint("jobs", __name__)
@@ -18,6 +18,8 @@ def get_jobs():
 @app.route("/trigger-jobs", methods=["POST"])
 @requires_roles('user')
 def trigger_jobs():
-    res = requests.post(Config.get("TRIGGER_JOBS_URL"), json=request.json)
+    json = request.json
+    json.setdefault['ci_message'] = get_identity()['username']
+    res = requests.post(Config.get("TRIGGER_JOBS_URL"), json=json)
     res.raise_for_status()
     return res.text
