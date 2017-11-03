@@ -7,25 +7,35 @@
  * Metadash uses Flask, SQLAlchemy, Vue, Webpack, and some plugins for them. There are some 'magic' and workaround, by which I try to make the model and api layer neat and clean, and make plugins as simple as possible. More documents is comming later.
 
 ## Get started
-(Before you get stared, you need npm and pipenv installed, and python > 3.5)
-
+Deploy reference:
+(docker and docker-compose required)
 ```
-# Install dependencies
-pipenv install
-npm install
+# Config
+cp config/__init__.py config/config.py
+$EDITOR config/config.py
+# Use you favourite editor to edit config/config.py #
+
+# Build docker image
+docker build -t metadash .
+
+# Setup containers
+docker-compose up -d
+```
+
+Dev enviroment (With hot reload and dev server)
+(npm and pipenv required, and python > 3.5)
+```
+# Setup dependency
+bash setup.sh --dependency-only
 
 # Config
 cp config/__init__.py config/config.py
+$EDITOR config/config.py
 # Use you favourite editor to edit config/config.py #
 
 # Start devel server
 npm run ui-dev
 python manager.py runserver
-
-
-# Build for production
-npm run build
-# Deploy it as a wsgi app, then it should work #
 ```
 
 Any contribute, suggestion, issue is high welcomed!
