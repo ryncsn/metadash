@@ -43,10 +43,15 @@ case $1 in
         fi
         shift
         ;;
+    --dev )
+        DEV=true
+        shift
+        ;;
     -h | --help )
         echo "usage: setup.sh [-h] [--venv VENV_PATH]
         options:
-        --no-venv       Create a virtual env in ,venv and install all packages inside the virtual env.
+        --venv      Create a virtual env in given patch and install all python packages inside the virtual env.
+        --dev       Install dev packages, or only production packages are installed.
         "
         exit 0
         ;;
@@ -63,6 +68,11 @@ fi
 
 echo "Installing requirements of Metadash"
 if [[ -f 'requirements.txt' ]]; then
+    _pip install -r requirements.txt
+fi
+
+if [[ $DEV == 'true' && -f 'requirements.dev.txt' ]]; then
+    echo "Installing dev requirements of Metadash"
     _pip install -r requirements.txt
 fi
 
