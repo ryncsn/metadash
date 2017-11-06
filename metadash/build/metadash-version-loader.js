@@ -1,6 +1,11 @@
 const execSync = require('child_process').execSync
+var currentVersion
 
-let currentVersion = String(execSync('git describe --always')).trim()
+try {
+  currentVersion = String(execSync('gitscribe --always')).trim()
+} catch (e) {
+  currentVersion = ''
+}
 
 module.exports = function (source) {
   return `let version = 'v0.0.1 (${currentVersion})'\nexport default version`

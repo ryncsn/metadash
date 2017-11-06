@@ -11,7 +11,7 @@ function _python () {
 }
 
 function _is_virtualenv_installed () {
-    $(command -v virtualenv &> /dev/null) || _error "'virtualenv' is needed but not installed properly"
+    _python -m virtualenv --help 1>2 &>/dev/null || _error "'virtualenv' is needed but not installed properly"
 }
 
 function _is_pip_installed () {
@@ -27,7 +27,7 @@ function _pip() {
 }
 
 function _virtualenv() {
-    virtualenv $@
+    _python -m virtualenv $@
 }
 
 function _npm() {
@@ -36,16 +36,16 @@ function _npm() {
 
 case $1 in
     --venv )
+        shift
         VENV=true
-        VENV_PATH=$1
+        VENV_PATH=$1 && shift
         if [[ -z $VENV_PATH ]] ; then
             echo "VENV_PATH" is required
         fi
-        shift
         ;;
     --dev )
-        DEV=true
         shift
+        DEV=true
         ;;
     -h | --help )
         echo "usage: setup.sh [-h] [--venv VENV_PATH]

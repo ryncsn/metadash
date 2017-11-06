@@ -1,12 +1,14 @@
 FROM fedora:26
 
-RUN dnf install -y python35 python3-pip git npm && \
+RUN dnf install -y python35 python3-pip python3-virtualenv git npm && \
     dnf clean all
 
-WORKDIR /var/www/metadash
+WORKDIR /app/
 
-COPY . docker/entrypoint.sh docker/uwsgi.ini /var/www/metadash/
+VOLUME ["/app/node_modules/", "/app/metadash/plugins/", "/app/.venv"]
 
-RUN ./setup.sh
+COPY . /app/
 
-ENTRYPOINT ['entrypoint.sh']
+RUN ./setup.sh --venv /app/.venv
+
+ENTRYPOINT ["/app/docker/entrypoint.sh --venv /app/.venv"]
