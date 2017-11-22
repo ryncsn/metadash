@@ -136,6 +136,7 @@ def pager(query, page=None, limit=None):
     Apply limit and offset to a given SQLAlchemy query object
     """
     g.paged = True
+    g.total = query.count()  # Apply before limit to get total count
     g.page = page = page or int(request.args.get('page') or 1)
     g.limit = limit = limit or int(request.args.get('limit') or 30)
     if limit:
@@ -147,21 +148,33 @@ def pager(query, page=None, limit=None):
 
 def envolop(data, **kw):
     """
-    Envolop return value for jsonify, if pager was used, will add
+    Envolop return value for jsonify
+    Will add paging info if pager is used
+    paging info includes "limit", "page", "total".
     """
-    url = request.base_url
-    args = dict(request.args)
-    args['limit'] = [g.limit]
     ret = {'data': data}
-    count = len(data)  # TODO: what if data is not countable
     if hasattr(g, 'paged'):
+        url = request.base_url
+        count = len(data)  # TODO: what if data is not countable
+        args = dict(request.args)
+        args['limit'] = [g.limit]
+        if g.page >= 2:
+            args['page'] = [g.page - 1]
+            prev_page_args_str = '&'.join('{}={}'.format(k, v[0]) for k, v in args.items())
+        else:
+            prev_page_args_str = None
+
+        if count == g.limit:  # FIXME: now the way we detect if next page is avaliable is simple but not accurate
+            args['page'] = [g.page + 1]
+            next_page_args_str = '&'.join('{}={}'.format(k, v[0]) for k, v in args.items())
+        else:
+            next_page_args_str = None
+
         template = '{url}?{args}'
-        args['page'] = [g.page - 1]
-        args_str = '&'.join('{}={}'.format(k, v[0]) for k, v in args.items())
-        ret['prev'] = template.format(url=url, args=args_str) if g.page else None
-        args['page'] = [g.page + 1]
-        args_str = '&'.join('{}={}'.format(k, v[0]) for k, v in args.items())
-        ret['next'] = template.format(url=url, args=args_str) if data and g.limit == count else None  # FIXME: no next when next page is not avaliable
+        ret['total'] = g.total
+        ret['prev'] = template.format(url=url, args=prev_page_args_str) if prev_page_args_str else None
+        ret['next'] = template.format(url=url, args=next_page_args_str) if next_page_args_str else None
+
     ret.update(kw)
     return jsonify(ret)
 
