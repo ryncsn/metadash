@@ -67,8 +67,8 @@ export default {
     {
       path: '',
       component: overview,
-      props: route => ({ passedFilters:
-        Object.keys(route.query).map(key => ({
+      props: route => ({  // filter by url param
+        filtersArg: Object.keys(route.query).map(key => ({
           label: key,
           name: key,
           value: route.query[key]

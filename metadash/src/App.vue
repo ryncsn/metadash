@@ -163,11 +163,13 @@ export default {
   margin-top: 15px;
 }
 
+/*
+ Metadash Logo
+ */
 .navbar-pf-vertical .navbar-brand {
   font-size: 20px;
   line-height: 35px;
 }
-
 .navbar-brand-name,
 .home .jumbotron h1 {
   background: -webkit-linear-gradient(#5399F9,#6df7ac);
@@ -184,11 +186,6 @@ Fix for pattern fly side bar animation
   -moz-transition:width 300ms ease-in-out, height 300ms ease-in-out;
   -o-transition:width 300ms ease-in-out, height 300ms ease-in-out;
   transition:width 300ms ease-in-out, height 300ms ease-in-out;
-}
-
-nav {
-  -webkit-transition: background-image 0.2s ease-in-out;
-  transition: background-image 0.2s ease-in-out;
 }
 
 .nav-loading nav {

@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <pf-toolbar :filter-fields="filterFields" views="table,card" :filters="filters">
+    <pf-toolbar :filter-fields="filterFields" views="table,card" :filters="filters" :result-count="total">
       <bs-dropdown v-for="values, prop in filterProperties" :text="prop" :key="prop">
         <li v-for="v in values" :key="v"><a @click="applyFilter(prop, v)" href="#">{{ v }}</a></li>
       </bs-dropdown>
@@ -10,6 +10,8 @@
       <testrun-card v-for="testrun in testruns" :testrun="testrun" :key="testrun.uuid" class="testrun-list-item">
       </testrun-card>
     </transition-group>
+    <pf-paginate-control :page="page" :pages="pages" @change="setPage">
+    </pf-paginate-control>
   </div>
 </template>
 
@@ -21,7 +23,7 @@ import _ from 'lodash'
 export default {
   components: {TestrunCard, HorizonLoader},
   props: {
-    passedFilters: {
+    filtersArg: {
       default: () => [],
       type: Object.Array
     },
@@ -33,24 +35,32 @@ export default {
     return {
       loading: false,
       testruns: [],
+
+      // Filtering Info
       filterProperties: {},
       filterTags: [],
-      filterName: '',
-      filterTestCaseName: '',
+      // filterName: '',
+      // filterTestCaseName: '',
       filters: [],
-      avaliableFilters: []
+      avaliableFilters: [], // Not used yet
+
+      // Paging info
+      limit: 30,
+      total: 30,
+      page: 1
     }
   },
   methods: {
     refresh () {
       this.loading = true
       this.$router.replace({query: this.filters.reduce((sum, f) => { sum[[f.name]] = f.value; return sum }, {})})
-      this.$http.get('/api/testruns?' + this.filters.map(f => `${f.name}=${f.value}`).join('&'))
+      this.$http.get(`/api/testruns?page=${this.page}&limit=${this.limit}&` + this.filters.map(f => `${f.name}=${f.value}`).join('&'))
         .then(res => res.json())
         .then(data => {
           this.testruns = data.data
           this.filterProperties = data.filter_properties
           this.filterTags = data.filter_tags
+          this.total = data.total
           this.loading = false
         })
     },
@@ -66,26 +76,28 @@ export default {
         })
       }
     },
-    changePage (page) {
+    setPage (page) {
       this.page = page
     }
   },
   mounted () {
-    this.filters = this.passedFilters
+    this.filters = this.filtersArg
     this.refresh()
   },
   computed: {
     filterFields () {
       return Array.concat(['name'], this.avaliableFilters)
+    },
+    pages () {  // caculate how many pages avaliable by limit and totalCount
+      return _.ceil(this.total / this.limit)
     }
   },
   watch: {
     filters: {
-      handler () {
-        this.refresh()
-      },
+      handler () { this.refresh() },
       deep: true
-    }
+    },
+    page () { this.refresh() }
   }
 }
 </script>

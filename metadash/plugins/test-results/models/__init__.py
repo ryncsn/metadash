@@ -74,10 +74,7 @@ class TestRun(EntityModel):
             ret['properties'] = self._properties_cache
         else:
             ret = super(TestRun, self).as_dict(**kwargs)
-        ret['results'] = dict(db.session.query(
-            TestResult.result, label('count', func.count(TestResult.result)))
-            .filter(TestResult.testrun_uuid == self.uuid)
-            .group_by(TestResult.result).all())
+        ret['results'] = self.results
         return ret
 
 
