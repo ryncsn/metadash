@@ -1,19 +1,12 @@
-metadash:
-    restart: always
-    image: metadash
-    links:
-        - metadash-redis:redis
-        - metadash-postgres:postgres
-    volumes:
-        - ./:/var/www/metadash
-        - /var/run:/var/run
-    command: pipenv run uwsgi -s /var/run/metadash.sock -w wsgi --chown-socket=48:48 --catch-exceptions --processes 10
-
 metadash-redis:
+    ports:
+        - '6379:6379'
     image: redis
 
 metadash-postgres:
     image: postgres
+    ports:
+        - '5432:5432'
     environment:
         POSTGRES_USER: 'metadash'
         POSTGRES_DB: 'metadash'
