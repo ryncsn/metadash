@@ -8,6 +8,7 @@ like user/password/3rd part API url, use Database, or metadash.config.
 """
 
 import os
+from . import Config
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../metadash"))
 
 
