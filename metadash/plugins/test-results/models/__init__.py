@@ -61,19 +61,9 @@ class TestRun(EntityModel):
             .filter(TestResult.testrun_uuid == self.uuid)
             .group_by(TestResult.result).all())
 
-    @cached_entity_property()
-    def _properties_cache(self):
-        return dict(self.properties)
-
     def as_dict(self, **kwargs):
         # TODO: helper for properties caching
-        exclude = kwargs.setdefault('exclude', [])
-        if 'properties' not in exclude:
-            exclude.append('properties')
-            ret = super(TestRun, self).as_dict(**kwargs)
-            ret['properties'] = self._properties_cache
-        else:
-            ret = super(TestRun, self).as_dict(**kwargs)
+        ret = super(TestRun, self).as_dict(**kwargs)
         ret['results'] = self.results
         return ret
 

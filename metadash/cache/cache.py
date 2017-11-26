@@ -1,8 +1,10 @@
 from functools import partial
 from .region import default_region
+from .manager import get_or_create_entity_cache, set_entity_cache
 
-get_ = default_region.set
-set_ = default_region.get
+get_ = default_region.get
+set_ = default_region.set
+delete_ = default_region.delete
 
 get_or_create = default_region.get_or_create
 
@@ -16,7 +18,8 @@ def cache_on_entity(expiration_time=3600):
     Cache a function for an entity, by argruments
     """
     def decorator(fn):
-        # TODO: cached deferred?
+        # TODO: Cached deferred?
+        # TODO: Cache Invalidation
         def keyer(namesapce, fn):
             def generate_key(entity, *arg, **kw):
                 return "_".join(
@@ -40,18 +43,17 @@ def cached_entity_property(expiration_time=3600):
     """
     def decorator(fn):
         # TODO: cached deferred?
-        cache_name = '__cache__' + fn.__name__
-        keyer = partial("{uuid}{cache_name}".format, cache_name=cache_name)
+        cache_name = fn.__name__
 
         @property
         def cacher(self):  # TODO: expire manually
-            key = keyer(uuid=self.uuid)
-            return get_or_create(key, partial(fn, self), expiration_time=expiration_time)
+            # assert isinstance(self, Entity)
+            return get_or_create_entity_cache(
+                self, cache_name, partial(fn, self), expiration_time=expiration_time)
 
         @cacher.setter
         def cache_set(self, new_val):
-            key = keyer(uuid=self.uuid)
-            set_(key, new_val)
+            return set_entity_cache(self, cache_name, new_val)
 
         return cacher
     return decorator

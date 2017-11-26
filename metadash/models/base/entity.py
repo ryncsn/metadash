@@ -6,8 +6,12 @@ import uuid
 from .utils import (
     _get_table_name_dict, _Jsonable, hybridmethod)
 
-from .. import db
-from ..types import UUID
+from metadash.models import db
+from metadash.models.types import UUID
+from metadash.cache.manager import after_entity_update_hook
+from metadash.models.base.cache_manager import EntityCacheManager
+
+from sqlalchemy import event
 
 
 Model = db.Model
@@ -65,6 +69,9 @@ class EntityMeta(type(db.Model)):
         super(EntityMeta, cls).__init__(classname, bases, dict_)
         MetadashEntity.__namespace_map__[cls.namespace] = cls
 
+        # Clean cache on entity update
+        event.listen(cls, 'after_update', after_entity_update_hook)
+
     def __new__(mcs, classname, bases, dict_):
         if classname == 'EntityModel':
             return type.__new__(mcs, classname, bases, dict_)
@@ -95,13 +102,14 @@ class EntityMeta(type(db.Model)):
 
         dict_['__namespace__'] = __namespace__
         dict_['__mapper_args__'] = __mapper_args__
-        dict_['attribute_models'] = EntityModel.attribute_models[:]
+        dict_['attribute_models'] = EntityModel.attribute_models.copy()
 
         return super(EntityMeta, mcs).__new__(
             mcs, classname, (EntityModel, _Jsonable, MetadashEntity), dict_)
 
 
 # pylint: disable=no-member
+# EntityMeta will plug _Jsonable, MetadashEntity in as super class
 class EntityModel(metaclass=EntityMeta):
     """
     Entity Model base that provide support for convinient
@@ -118,9 +126,15 @@ class EntityModel(metaclass=EntityMeta):
 
     __alias__ = None
 
-    attribute_models = []
+    __cacheable_attributes__ = set()
+
+    attribute_models = {}
 
     uuid = None  # Just a hint
+
+    @property
+    def cache(self):
+        return EntityCacheManager(self)
 
     def identity(self):
         """
@@ -153,7 +167,7 @@ class EntityModel(metaclass=EntityMeta):
         else, only columns are loaded
         """
         extra = extra or []
-        for model in self.attribute_models:
+        for model in self.attribute_models.values():
             extra.append(model.ref_name)
         dict_ = super(EntityModel, self).as_dict(only=only, exclude=exclude, extra=extra)
         return dict_

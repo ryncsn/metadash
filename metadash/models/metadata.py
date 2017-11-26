@@ -15,7 +15,8 @@ class Property(AttributeModel):
     __alias__ = 'property'
     __tablename__ = 'metadash_property'
     __collector__ = attribute_mapped_list_collection("key")
-    __composer__ = "value"
+    __outline__ = "value"
+    __cacheable__ = True
 
     # Use a standalone id, a surrogate key to allow a entity to have multiple
     # property with same 'key' value
@@ -59,7 +60,7 @@ class Detail(AttributeModel):
     __alias__ = 'detail'
     __tablename__ = 'metadash_detail'
     __collector__ = attribute_mapped_collection("key")
-    __composer__ = "value"
+    __outline__ = "value"
 
     id = db.Column(db.Integer, nullable=False, primary_key=True, autoincrement=True)
     key = db.Column(db.String(255), nullable=False, index=True, unique_attribute=True)
@@ -80,7 +81,8 @@ class Tag(SharedAttributeModel):
     __alias__ = 'tag'
     __tablename__ = 'metadash_tag'
     __collector__ = list
-    __composer__ = 'name'
+    __outline__ = 'name'
+    __cacheable__ = True
 
     name = db.Column(db.String(255), nullable=False, index=True, unique_attribute=True)
 

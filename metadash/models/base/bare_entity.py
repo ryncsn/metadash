@@ -41,7 +41,7 @@ class BareEntityMeta(type(db.Model)):
         dict_['__table__'] = MetadashEntity.__table__
         dict_['__namespace__'] = __namespace__
         dict_['__mapper_args__'] = __mapper_args__
-        dict_['attribute_models'] = BareEntityModel.attribute_models[:]
+        dict_['attribute_models'] = BareEntityModel.attribute_models.copy()
 
         return super(BareEntityMeta, mcs).__new__(
             mcs, classname, (BareEntityModel, _Jsonable, MetadashEntity), dict_)
@@ -63,7 +63,7 @@ class BareEntityModel(metaclass=BareEntityMeta):
 
     __alias__ = None
 
-    attribute_models = []
+    attribute_models = {}
 
     uuid = None  # Just a hint
 
@@ -72,7 +72,7 @@ class BareEntityModel(metaclass=BareEntityMeta):
 
     def as_dict(self, only=None, exclude=None, extra=None):
         extra = extra or []
-        for model in self.attribute_models:
+        for model in self.attribute_models.keys():
             extra.append(model.ref_name)
         dict_ = super(BareEntityModel, self).as_dict(only=only, exclude=exclude, extra=extra)
         return dict_

@@ -75,7 +75,7 @@ class EntityParser(reqparse.RequestParser):
                     dest=column.name
                 )
 
-            for attr in self.entity.attribute_models:
+            for attr in self.entity.attribute_models.values():
                 duck_type = duck_type_collection(attr.__collector__())
                 default = None
 

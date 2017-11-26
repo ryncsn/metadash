@@ -8,7 +8,6 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 from ..types import UUID
 from .. import db
-from ... import logger
 
 from .entity import MetadashEntity, EntityModel
 from .utils import _pluralize, _get_alias_dict, _get_table_name_dict
@@ -52,10 +51,12 @@ class AttributeMeta(type(Model)):
         # Default values
         unique_attribute = dict_.setdefault('__unique_attr__', False)
 
+        autocache = dict_.setdefault('__autocache__', False)
+        cacheable = dict_.setdefault('__cacheable__', False)
         table_args = dict_.setdefault('__table_args__', ())
         entities_only = dict_.setdefault('__entities__', None)
         collector = dict_.setdefault('__collector__', list if not unique_attribute else None)
-        composer = dict_.setdefault('__composer__', None)
+        outline = dict_.setdefault('__outline__', None)
         creator = dict_.setdefault('__creator__', None)
 
         tablename = _get_table_name_dict(dict_)
@@ -66,7 +67,7 @@ class AttributeMeta(type(Model)):
         entity_models = dict_.setdefault('entity_models',
                                          AttributeModel.entity_models[:])
 
-        dict_['ref_name'] = proxy_name if composer else backref_name
+        dict_['ref_name'] = proxy_name if outline else backref_name
 
         # Build foreign key and relationship
         has_primary_key = False
@@ -117,11 +118,13 @@ class SharedAttributeMeta(type(Model)):
 
         # TODO: Injection style
         # Default values
+        autocache = dict_.setdefault('__autocache__', False)
+        cacheable = dict_.setdefault('__cacheable__', False)
         table_args = dict_.setdefault('__table_args__', ())
         entities_only = dict_.setdefault('__entities__', None)
         collector = dict_.setdefault('__collector__', list)
         # TODO: collector = dict_.setdefault('__collector__', list if not unique_attribute else None)
-        composer = dict_.setdefault('__composer__', None)
+        outline = dict_.setdefault('__outline__', None)
         creator = dict_.setdefault('__creator__', None)
 
         tablename = _get_table_name_dict(dict_)
@@ -132,7 +135,7 @@ class SharedAttributeMeta(type(Model)):
         entity_models = dict_.setdefault('entity_models',
                                          SharedAttributeModel.entity_models[:])
 
-        dict_['ref_name'] = proxy_name if composer else backref_name
+        dict_['ref_name'] = proxy_name if outline else backref_name
 
         # Build foreign key and relationship
         has_primary_key = False
@@ -180,9 +183,13 @@ class AttributeModel(_Jsonable, Model, metaclass=AttributeMeta):
     # Collector to use for relationship
     __collector__ = list
     # If specified will use associationproxy, and this is the key
-    __composer__ = None  # TODO: Accept a dict
-    # Used when composer is specified
+    __outline__ = None  # TODO: Accept a dict
+    # Used when outline is specified
     __creator__ = None
+    # If cache the entry automatically after is't modified or created
+    __autocache__ = False
+    # If this is cacheable or not
+    __cacheable__ = False
 
     entity_models = []
 
@@ -216,9 +223,13 @@ class SharedAttributeModel(_Jsonable, Model, metaclass=SharedAttributeMeta):
     # Collector to use for relationship
     __collector__ = list
     # If specified will use associationproxy, and this is the key
-    __composer__ = None  # TODO: Accept a dict
-    # Used when composer is specified
+    __outline__ = None  # TODO: Accept a dict
+    # Used when outline is specified
     __creator__ = None
+    # If cache the entry automatically after is't modified or created
+    __autocache__ = False
+    # If this is cacheable or not
+    __cacheable__ = False
 
     entity_models = []
 
@@ -245,14 +256,19 @@ def init_attribute(attribute):
         if attribute.__entities__ is not None else _all_leaf_class(EntityModel)
     )
     for model in entities:
-        model.attribute_models.append(attribute)
+        model.attribute_models[attribute.ref_name] = attribute
         parentname = _get_alias_dict(model.__dict__)
         attribute.entity_models.append(parentname)
+
+        # TODO: autocache = attribute.__autocache__
+        cacheable = attribute.__cacheable__
+        if cacheable:
+            model.__cacheable_attributes__.add(attribute.ref_name)
 
         backref_name = attribute.__backref_name__
         proxy_name = attribute.__proxy_name__
         collector = attribute.__collector__
-        composer = attribute.__composer__
+        outline = attribute.__outline__
         creator = attribute.__creator__
         unique_attribute = attribute.__unique_attr__
 
@@ -266,9 +282,9 @@ def init_attribute(attribute):
             cascade="all, delete-orphan",
         ))
 
-        if composer:
+        if outline:
             setattr(model, proxy_name,
-                    association_proxy(backref_name, composer,
+                    association_proxy(backref_name, outline,
                                       **({'creator': lambda *args, **kwargs: attribute.__creator__(*args, **kwargs)}
                                          if creator else {})))
 
@@ -279,15 +295,20 @@ def init_shared_attribute(attribute):
         if attribute.__entities__ is not None else _all_leaf_class(EntityModel)
     )
     for model in entities:
-        model.attribute_models.append(attribute)
+        model.attribute_models[attribute.ref_name] = attribute
         parentname = _get_alias_dict(model.__dict__)
         parentsname = _pluralize(parentname)
         attribute.entity_models.append(parentname)
 
+        # TODO: autocache = attribute.__autocache__
+        cacheable = attribute.__cacheable__
+        if cacheable:
+            model.__cacheable_attributes__.add(attribute.ref_name)
+
         backref_name = attribute.__backref_name__
         proxy_name = attribute.__proxy_name__
         collector = attribute.__collector__
-        composer = attribute.__composer__
+        outline = attribute.__outline__
         creator = attribute.__creator__
 
         setattr(attribute, parentsname, db.relationship(
@@ -302,9 +323,9 @@ def init_shared_attribute(attribute):
             cascade="save-update, merge, refresh-expire, expunge",
         ))
 
-        if composer:
+        if outline:
             def get_or_create_attribute(*args, **kwargs):
-                attribute_dict = {composer: args[0]}
+                attribute_dict = {outline: args[0]}
                 attr = attribute.query.filter_by(**attribute_dict).first()
                 if not attr:
                     if creator:
@@ -314,7 +335,7 @@ def init_shared_attribute(attribute):
                 return attr
 
             setattr(model, proxy_name,
-                    association_proxy(backref_name, composer, creator=get_or_create_attribute))
+                    association_proxy(backref_name, outline, creator=get_or_create_attribute))
 
 
 def init():

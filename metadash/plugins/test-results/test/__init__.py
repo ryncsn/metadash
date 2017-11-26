@@ -87,6 +87,7 @@ class FixtureTest(BasicTestCase):
             ), content_type='application/json')
             testrun_rv_data = json.loads(testrun_rv.data)
             assert testrun_rv_data['uuid']
+            print(testrun_rv_data)
             for key in testrun_data:
                 assert testrun_rv_data[key] == testrun_data[key]
 

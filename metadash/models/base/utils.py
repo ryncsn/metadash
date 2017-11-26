@@ -80,16 +80,26 @@ def _format_for_json(data):
         return str(data)
 
 
+def _iscacheable(entity, attribute):
+    return (
+        attribute in entity.__cacheable_attributes__
+    )
+
+
 class _Jsonable(object):
     # pylint: disable=no-member
     def as_dict(self, only=None, exclude=None, extra=None):
         """
         Format a model instance into json.
         """
-        return dict([(_c, _format_for_json(getattr(self, _c)))
-                     for _c in
-                     only or ([c.name for c in self.__table__.columns] + extra or [])
-                     if not exclude or _c not in exclude])
+        ret = {}
+        for col_name in only or [c.name for c in self.__table__.columns] + (extra or []):
+            if not exclude or col_name not in exclude:
+                if _iscacheable(self, col_name):
+                    ret[col_name] = getattr(self.cache, col_name)
+                else:
+                    ret[col_name] = _format_for_json(getattr(self, col_name))
+        return ret
 
 
 class hybridmethod(object):
