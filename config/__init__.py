@@ -7,8 +7,11 @@ This file is only intend to be used for server setup, for any other configs,
 like user/password/3rd part API url, use Database, or metadash.config.
 """
 
+import logging
 import os
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../metadash"))
+
+logger = logging.getLogger(__name__)
 
 
 class Config(object):
@@ -44,4 +47,5 @@ except ImportError:
 
 
 if not ActiveConfig.SECRET_KEY:
-    raise RuntimeError("Please use a random string for SECRET_KEY")
+    logger.critical("Please set your secret value for production!")
+    ActiveConfig.SECRET_KEY = 'ABCDEFG'
