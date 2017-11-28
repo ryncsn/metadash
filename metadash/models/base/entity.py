@@ -132,9 +132,7 @@ class EntityModel(metaclass=EntityMeta):
 
     uuid = None  # Just a hint
 
-    @property
-    def cache(self):
-        return EntityCacheManager(self)
+    cache = EntityCacheManager()
 
     def identity(self):
         """

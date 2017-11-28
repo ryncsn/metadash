@@ -107,13 +107,10 @@ class TestRunList(Resource):
     def post(self):
         args = TestRunParser.parse_args()
         testrun = TestRun.from_dict(args)
-        print(testrun.as_dict())
         # testrun.tags.append("statistic")
         db.session.add(testrun)
         db.session.commit()
         db.session.refresh(testrun)
-        print(testrun)
-        print(testrun.as_dict())
         return testrun.as_dict()
 
 

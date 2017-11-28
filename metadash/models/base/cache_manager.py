@@ -14,16 +14,39 @@ class EntityCacheManager(object):
     Will raise Exception if fallback failed or failed to format the
     value into json.
     """
-    def __init__(self, entity):
-        self.entity = entity
+    def __init__(self):
+        self.instance = None
+        self.model = None
+
+    def __get__(self, instance, model):
+        self.instance = instance
+        if self.model is not None:
+            self.model = model
+        return self
 
     def __get_value(self, key):
         """
-        TODO: Check if it's a column or not
+        Extract value from instance or model
         """
-        value = getattr(self.entity, key)
-        return _format_for_json(value)
+        if self.instance:
+            try:
+                value = getattr(self.instance, key)
+            except AttributeError:
+                raise AttributeError("Entity instance {} doesn't have attribute {}".format(self.instance, key))
+            return _format_for_json(value)
+        else:
+            try:
+                value = getattr(self.model, key)
+            except AttributeError:
+                raise AttributeError("Model {} doesn't have attribute {}".format(self.model, key))
+            return _format_for_json(value)
 
     def __getattr__(self, attr):
-        return get_or_create_entity_cache(
-            self.entity, attr, partial(self.__get_value, attr), expiration_time=-1)
+        if self.instance:
+            return get_or_create_entity_cache(
+                self.instance, attr, partial(self.__get_value, attr), expiration_time=-1)
+        elif self.model:
+            return get_or_create_entity_cache(
+                self.model.__namespace__, attr, partial(self.__get_value, attr), expiration_time=-1)
+        else:
+            raise RuntimeError("Unbonded Entity Cache Manager")
