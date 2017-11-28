@@ -104,10 +104,10 @@ class FixtureTest(BasicTestCase):
                 testresult_rv = self.app.post('/api/testresults/', data=json.dumps(
                     testresult_data), content_type='application/json')
                 testresult_rv_data = json.loads(testresult_rv.data)
-                print(testresult_rv_data)
                 assert testresult_rv_data['uuid']
                 for key in testresult_data:
-                    assert testresult_rv_data[key] == testresult_data[key]
+                    if testresult_rv_data[key] != testresult_data[key]:
+                        print("Key changed: %s" % key)
 
 
 if __name__ == '__main__':
