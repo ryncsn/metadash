@@ -1,6 +1,6 @@
 from functools import partial
 from .utils import _format_for_json
-from metadash.cache.manager import get_or_create_entity_cache
+from metadash.cache.manager import get_or_create_entity_cache, clear_entity_cache, clear_entity_model_cache
 
 
 class EntityCacheManager(object):
@@ -50,3 +50,9 @@ class EntityCacheManager(object):
                 self.model.__namespace__, attr, partial(self.__get_value, attr), expiration_time=-1)
         else:
             raise RuntimeError("Unbonded Entity Cache Manager")
+
+    def clear(self):
+        if self.instance:
+            clear_entity_cache(self.instance)
+        else:
+            clear_entity_model_cache(self.model)
