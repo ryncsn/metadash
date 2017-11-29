@@ -85,7 +85,10 @@ class FixtureTest(BasicTestCase):
             testrun_rv = self.app.post('/api/testruns/', data=json.dumps(
                 testrun_data
             ), content_type='application/json')
-            testrun_rv_data = json.loads(testrun_rv.data)
+            if isinstance(testrun_rv.data, bytes):
+                testrun_rv_data = json.loads(testrun_rv.data.decode('utf-8'))
+            else:
+                testrun_rv_data = json.loads(str(testrun_rv.data))
             assert testrun_rv_data['uuid']
             print(testrun_rv_data)
             for key in testrun_data:
@@ -103,7 +106,10 @@ class FixtureTest(BasicTestCase):
                 }
                 testresult_rv = self.app.post('/api/testresults/', data=json.dumps(
                     testresult_data), content_type='application/json')
-                testresult_rv_data = json.loads(testresult_rv.data)
+                if isinstance(testresult_rv.data, bytes):
+                    testresult_rv_data = json.loads(testresult_rv.data.decode('utf-8'))
+                else:
+                    testresult_rv_data = json.loads(str(testresult_rv.data))
                 assert testresult_rv_data['uuid']
                 for key in testresult_data:
                     if testresult_rv_data[key] != testresult_data[key]:
