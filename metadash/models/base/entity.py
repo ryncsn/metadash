@@ -8,7 +8,6 @@ from .utils import (
 
 from metadash.models import db
 from metadash.models.types import UUID
-from metadash.cache.manager import after_entity_update_hook
 from metadash.models.base.cache_manager import EntityCacheManager
 
 from sqlalchemy import event
@@ -47,6 +46,10 @@ class MetadashEntity(Model):
 MetadashEntity.__namespace_map__[MetadashEntity.__namespace__] = MetadashEntity
 
 
+def after_entity_update_hook(mapper, connection, entity):
+    entity.cache.clear()
+
+
 class EntityMeta(type(db.Model)):
     """
     Custom metaclass for creating new Entity.
@@ -70,6 +73,7 @@ class EntityMeta(type(db.Model)):
         MetadashEntity.__namespace_map__[cls.namespace] = cls
 
         # Clean cache on entity update
+        event.listen(cls, 'after_delete', after_entity_update_hook)
         event.listen(cls, 'after_update', after_entity_update_hook)
 
     def __new__(mcs, classname, bases, dict_):

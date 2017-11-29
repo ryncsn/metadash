@@ -31,8 +31,7 @@ class EntityCacheManager(object):
 
     def __get__(self, instance, model):
         self.instance = instance
-        if self.model is None:
-            self.model = model
+        self.model = model
         return self
 
     def __get_value(self, key):
@@ -53,17 +52,17 @@ class EntityCacheManager(object):
             return _format_for_json(value)
 
     def get(self, attr):
-        if self.instance:
+        if self.instance is not None:
             return get_entity_cache(self.instance, attr)
-        elif self.model:
+        elif self.model is not None:
             return get_entity_model_cache(self.model, attr)
         else:
             raise RuntimeError("Unbonded Entity Cache Manager")
 
     def set(self, attr, value):
-        if self.instance:
+        if self.instance is not None:
             return set_entity_cache(self.instance, attr, value)
-        elif self.model:
+        elif self.model is not None:
             return set_entity_model_cache(self.model, attr, value)
         else:
             raise RuntimeError("Unbonded Entity Cache Manager")
@@ -74,27 +73,27 @@ class EntityCacheManager(object):
         and cacher will try to retrive value from entity on miss
         """
         fn = fn or partial(self.__get_value, attr)
-        if self.instance:
+        if self.instance is not None:
             return get_or_create_entity_cache(
                 self.instance, attr, fn, expiration_time=-1)
-        elif self.model:
+        elif self.model is not None:
             return get_or_create_entity_model_cache(
                 self.model, attr, fn, expiration_time=-1)
         else:
             raise RuntimeError("Unbonded Entity Cache Manager")
 
     def delete(self, attr):
-        if self.instance:
+        if self.instance is not None:
             return del_entity_cache(self.instance, attr)
-        elif self.model:
+        elif self.model is not None:
             return del_entity_model_cache(self.model, attr)
         else:
             raise RuntimeError("Unbonded Entity Cache Manager")
 
     def clear(self):
-        if self.instance:
+        if self.instance is not None:
             clear_entity_cache(self.instance)
-        elif self.model:
+        elif self.model is not None:
             clear_entity_model_cache(self.model)
         else:
             raise RuntimeError("Unbonded Entity Cache Manager")
