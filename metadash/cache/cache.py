@@ -1,6 +1,10 @@
 from functools import partial
 from .region import default_region
-from .manager import get_or_create_entity_cache, set_entity_cache
+from .manager import (
+    get_or_create_entity_cache,
+    set_entity_cache,
+    entity_fn_wrapper,
+    entity_model_fn_wrapper)
 
 get_ = default_region.get
 set_ = default_region.set
@@ -13,30 +17,25 @@ cache_on_arguments = default_region.cache_on_arguments
 cache_multi_on_arguments = default_region.cache_on_arguments
 
 
-def cache_on_entity(expiration_time=3600):
+def cache_on_entity(expiration_time=-1):
     """
     Cache a function for an entity, by argruments
     """
     def decorator(fn):
-        # TODO: Cached deferred?
-        # TODO: Cache Invalidation
-        def keyer(namesapce, fn):
-            def generate_key(entity, *arg, **kw):
-                return "_".join(
-                    [str(entity.uuid), fn.__name__] +
-                    [str(x) for x in arg] +
-                    ["{}:{}".format(k, v) for k, v in kw.items()]
-                )
-            return generate_key
-
-        cacher = cache_on_arguments(namespace='md_entities', expiration_time=expiration_time,
-                                    function_key_generator=keyer)(fn)
-
-        return cacher
+        return entity_fn_wrapper(fn, expiration_time)
     return decorator
 
 
-def cached_entity_property(expiration_time=3600):
+def cache_on_entity_model(expiration_time=-1):
+    """
+    Cache a function for an entity model, by argruments
+    """
+    def decorator(fn):
+        return entity_model_fn_wrapper(fn, expiration_time)
+    return decorator
+
+
+def cached_entity_property(expiration_time=-1):
     """
     A entity level property cache, bind a cache value to a UUID
     Whenever the entity is accessed and the cached is not expired, it's avaliable

@@ -1,6 +1,15 @@
 from functools import partial
 from .utils import _format_for_json
-from metadash.cache.manager import get_or_create_entity_cache, clear_entity_cache, clear_entity_model_cache
+from metadash.cache.manager import (
+    get_or_create_entity_cache,
+    get_or_create_entity_model_cache,
+    clear_entity_cache,
+    clear_entity_model_cache,
+    set_entity_cache,
+    set_entity_model_cache,
+    get_entity_cache,
+    get_entity_model_cache,
+)
 
 
 class EntityCacheManager(object):
@@ -20,7 +29,7 @@ class EntityCacheManager(object):
 
     def __get__(self, instance, model):
         self.instance = instance
-        if self.model is not None:
+        if self.model is None:
             self.model = model
         return self
 
@@ -41,15 +50,39 @@ class EntityCacheManager(object):
                 raise AttributeError("Model {} doesn't have attribute {}".format(self.model, key))
             return _format_for_json(value)
 
-    def __getattr__(self, attr):
+    def get(self, attr):
         if self.instance:
-            return get_or_create_entity_cache(
-                self.instance, attr, partial(self.__get_value, attr), expiration_time=-1)
+            return get_entity_cache(self.instance, attr)
         elif self.model:
-            return get_or_create_entity_cache(
-                self.model.__namespace__, attr, partial(self.__get_value, attr), expiration_time=-1)
+            return get_entity_model_cache(self.model, attr)
         else:
             raise RuntimeError("Unbonded Entity Cache Manager")
+
+    def set(self, attr, value):
+        if self.instance:
+            return set_entity_cache(self.instance, attr, value)
+        elif self.model:
+            return set_entity_model_cache(self.model, attr, value)
+        else:
+            raise RuntimeError("Unbonded Entity Cache Manager")
+
+    def get_or_create(self, attr, fn=None):
+        """
+        If attr is a property of the eneity, fn could be None,
+        and cacher will try to retrive value from entity on miss
+        """
+        fn = fn or partial(self.__get_value, attr)
+        if self.instance:
+            return get_or_create_entity_cache(
+                self.instance, attr, fn, expiration_time=-1)
+        elif self.model:
+            return get_or_create_entity_model_cache(
+                self.model, attr, fn, expiration_time=-1)
+        else:
+            raise RuntimeError("Unbonded Entity Cache Manager")
+
+    def __delitem__(self, attr, value):
+        raise NotImplementedError()
 
     def clear(self):
         if self.instance:

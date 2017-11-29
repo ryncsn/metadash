@@ -30,12 +30,43 @@ def entity_rec_keyer(entity):
     return "_cacherec_{}".format(entity.uuid)
 
 
-def get_or_create_entity_model_cache(entity, key, *args, **kwargs):
+def entity_fn_wrapper(fn, expiration_time=None):
+    def keyer(namesapce, fn):
+        def generate_key(entity, *args, **kwargs):
+            key = "_fncache_" + "_".join(
+                [str(entity.uuid), fn.__name__] +
+                [str(x) for x in args] +
+                ["{}:{}".format(k, v) for k, v in kwargs.items()])
+            record_entity_cache(entity, key)
+            return key
+        return generate_key
+    cached_fn = cache_on_arguments(namespace='md_entities', expiration_time=expiration_time or -1,
+                                   function_key_generator=keyer)(fn)
+    print(cached_fn)
+    return cached_fn
+
+
+def entity_model_fn_wrapper(fn, expiration_time=None):
+    def keyer(namesapce, fn):
+        def generate_key(model, *args, **kwargs):
+            key = "_fncache_" + "_".join(
+                [str(model.__namespace__), fn.__name__] +
+                [str(x) for x in args] +
+                ["{}:{}".format(k, v) for k, v in kwargs.items()])
+            record_entity_model_cache(model, key)
+            return key
+        return generate_key
+    cached_fn = classmethod(cache_on_arguments(namespace='md_entities', expiration_time=expiration_time or -1,
+                                               function_key_generator=keyer)(fn))
+    return cached_fn
+
+
+def get_or_create_entity_model_cache(model, key, *args, **kwargs):
     """
     Get or create cache item belongs to an entity model
     """
-    entity_scoped_key = entity_keyer(entity, key)
-    cache_record_key = entity_rec_keyer(entity)
+    entity_scoped_key = entity_model_keyer(model, key)
+    cache_record_key = entity_model_rec_keyer(model)
     entity_cache_record = get_or_create(cache_record_key, lambda: [], -1)
     entity_cache_record.append(entity_scoped_key)
     set_(cache_record_key, entity_cache_record)
@@ -54,12 +85,40 @@ def get_or_create_entity_cache(entity, key, *args, **kwargs):
     return get_or_create(entity_scoped_key, *args, **kwargs)
 
 
+def get_entity_cache(entity, key, *args, **kwargs):
+    """
+    Get or create cache item belongs to an entity
+    """
+    scoped_key = entity_keyer(entity, key)
+    return get_(scoped_key, *args, **kwargs)
+
+
+def get_entity_model_cache(entity, key, *args, **kwargs):
+    """
+    Get or create cache item belongs to an entity
+    """
+    scoped_key = entity_model_keyer(entity, key)
+    return get_(scoped_key, *args, **kwargs)
+
+
 def set_entity_cache(entity, key, *args, **kwargs):
     """
     Get or create cache item belongs to an entity
     """
     entity_scoped_key = entity_keyer(entity, key)
     cache_record_key = entity_rec_keyer(entity)
+    entity_cache_record = get_or_create(cache_record_key, lambda: [], -1)
+    entity_cache_record.append(entity_scoped_key)
+    set_(cache_record_key, entity_cache_record)
+    return set_(entity_scoped_key, *args, **kwargs)
+
+
+def set_entity_model_cache(entity, key, *args, **kwargs):
+    """
+    Get or create cache item belongs to an entity
+    """
+    entity_scoped_key = entity_model_keyer(entity, key)
+    cache_record_key = entity_model_rec_keyer(entity)
     entity_cache_record = get_or_create(cache_record_key, lambda: [], -1)
     entity_cache_record.append(entity_scoped_key)
     set_(cache_record_key, entity_cache_record)

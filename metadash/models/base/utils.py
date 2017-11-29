@@ -96,7 +96,7 @@ class _Jsonable(object):
         for col_name in only or [c.name for c in self.__table__.columns] + (extra or []):
             if not exclude or col_name not in exclude:
                 if _iscacheable(self, col_name):
-                    ret[col_name] = getattr(self.cache, col_name)
+                    ret[col_name] = self.cache.get_or_create(col_name)
                 else:
                     ret[col_name] = _format_for_json(getattr(self, col_name))
         return ret

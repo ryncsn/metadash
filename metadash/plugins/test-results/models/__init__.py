@@ -11,7 +11,7 @@ ref_url should be either null or unique
 from sqlalchemy.sql import func, label
 
 from metadash.injector import provide
-from metadash.cache import cache_on_arguments, cached_entity_property
+from metadash.cache import cache_on_entity_model, cached_entity_property
 from metadash.models import db
 from metadash.models.base import EntityModel
 from metadash.models.types import UUID
@@ -54,7 +54,7 @@ class TestRun(EntityModel):
     name = db.Column(db.String(512), nullable=False, unique=False)
     ref_url = db.Column(db.String(URL_LENGTH), unique=True, nullable=True)
 
-    @cached_entity_property(expiration_time=30)
+    @cached_entity_property()
     def results(self):
         return dict(
             db.session.query(TestResult.result, label('count', func.count(TestResult.result)))

@@ -78,6 +78,17 @@ class TestResultDetail(Resource):
         return result.as_dict()
 
 
+def all_key_props() -> dict:
+    return dict(
+        (prop, Property.all_values(TestRun, prop))
+        for prop in Config.get("OVERVIEW_TESTRUN_PROPS").split(",") if prop
+    )
+
+
+def all_tags() -> list:
+    return Tag.all_tags(TestRun)
+
+
 class TestRunList(Resource):
     def get(self):
         args = TestRunParser.parse_args()
@@ -93,15 +104,11 @@ class TestRunList(Resource):
 
         q = q.order_by(TestRun.timestamp.desc())
 
-        sq = q.subquery()
         return envolop(
             [testrun.as_dict(exclude=['details']) for testrun in
              pager(q).all()],
-            filter_properties=dict(
-                (prop, Property.all_values(sq, prop))
-                for prop in Config.get("OVERVIEW_TESTRUN_PROPS").split(",") if prop
-            ),
-            filter_tags=Tag.all_tags(TestRun)
+            filter_properties=TestRun.cache.get_or_create('all_key_props', all_key_props),
+            filter_tags=TestRun.cache.get_or_create('all_tags', all_tags)
         )
 
     def post(self):
