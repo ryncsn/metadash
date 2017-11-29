@@ -140,6 +140,12 @@ class EntityModel(metaclass=EntityMeta):
         """
         return '{}:{}'.format(self.__namespace__, self.uuid)
 
+    @classmethod
+    def from_uuid(cls, uuid):
+        entity = cls()
+        entity.uuid = uuid
+        return entity
+
     @hybridmethod
     def from_dict(self, dict_):
         """

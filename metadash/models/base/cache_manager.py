@@ -9,6 +9,8 @@ from metadash.cache.manager import (
     set_entity_model_cache,
     get_entity_cache,
     get_entity_model_cache,
+    del_entity_cache,
+    del_entity_model_cache,
 )
 
 
@@ -81,11 +83,18 @@ class EntityCacheManager(object):
         else:
             raise RuntimeError("Unbonded Entity Cache Manager")
 
-    def __delitem__(self, attr, value):
-        raise NotImplementedError()
+    def delete(self, attr):
+        if self.instance:
+            return del_entity_cache(self.instance, attr)
+        elif self.model:
+            return del_entity_model_cache(self.model, attr)
+        else:
+            raise RuntimeError("Unbonded Entity Cache Manager")
 
     def clear(self):
         if self.instance:
             clear_entity_cache(self.instance)
-        else:
+        elif self.model:
             clear_entity_model_cache(self.model)
+        else:
+            raise RuntimeError("Unbonded Entity Cache Manager")

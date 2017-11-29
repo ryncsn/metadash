@@ -9,9 +9,12 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from ..types import UUID
 from .. import db
 
+from metadash.event import on
 from .entity import MetadashEntity, EntityModel
 from .utils import _pluralize, _get_alias_dict, _get_table_name_dict
 from .utils import _all_leaf_class, _Jsonable, _format_for_json
+
+from metadash.cache.manager import after_attribute_insert_hook, after_attribute_update_hook
 
 
 Model = db.Model
@@ -42,6 +45,10 @@ class AttributeMeta(type(Model)):
             type.__init__(type, classname, bases, dict_, **kwargs)
         else:
             super(AttributeMeta, cls).__init__(classname, bases, dict_)
+
+        # Clean cache
+        on(cls, 'after_update')(after_attribute_update_hook)
+        on(cls, 'after_insert')(after_attribute_insert_hook)
 
     def __new__(mcs, classname, bases, dict_, **kwargs):
         # pylint: disable=no-member

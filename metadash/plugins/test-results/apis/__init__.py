@@ -118,6 +118,8 @@ class TestRunList(Resource):
         db.session.add(testrun)
         db.session.commit()
         db.session.refresh(testrun)
+        TestRun.cache.delete('all_key_props'),
+        TestRun.cache.delete('all_tags')
         return testrun.as_dict()
 
 

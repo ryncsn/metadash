@@ -11,10 +11,11 @@ ref_url should be either null or unique
 from sqlalchemy.sql import func, label
 
 from metadash.injector import provide
-from metadash.cache import cache_on_entity_model, cached_entity_property
+from metadash.cache import cached_entity_property
 from metadash.models import db
 from metadash.models.base import EntityModel
 from metadash.models.types import UUID
+from metadash.event import on
 
 
 # Restful API is not ACID, so use a high limit for bulk operation
@@ -86,10 +87,17 @@ class TestResult(EntityModel):
     ref_url = db.Column(db.String(URL_LENGTH), unique=True, nullable=True)
 
     testrun_uuid = db.Column(UUID, db.ForeignKey('testrun.uuid'), nullable=False)
-    testrun = db.relationship("TestRun", foreign_keys=[testrun_uuid], backref="testresults")
+    testrun = db.relationship("TestRun", foreign_keys=[testrun_uuid], backref="testresults", uselist=False)
     testcase_name = db.Column(db.String(512), db.ForeignKey('testcase.name'), nullable=False)
-    testcase = db.relationship("TestCase", foreign_keys=[testcase_name], backref="testresults")
+    testcase = db.relationship("TestCase", foreign_keys=[testcase_name], backref="testresults", uselist=False)
 
     def as_dict(self, **kwargs):
         ret = super(TestResult, self).as_dict(**kwargs)
         return ret
+
+
+@on(TestResult, 'after_insert')
+@on(TestResult, 'after_update')
+@on(TestResult, 'after_delete')
+def clean_results_cache(mapper, connection, target):
+    TestRun.from_uuid(target.testrun_uuid).cache.delete('results')

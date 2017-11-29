@@ -125,6 +125,22 @@ def set_entity_model_cache(entity, key, *args, **kwargs):
     return set_(entity_scoped_key, *args, **kwargs)
 
 
+def del_entity_cache(entity, key, *args, **kwargs):
+    """
+    Get or create cache item belongs to an entity
+    """
+    entity_scoped_key = entity_keyer(entity, key)
+    delete_(entity_scoped_key, *args, **kwargs)
+
+
+def del_entity_model_cache(model, key, *args, **kwargs):
+    """
+    Get or create cache item belongs to an entity model
+    """
+    entity_scoped_key = entity_model_keyer(model, key)
+    delete_(entity_scoped_key, *args, **kwargs)
+
+
 def record_entity_cache(entity, key):
     """
     Tell the cache manager an cache entry have been created for an entity
@@ -162,7 +178,6 @@ def clear_entity_cache(entity):
     if cache_records:
         for key in cache_records:
             delete_(key)
-    clear_entity_model_cache(entity)
 
 
 def clear_attribute_cache(attribute):
@@ -175,13 +190,15 @@ def clear_attribute_cache(attribute):
 
 def after_entity_update_hook(mapper, connection, target):
     uuid = target.uuid
-    if target.__namespace__:  # Make sure not a dangling entity
-        clear_entity_cache(target)
     if uuid:  # Make sure not a dangling entity
         clear_entity_cache(target)
 
 
 def after_attribute_update_hook(mapper, connection, target):
-    uuid = target.uuid
-    if uuid:  # Not a dangling entity
-        clear_entity_cache(target)
+    entity = target.entity
+    clear_entity_cache(entity)
+
+
+def after_attribute_insert_hook(mapper, connection, target):
+    entity = target.entity
+    clear_entity_cache(entity)
