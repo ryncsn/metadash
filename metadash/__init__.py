@@ -9,7 +9,7 @@ import os
 import config
 
 # Load Flask and config
-from flask import Flask, jsonify
+from flask import Flask 
 app = Flask(__name__, static_url_path="", static_folder="dist/")
 app.config.from_object('config.ActiveConfig')
 
@@ -17,7 +17,7 @@ app.config.from_object('config.ActiveConfig')
 # setup logging
 def setup_logger():
     fmt = '%(asctime)s %(name)s %(levelname)s: %(message)s'
-    loglevel = logging.DEBUG  # TODO: in config
+    loglevel = logging.INFO  # TODO: in config
     formatter = logging.Formatter(fmt=fmt)
 
     logging.basicConfig(format=fmt, level=loglevel)
