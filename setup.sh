@@ -100,3 +100,6 @@ fi
 
 _info "***Rebuilding Assets***"
 npm run build
+
+_info "***Initialize Database***"
+_python manager.py initdb
