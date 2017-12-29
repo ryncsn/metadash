@@ -263,6 +263,10 @@ class SharedAttributeModel(_Jsonable, Model, metaclass=SharedAttributeMeta):
 
 def init_attribute(attribute):
     # TODO: DRY
+    if hasattr(attribute, '__md_initialized'):
+        return
+    setattr(attribute, '__md_initialized', True)
+
     entities = (
         [_find_entity(e) for e in attribute.__entities__]
         if attribute.__entities__ is not None else _all_leaf_class(EntityModel)
@@ -302,6 +306,10 @@ def init_attribute(attribute):
 
 
 def init_shared_attribute(attribute):
+    if hasattr(attribute, '__md_initialized'):
+        return
+    setattr(attribute, '__md_initialized', True)
+
     entities = (
         [_find_entity(e) for e in attribute.__entities__]
         if attribute.__entities__ is not None else _all_leaf_class(EntityModel)
