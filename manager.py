@@ -1,10 +1,15 @@
 #!/usr/bin/env python
+import coloredlogs
+
+coloredlogs.install(level='INFO')
+
 # Load Flask
-from metadash import app, db, socketio
+from metadash import app, db, socketio  # noqa
 
 # Load Manager and Migration
-from flask_migrate import Migrate, MigrateCommand
-from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand  # noqa
+from flask_script import Manager  # noqa
+
 migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)

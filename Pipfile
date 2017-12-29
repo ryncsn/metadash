@@ -1,28 +1,31 @@
 [[source]]
+
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 
+
 [dev-packages]
-flake8 = "*"
+
+"flake8" = "*"
+
 
 [packages]
-requests = "*"
-flake8 = "*"
-ldap3 = "*"
-"dogpile.cache" = "*"
-psycopg2 = "==2.6"
-redis = "*"
-celery = "*"
-Flask = "*"
-SQLAlchemy = "*"
-Flask-RESTful = "*"
-Flask-Migrate = "*"
-Flask-SQLAlchemy = "*"
-resultsdb_api = "*"
-Flask-SocketIO = "*"
-Flask-Session = "*"
-uWSGI = "*"
 
-[packages.caselink]
-git = "https://github.com/ryncsn/caselink-python"
-ref = "master"
+flask-restful = "*"
+flask-migrate = "*"
+sqlalchemy = "*"
+resultsdb-api = "*"
+flask = "*"
+"psycopg2" = "==2.6"
+flask-sqlalchemy = "*"
+redis = "*"
+"ldap3" = "*"
+celery = "*"
+flask-socketio = "*"
+caselink = { git = "https://github.com/ryncsn/caselink-python", ref = "master" }
+requests = "*"
+"flake8" = "*"
+flask-session = "*"
+uwsgi = "*"
+"dogpile.cache" = "*"
+coloredlogs = "*"
