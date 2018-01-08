@@ -1,7 +1,7 @@
 <template>
   <div>
     <pf-table class="toolbar-pf" :columns="columns" :rows="users">
-      <template scope="scope">
+      <template slot-scope="scope">
         <td> {{ scope.row.username }} </td>
         <td v-for="role in roles">
           <bs-radio :checkedValue="role" :value="scope.row.role"
@@ -9,7 +9,7 @@
           </bs-radio>
         </td>
       </template>
-      <template slot="action" scope="scope">
+      <template slot="action" slot-scope="scope">
         <button class="btn btn-danger" type="button" @click="deleteUser(scope.row.username)"> Delete User </button>
       </template>
     </pf-table>

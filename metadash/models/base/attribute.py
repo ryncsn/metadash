@@ -16,6 +16,9 @@ from .utils import _all_leaf_class, _Jsonable, _format_for_json
 
 
 def after_attribute_update_hook(mapper, connection, target):
+    """
+    Clear related cache after attribute updated
+    """
     uuid = target.entity_uuid
     if uuid:
         entity = EntityModel.from_uuid(uuid)

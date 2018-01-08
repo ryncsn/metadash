@@ -1,7 +1,7 @@
 <template>
   <div>
     <pf-table :rows="machines" :columns="columns" >
-      <template scope="scope">
+      <template slot-scope="scope">
         <td v-for="attr in columns"> {{scope.row[attr]}} </td>
       </template>
       <slot name="action">

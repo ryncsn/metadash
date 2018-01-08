@@ -4,7 +4,7 @@
     </pf-toolbar>
     <horizon-loader :loading="loading"></horizon-loader>
     <pf-table :columns="['Testcase', 'Outcome', 'Data', 'Note', 'Submit Time', 'Link']" :rows="results" :page="page" :pages="pages" @change-page="changePage">
-      <template scope="props">
+      <template slot-scope="props">
         <td> {{ props.row.testcase.name }} </td>
         <td> {{ props.row.outcome }} </td>
         <td class="trapped">
