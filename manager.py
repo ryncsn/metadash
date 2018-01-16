@@ -4,7 +4,7 @@ import coloredlogs
 coloredlogs.install(level='INFO')
 
 # Load Flask
-from metadash import app, db, socketio  # noqa
+from metadash import app, db  # noqa
 
 # Load Manager and Migration
 from flask_migrate import Migrate, MigrateCommand  # noqa
@@ -23,11 +23,6 @@ def initdb():
 def init_db():
     with app.app_context():
         db.create_all()
-
-
-@manager.command
-def runsocketio():
-    socketio.run(app)
 
 
 # Start the manager

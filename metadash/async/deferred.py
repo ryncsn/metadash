@@ -1,8 +1,22 @@
 """
 Some python/flask utils
 """
-from config import ActiveConfig
 from typing import Callable
+from concurrent.futures import ThreadPoolExecutor
+
+
+# In case of using socket io for dispatching deferred result:
+# Using ThreadPoolExecutor and a thread shared variable for single worker shoule be fine
+# As the client requesting the deferred resource and the client waiting for the required
+# resource is handled by the same thread
+# clients = {}
+executor = ThreadPoolExecutor(2)
+
+
+def runner_wrapper(fn: Callable, cb):
+    result = fn()
+    cb(result)
+    return result
 
 
 def deferred(fn: Callable) -> Callable:
@@ -20,11 +34,9 @@ def deferred(fn: Callable) -> Callable:
     # TODO: Break recursion: A deferred return a deferred that returns a deferred that r..(repeat)
     # TODO: use a deferred class, so can set __getattr__ on deferred, so we can have a deferred loop.
     def op(*args, **kwargs):
-        if ActiveConfig.DEFERRED_ENABLE:
-            entity = args[0]
-            if not entity.uuid:
-                raise RuntimeError("@deferred can only be used with entity with valid uuid")
-            raise NotImplementedError()
-        else:
-            return fn(*args, **kwargs)
+        entity = args[0]
+        if not entity.uuid:
+            raise RuntimeError("@deferred can only be used with entity with valid uuid")
+        future = executor.submit(fn, *args, **kwargs)
+        return future
     return op

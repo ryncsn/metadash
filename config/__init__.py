@@ -21,8 +21,9 @@ class Config(object):
     SECURITY = False
     CACHE_DEFAULT_BACKEND = 'dogpile.cache.memory'
     CACHE_ARGUEMENTS = {}
-    DEFERRED_ENABLE = False
-    DEBOUNCE_ENABLED = False
+
+    CELERY_BROKER_URL = 'redis://localhost:6379',
+    CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 
     SQLALCHEMY_DATABASE_URI = 'sqlite:///{basedir}/test.db'.format(basedir=basedir)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -34,6 +35,7 @@ class ProductionConfig(Config):
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    DEVELOPMENT = True
 
 
 class TestingConfig(Config):
@@ -46,6 +48,12 @@ except ImportError:
     ActiveConfig = DevelopmentConfig
 
 
+# Some common checks
 if not ActiveConfig.SECRET_KEY:
-    logger.critical("Please set your secret value for production!")
-    ActiveConfig.SECRET_KEY = 'ABCDEFG'
+    ActiveConfig.SECRET_KEY = ''
+    logger.warning("Using empty secret key, this is only supposed to be used with a development server.")
+    if not ActiveConfig.DEVELOPMENT:
+        raise RuntimeError("Please set your secret key value for production!")
+
+if not ActiveConfig.CELERY_BROKER_URL:
+    logger.error('Need a backend broker for celery to work, or tasks won\'t get scheduled.')

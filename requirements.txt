@@ -4,7 +4,6 @@ aniso8601==1.2.0
 appdirs==1.4.3
 astroid==1.4.9
 billiard==3.5.0.3
-caselink==0.1
 celery==4.1.0
 dogpile.cache==0.6.3
 flake8==3.3.0
@@ -13,14 +12,10 @@ Flask-Migrate==2.0.3
 Flask-RESTful==0.3.5
 Flask-Script==2.0.5
 Flask-Session==0.3.1
-Flask-SocketIO==2.8.6
 Flask-SQLAlchemy==2.2
 Flask-WTF==0.14.2
 kerberos==1.2.5
 ldap3==2.2.4
-psycopg2==2.6
-python-engineio==1.5.1
-python-socketio==1.7.4
 pytz==2017.2
 redis==2.10.5
 requests==2.13.0

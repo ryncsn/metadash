@@ -12,7 +12,6 @@ from resultsdb_api import ResultsDBapi, ResultsDBapiException
 from typing import List
 
 from metadash.cache import cached_property, cached_entity_property
-from metadash.async import deferred
 from metadash.models import db
 from metadash.models.base import BareEntityModel, EntityModel
 from metadash.config import Config
@@ -52,7 +51,6 @@ class ResultsDBTestCase(EntityModel):  # Inherit from EntityModel, so have a UUI
         return API().get_testcase(self.name) if self.name else {}
 
     @cached_entity_property
-    @deferred
     def results(self) -> List[str]:
         return API().get_results(testcases=self.name, limit=FOREIGN_OBJECT_LIMIT)['data']
 
@@ -186,7 +184,6 @@ class ResultsDBTestGroup(BareEntityModel):
         self.raw['ref_url'] = value
 
     @cached_entity_property
-    @deferred
     def results(self) -> List[ResultsDBTestResult]:
         return API().get_results(groups=self.uuid, limit=FOREIGN_OBJECT_LIMIT)['data']
 

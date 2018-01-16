@@ -6,7 +6,6 @@ import itertools
 from .model import ConfigItem as ConfigItemModel
 from ..exceptions import ConfigError
 from ..models import db, get_or_create
-from .. import logger
 
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../metadash"))
 

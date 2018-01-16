@@ -80,11 +80,6 @@ from metadash.apis.metadata import Blueprint as metadata # noqa
 app.register_blueprint(metadata, url_prefix="/api")
 
 
-# Load socket worker
-from metadash.async import socketio # noqa
-socketio.init_app(app)
-
-
 @app.route('/', defaults={"path": ""})
 @app.route('/<path>')
 def index(path):
