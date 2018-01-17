@@ -70,7 +70,12 @@ from metadash.models.base.attribute import init as attribute_init # noqa
 attribute_init()
 
 
-# Load auth
+# Load tasks query API
+from .apis.tasks import Blueprint as tasks # noqa
+app.register_blueprint(tasks, url_prefix="/api")
+
+
+# Load Authentication API
 from .apis.auth import Blueprint as login # noqa
 app.register_blueprint(login, url_prefix="/api")
 

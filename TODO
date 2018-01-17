@@ -69,3 +69,5 @@
 * UUID for Config, config in store, and dynamic config update
 
 * Cache for entity method with keyword not working
+
+* Update README about Celery worker and Redis backend setup

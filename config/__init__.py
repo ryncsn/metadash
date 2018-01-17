@@ -22,8 +22,10 @@ class Config(object):
     CACHE_DEFAULT_BACKEND = 'dogpile.cache.memory'
     CACHE_ARGUEMENTS = {}
 
-    CELERY_BROKER_URL = 'redis://localhost:6379',
-    CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+    CELERY_BROKER_URL = ''
+    CELERY_RESULT_BACKEND = ''
+    # CELERY_BROKER_URL = 'redis://localhost:6379'
+    # CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 
     SQLALCHEMY_DATABASE_URI = 'sqlite:///{basedir}/test.db'.format(basedir=basedir)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
