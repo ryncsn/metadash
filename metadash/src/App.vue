@@ -7,8 +7,7 @@
         </pf-drawer-notification>
       </pf-drawer-group>
       <pf-drawer-group title="Running tasks">
-        <pf-drawer-notification message="Background Celery tasks will be shown here">
-        </pf-drawer-notification>
+        <tasks></tasks>
       </pf-drawer-group>
       <pf-drawer-group title="Server Info">
         <pf-drawer-notification :message="metadashVersion">
@@ -72,11 +71,12 @@ import version from './libs/metadash-version.js'
 import Vue from 'vue'
 import Login from '@/components/Login.vue'
 import User from '@/components/User.vue'
+import Tasks from '@/components/Tasks.vue'
 import _ from 'lodash'
 export default {
   name: 'app',
   props: ['plugins'],
-  components: { Login, User },
+  components: { Login, User, Tasks },
   data () {
     return {
       metadashVersion: `Metadash ${version} Running`,
