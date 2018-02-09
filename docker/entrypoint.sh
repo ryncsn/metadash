@@ -25,7 +25,7 @@ esac
 
 if [[ $VENV == 'true' ]] ; then
     $(command -v virtualenv &> /dev/null) || _error "'virtualenv' is needed but not installed"
-    python3 -m virtualenv $VENV_PATH
+    virtualenv $VENV_PATH
     source $VENV_PATH/bin/activate
 fi
 

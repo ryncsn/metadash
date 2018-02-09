@@ -21,3 +21,4 @@ redis==2.10.5
 requests==2.13.0
 SQLAlchemy==1.1.9
 uWSGI==2.0.15
+coloredlogs==7.3.1

@@ -11,4 +11,4 @@ COPY . /app/
 
 RUN ./setup.sh --venv /app/.venv
 
-ENTRYPOINT ["/app/docker/entrypoint.sh --venv /app/.venv"]
+ENTRYPOINT ["/app/docker/entrypoint.sh", "--venv", "/app/.venv"]

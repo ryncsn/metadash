@@ -13,33 +13,16 @@ _info() {
     echo -e ${GREEN}$1${NC}
 }
 
-function _python () {
-    python3 $@
-}
-
 function _is_virtualenv_installed () {
-    _python -m virtualenv --help &>/dev/null || _error "'virtualenv' is needed but not installed properly"
+    virtualenv --help &>/dev/null || _error "'virtualenv' is needed but not installed properly"
 }
 
 function _is_pip_installed () {
-    _python -m pip &>/dev/null || _error "'pip' required but not installed properly, exiting"
+    pip &>/dev/null || _error "'pip' required but not installed properly, exiting"
 }
 
 function _is_npm_installed () {
     $(command -v npm &> /dev/null) || _error "'npm' is needed but not installed properly"
-}
-
-function _opt_is_yarn_installed () {
-    # If yarn is installed, use yarn
-    $(command -v yarn &> /dev/null)
-}
-
-function _pip() {
-    _python -m pip $@
-}
-
-function _virtualenv() {
-    _python -m virtualenv $@
 }
 
 case $1 in
@@ -70,36 +53,35 @@ _is_npm_installed
 
 if [[ $VENV == 'true' ]] ; then
     _is_virtualenv_installed
-    _virtualenv $VENV_PATH
+    virtualenv $VENV_PATH
     source $VENV_PATH/bin/activate
 fi
 
 _info "***Installing requirements of Metadash***"
 if [[ -f 'requirements.txt' ]]; then
-    _pip install -r requirements.txt
+    pip install -r requirements.txt
 fi
 
 if [[ $DEV == 'true' && -f 'requirements.dev.txt' ]]; then
     _info "Installing dev requirements of Metadash"
-    _pip install -r requirements.txt
+    pip install -r requirements.txt
 fi
 
 _info "***Installing requirements of Plugins***"
 for file in ./metadash/plugins/*/requirements.txt; do
     if [[ -f $file ]]; then
-        _pip install -r $file
+        pip install -r $file
     fi
 done
 
 _info "***Install node packages***"
-if [ _opt_is_yarn_installed ]; then
-    yarn install
-else
-    npm install
-fi
+npm install
 
 _info "***Rebuilding Assets***"
 npm run build
 
 _info "***Initialize Database***"
-_python manager.py initdb
+python manager.py initdb
+
+_info "***Migrating Database***"
+echo "//TODO Not implemented"
