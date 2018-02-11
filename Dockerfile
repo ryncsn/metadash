@@ -5,7 +5,7 @@ RUN dnf install -y python35 python3-pip python3-virtualenv git npm && \
 
 WORKDIR /app/
 
-VOLUME ["/app/node_modules/", "/app/metadash/plugins/", "/app/.venv"]
+VOLUME ["/app/node_modules/"]
 
 COPY . /app/
 
