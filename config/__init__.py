@@ -13,6 +13,7 @@ This file is only intend to be used for server deployment, for any other configs
 like user/password/3rd part API url, use Database, or metadash.config.
 """
 
+import json
 import logging
 import os
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../metadash"))
@@ -81,6 +82,8 @@ for attr_name in dir(ActiveConfig):
     if env_var is not None:
         if issubclass(orig_type, bool):
             env_var = env_var.upper() in ('1', 'TRUE')
+        elif issubclass(orig_type, dict):
+            env_var = json.loads(env_var) if env_var else {}
         elif issubclass(orig_type, int):
             env_var = int(env_var)
         elif issubclass(orig_type, bytes):
