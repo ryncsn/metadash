@@ -25,28 +25,30 @@ function _is_npm_installed () {
     $(command -v npm &> /dev/null) || _error "'npm' is needed but not installed properly"
 }
 
-case $1 in
-    --venv )
-        shift
-        VENV=true
-        VENV_PATH=$1 && shift
-        if [[ -z $VENV_PATH ]] ; then
-            echo "VENV_PATH" is required
-        fi
-        ;;
-    --dev )
-        shift
-        DEV=true
-        ;;
-    -h | --help )
-        echo "usage: setup.sh [-h] [--venv VENV_PATH]
-        options:
-        --venv      Create a virtual env in given patch and install all python packages inside the virtual env.
-        --dev       Install dev packages, or only production packages are installed.
-        "
-        exit 0
-        ;;
-esac
+while [ $# -gt 0 ]
+do
+    case $1 in
+        --venv )
+            VENV=true && shift
+            VENV_PATH=$1
+            if [[ -z $VENV_PATH ]] ; then
+                echo "VENV_PATH" is required
+            fi
+            ;;
+        --dev )
+            DEV=true
+            ;;
+        -h | --help )
+            echo "usage: setup.sh [-h] [--venv VENV_PATH]
+            options:
+            --venv      Create a virtual env in given patch and install all python packages inside the virtual env.
+            --dev       Install dev packages, or only production packages are installed.
+            "
+            exit 0
+            ;;
+    esac
+    shift
+done
 
 _is_pip_installed
 _is_npm_installed
