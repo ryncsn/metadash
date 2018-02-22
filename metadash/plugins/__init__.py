@@ -4,7 +4,7 @@ Plugin loader
 from flask import Blueprint
 from metadash import logger
 from metadash.injector import NoServiceError
-from metadash.config import Config, load_meta as load_config_meta
+from metadash.config import load_meta as load_config_meta
 from metadash.models.base.attribute import init as init_relation
 
 import importlib
@@ -14,21 +14,24 @@ import os
 # TODO: Allow to disable some plugin without removing them
 Loaded = {
     # How it looks:
-    # "example-plugin": <metadash.plugins.Plugins.example-plugin>
+    # "example-plugin": {
+    #     "module": <class 'metadash.plugins.example-plugin'>,
+    #     "import": "metadash.plugins.example-plugin",
+    # }
 }
 plugin_base = os.path.dirname(os.path.abspath(__file__))
 
 
-def get_plugin_dirs():
+def get_plugin_names():
     """
     Find all valid plugin folder under `plugin_base`
     Only folder contains a plugin.json is considered a plugin folder
     """
-    plugin_dirs = [dir_
-                   for dir_ in os.listdir(plugin_base)
-                   if os.path.isdir(os.path.join(plugin_base, dir_)) and
-                   os.path.isfile(os.path.join(plugin_base, dir_, 'plugin.json'))]
-    return plugin_dirs
+    plugin_names = [dir_
+                    for dir_ in os.listdir(plugin_base)
+                    if os.path.isdir(os.path.join(plugin_base, dir_)) and
+                    os.path.isfile(os.path.join(plugin_base, dir_, 'plugin.json'))]
+    return plugin_names
 
 
 def process_configs(plugin_meta):
@@ -57,12 +60,16 @@ def meta_loader(plugin_dir, app):
             process_configs(plugin_meta)
 
             # XXX: strange workaround for sqlalchemy dialect loading
-            setattr(Plugins, plugin_dir, importlib.import_module("metadash.plugins.{}".format(plugin_dir)))
+            importpath = "metadash.plugins.{}".format(plugin_dir)
+            setattr(Plugins, plugin_dir, importlib.import_module(importpath))
 
             module = importlib.import_module("metadash.plugins.{}".format(plugin_dir))
             if hasattr(module, 'regist'):
                 module.regist(app)
-            Loaded[plugin_meta['name']] = module
+            Loaded[plugin_meta['name']] = {
+                "module": module,
+                "import": importpath
+            }
         except Exception:
             # Just crash on plugin loading error, it's trouble some to clean up a failed plugin
             logger.error("Got exception during initializing plugin: {}".format(plugin_meta["name"]))
@@ -70,22 +77,22 @@ def meta_loader(plugin_dir, app):
         return plugin_meta
 
 
-def modal_loader(plugin_dir):
+def modal_loader(plugin_name):
     """
     Load and regist models (SQLAlchemy Models) of a plugin.
     """
-    models_path = os.path.join(plugin_base, plugin_dir, 'models')
+    models_path = os.path.join(plugin_base, plugin_name, 'models')
     if os.path.isfile(os.path.join(models_path, "__init__.py")):
-        importlib.import_module("metadash.plugins.{}.models".format(plugin_dir))
+        importlib.import_module("metadash.plugins.{}.models".format(plugin_name))
 
 
-def api_loader(plugin_dir, app):
+def api_loader(plugin_name, app):
     """
     Load and regist APIs (Flask Blueprint) of a plugin.
     """
-    apis_path = os.path.join(plugin_base, plugin_dir, 'apis')
+    apis_path = os.path.join(plugin_base, plugin_name, 'apis')
     if os.path.isfile(os.path.join(apis_path, "__init__.py")):
-        apis = importlib.import_module("metadash.plugins.{}.apis".format(plugin_dir))
+        apis = importlib.import_module("metadash.plugins.{}.apis".format(plugin_name))
         blueprint = apis.Blueprint
         app.register_blueprint(blueprint, url_prefix="/api")
 
@@ -116,7 +123,7 @@ def resolve_deps_loading(plugins: list, loader):
 
 class Plugins(dict):
     @classmethod
-    def all(cls):
+    def get_all(cls):
         return Loaded
 
     @staticmethod
@@ -124,7 +131,7 @@ class Plugins(dict):
         """
         Entry point for plugin initialization
         """
-        plugins = get_plugin_dirs()
+        plugins = get_plugin_names()
 
         resolve_deps_loading(
             plugins,
