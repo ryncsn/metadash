@@ -1,5 +1,7 @@
 # Metadash
 
+[![Build Status](https://travis-ci.org/ryncsn/metadash.svg?branch=master)](https://travis-ci.org/ryncsn/metadash)
+
 ## What is it?
 
  * Metadash is a (meta)data manager, a data aggregator, or a data gateway, a dashboard center, and supports plugins.
