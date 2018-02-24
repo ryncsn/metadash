@@ -1,6 +1,6 @@
 # Metadash
 
-[![Build Status](https://travis-ci.org/ryncsn/metadash.svg?branch=master)](https://travis-ci.org/ryncsn/metadash)
+[![Build Status](https://travis-ci.org/ryncsn/metadash.svg?branch=master)](https://travis-ci.org/ryncsn/metadash) [![codecov](https://codecov.io/gh/ryncsn/metadash/branch/master/graph/badge.svg)](https://codecov.io/gh/ryncsn/metadash)
 
 ## What is it?
 
