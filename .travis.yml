@@ -1,4 +1,7 @@
 language: python
 python: "3.6"
-install: ./setup.sh
-script: ./manager.py test
+install:
+    - ./setup.sh
+    - pip install codecov coverage
+script: coverage run manager.py test
+after_success: codecov
