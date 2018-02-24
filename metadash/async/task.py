@@ -1,29 +1,14 @@
 """
 Celery based task
 """
-from metadash import app
-from celery import Celery, current_task
+import logging
 
+from celery import current_task
+from .celery import celery
 
-def make_celery(app):
-    celery = Celery(app.import_name,
-                    backend=app.config['CELERY_RESULT_BACKEND'],
-                    broker=app.config['CELERY_BROKER_URL'])
-    celery.conf.update(app.config)
-    TaskBase = celery.Task
+logger = logging.getLogger(__name__)
 
-    class ContextTask(TaskBase):
-        abstract = True
-
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return TaskBase.__call__(self, *args, **kwargs)
-
-    celery.Task = ContextTask
-    return celery
-
-
-celery = make_celery(app)
+cron = []
 
 
 def debounce_wrapper(fn):
@@ -43,9 +28,27 @@ def update_task_info(summary, meta=None):
 
 def task(*args, **kwargs):
     """
-    Task wrapper
+    Simple task wrapper
     """
     debounce = kwargs.get('debounce', None)
+    periodic = kwargs.get('periodic', None)
     if debounce:
         raise NotImplementedError()
-    return celery.task(*args, **kwargs)
+
+    def task_wrapper(fn):
+        """
+        wrap again before return so we can catch the task
+        """
+        task = celery.task(*args, **kwargs)(fn)
+        if periodic:
+            assert isinstance(periodic, int)
+            cron.append((periodic, task))
+        return task
+
+    return task_wrapper
+
+
+@celery.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    for periodic, task in cron:
+        sender.add_periodic_task(10.0, task.s(), name="Periodic Task")

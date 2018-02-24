@@ -6,9 +6,12 @@ from .manager import (
     entity_fn_wrapper,
     entity_model_fn_wrapper)
 
+# append a _ to avoid namespace conflict
 get_ = default_region.get
 set_ = default_region.set
 delete_ = default_region.delete
+# To use dogpile's distributed lock support
+get_mutex = default_region.backend.get_mutex
 
 get_or_create = default_region.get_or_create
 

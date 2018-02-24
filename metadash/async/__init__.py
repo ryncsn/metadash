@@ -16,6 +16,8 @@ running task, will be dispatched to workers (Celery worker).
 Schedule when called with .delay(), retrive or wait use .wait()
 """
 from .deferred import deferred
-from .task import task
+from .task import task, update_task_info
+from .daemon import daemon
 
-__all__ = ['deferred', 'task']
+__all__ = ['deferred', 'task',
+           'update_task_info', 'daemon']

@@ -1,14 +1,10 @@
-import time
-
 from flask import Blueprint, jsonify
 from flask_restful import Resource, Api
-from ..models import ExampleEntity
 from metadash.models import db, get_or_create
 from metadash.apis import EntityParser
 
-from metadash.async import task
-from metadash.async.task import update_task_info
-
+from ..models import ExampleEntity
+from ..tasks import long_running
 
 app = Blueprint = Blueprint('example', __name__)
 
@@ -56,16 +52,6 @@ class ExampleAPI(Resource):
 
 
 Api.add_resource(ExampleAPI, '/example/', endpoint='example')
-
-
-@task()
-def long_running(sleep_time):
-    for i in range(sleep_time):
-        update_task_info("RUNNING", "Sleeping (%s/%s)" % (i, sleep_time))
-        time.sleep(1)
-    return {
-        "message": "Done!"
-    }
 
 
 @app.route('/example-task')

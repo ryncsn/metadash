@@ -17,7 +17,6 @@ def get_running_task_status():
     for worker, tasks in workers.items():
         for task in tasks:
             res = AsyncResult(task['id'])
-            print(res)
             task_status.append({
                 'name': task['name'],
                 'id': task['id'],

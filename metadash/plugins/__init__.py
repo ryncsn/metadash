@@ -77,13 +77,22 @@ def meta_loader(plugin_dir, app):
         return plugin_meta
 
 
-def modal_loader(plugin_name):
+def model_loader(plugin_name):
     """
     Load and regist models (SQLAlchemy Models) of a plugin.
     """
     models_path = os.path.join(plugin_base, plugin_name, 'models')
     if os.path.isfile(os.path.join(models_path, "__init__.py")):
         importlib.import_module("metadash.plugins.{}.models".format(plugin_name))
+
+
+def task_loader(plugin_name):
+    """
+    Load and regist models (SQLAlchemy Models) of a plugin.
+    """
+    models_path = os.path.join(plugin_base, plugin_name, 'tasks')
+    if os.path.isfile(os.path.join(models_path, "__init__.py")):
+        importlib.import_module("metadash.plugins.{}.tasks".format(plugin_name))
 
 
 def api_loader(plugin_name, app):
@@ -139,10 +148,14 @@ class Plugins(dict):
 
         resolve_deps_loading(
             plugins,
-            lambda plugin: modal_loader(plugin))
+            lambda plugin: model_loader(plugin))
 
         # Initialize the relation between entities and attributes
         init_relation()
+
+        resolve_deps_loading(
+            plugins,
+            lambda plugin: task_loader(plugin))
 
         resolve_deps_loading(
             plugins,
