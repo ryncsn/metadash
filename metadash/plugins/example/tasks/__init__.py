@@ -17,5 +17,10 @@ def long_running(sleep_time):
 @daemon()
 def time_counter(self):
     self.keep_running = True
-    while True:
-        time.sleep(10)
+    while self.keep_running:
+        time.sleep(1)
+
+
+@time_counter.on_exit
+def time_counter_stop(self):
+    self.keep_running = False

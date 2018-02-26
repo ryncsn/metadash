@@ -5,16 +5,20 @@ import uuid
 import time
 import logging
 import itertools
+import threading
+import multiprocessing
 
 from metadash.cache import get_mutex
 
 from celery import Task
-# from celery.signals import worker_shutting_down
+from celery.signals import worker_shutting_down
 from .task import task
 from .inspect import get_running_task_status
 
 logger = logging.getLogger(__name__)
 
+ShutingDown = multiprocessing.Event()
+ShutingDown.clear()
 
 Daemons = {
 }
@@ -22,6 +26,34 @@ Daemons = {
 
 def current_milli_time():
     return round(time.time() * 1000)
+
+
+class DaemonStopper(threading.Thread):
+    def __init__(self, daemon):
+        super(DaemonStopper, self).__init__()
+        self.daemon = daemon
+
+    def run(self):
+        ShutingDown.wait()
+        self.daemon.stop()
+
+
+def DaemonFnWrapper(daemon, fn):
+    """
+    As this kind of task runs forever, there needs a proper way
+    to stop them. Global variable or shared context is very convenient
+    but celery run workers in differenc process, or even differenc machine.
+
+    So just let the same task on the same machine share some variable across
+    processes, and celery signal will be sent to every machine, so hook a clean
+    up function to each worker, they should be able to do their clean up job
+    seperately and finnaly shutdown properly.
+    """
+    def func(self):
+        stopper = DaemonStopper(daemon)
+        stopper.start()
+        return fn(self)
+    return func
 
 
 class Daemon(Task):
@@ -33,7 +65,9 @@ class Daemon(Task):
         self.daemon_instance_id = str(uuid.uuid1())
         self.daemon_name = daemon_name
 #        self.heartbeat_interval = heartbeat_interval or 10 * 1000  # 10 sec, 10000 msec
-        self.task = task(bind=True, name=daemon_name)(fn)
+        self.task = task(bind=True, name=daemon_name)(DaemonFnWrapper(self, fn))
+        self._exit_fn = None
+        self._failure_fn = None
 
 #    def is_alive(self):
 #        last_heartbeat = (get_(self.daemon_name) or {}).get(self.daemon_instance_id, {}).get("heartbeat")
@@ -45,6 +79,16 @@ class Daemon(Task):
         if not self._exit_fn:
             logger.warn("Daemon %s don't have a exit handler, it may not shutdown gracefully", self.daemon_name)
         self.task.delay()
+
+    def on_exit(self, fn):
+        self._exit_fn = fn
+
+    def on_faiure(self, fn):
+        self._failure_fn = fn
+
+    def stop(self):
+        if self._exit_fn:
+            self._exit_fn(self.task)
 
 #    def heartbeat(self):
 #        return get_or_create(self.daemon_name, lambda: {
@@ -94,7 +138,6 @@ def daemon(restart_duration=10, after_failure='restart', after_success='restart'
     return wrapper
 
 
-# @worker_shutting_down.connect
-# def shutdown_daemons(sender=None, headers=None, body=None, **kwargs):
-#     for daemon in Daemons.values():
-#         daemon.stop()
+@worker_shutting_down.connect
+def shutdown_daemons(sender=None, headers=None, body=None, **kwargs):
+    ShutingDown.set()
