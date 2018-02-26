@@ -1,66 +1,30 @@
 #!/bin/env python
-import os
+import argparse
 import random
 import datetime
-import unittest
-import tempfile
 import json
 
-from metadash import app, db
-
-
-class BasicTestCase(unittest.TestCase):
-    keep_data = False
-
-    def setUp(self):
-        if self.keep_data:
-            return self.setUpDev()
-        else:
-            return self.setUpTest()
-
-    def tearDown(self):
-        if self.keep_data:
-            return self.tearDownDev()
-        else:
-            return self.tearDownTest()
-
-    def setUpDev(self):
-        self.app = app.test_client()
-        with app.app_context():
-            db.create_all()
-
-    def tearDownDev(self):
-        pass
-
-    def setUpTest(self):
-        (self.db_fd, self.db_fn) = tempfile.mkstemp()
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + self.db_fn
-        app.config['TESTING'] = True
-        self.app = app.test_client()
-        with app.app_context():
-            db.create_all()
-
-    def tearDownTest(self):
-        os.close(self.db_fd)
-        os.unlink(self.db_fn)
-
+from metadash.test.api import BasicTestCase
 
 NAME_CANDIDATE = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'iota', 'kappa', 'lambda']
 FUNCTION_CANDIDATE = ['compress', 'extract', 'erase', 'install', 'revert', 'delete', 'copy']
 
+MOCK_TESTRECORDS_NUMBER = 5
+MOCK_TESTCASE_NUMBER = 10
+
 
 def random_name(prefix,
-                candidates,
+                random_token_candidates,
                 length=3,
                 delim='_'):
-    return "{}{}{}".format(prefix, delim, delim.join([random.choice(candidates) for _ in range(length)]))
+    return "{}{}{}".format(prefix, delim, delim.join([random.choice(random_token_candidates) for _ in range(length)]))
 
 
 class FixtureTest(BasicTestCase):
-    keep_data = True
+    keep_data = False
 
-    def generate_legal_testruns(self):
-        for i in range(150):
+    def test_testrun_submitting(self):
+        for i in range(MOCK_TESTRECORDS_NUMBER):
             testrun_name = random_name("testrun", NAME_CANDIDATE)
             testrun_data = {
                 "name": testrun_name,
@@ -90,12 +54,11 @@ class FixtureTest(BasicTestCase):
             else:
                 testrun_rv_data = json.loads(str(testrun_rv.data))
             assert testrun_rv_data['uuid']
-            print(testrun_rv_data)
+
             for key in testrun_data:
                 assert testrun_rv_data[key] == testrun_data[key]
 
-            print("Testrun Created")
-            testcase_names = list(set([random_name("testcase", FUNCTION_CANDIDATE, 3) for i in range(random.randrange(200))]))
+            testcase_names = list(set([random_name("testcase", FUNCTION_CANDIDATE, 3) for i in range(random.randrange(MOCK_TESTCASE_NUMBER))]))
             for testcase_name in testcase_names:
                 testresult_data = {
                     "testrun_uuid": testrun_rv_data['uuid'],
@@ -112,10 +75,21 @@ class FixtureTest(BasicTestCase):
                     testresult_rv_data = json.loads(str(testresult_rv.data))
                 assert testresult_rv_data['uuid']
                 for key in testresult_data:
-                    if testresult_rv_data[key] != testresult_data[key]:
-                        print("Key changed: %s" % key)
+                    assert testresult_rv_data[key] == testresult_data[key]
 
 
 if __name__ == '__main__':
-    test = FixtureTest("generate_legal_testruns")
+    test = FixtureTest("test_testrun_submitting")
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--testrun-count', type=int, default=50,
+                        help='How many mock record to generate')
+    parser.add_argument('--testcase-per-testrun', type=int, default=200,
+                        help='Size of each mock record')
+    args = parser.parse_args()
+
+    MOCK_TESTCASE_NUMBER = args.testcase_per_testrun
+    MOCK_TESTRUN_NUMBER = args.testrun_count
+
+    FixtureTest.keep_data = True
+
     test.debug()

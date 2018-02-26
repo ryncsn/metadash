@@ -4,7 +4,7 @@ import json
 from metadash.test.api import BasicTestCase
 
 
-class FlaskrTestCase(BasicTestCase):
+class ExampleTestCase(BasicTestCase):
     def test_empty_db(self):
         rv = self.app.get('/api/example/')
         data = json.loads(rv.data)
