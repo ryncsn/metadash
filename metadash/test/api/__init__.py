@@ -32,15 +32,18 @@ class BasicTestCase(unittest.TestCase):
         pass
 
     def setUpTest(self):
-        (self.db_fd, self.db_fn) = tempfile.mkstemp()
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + self.db_fn
+        self.db_path = tempfile.mkdtemp(prefix='metadash_')
+        (self.db_fd, self.db_fn) = tempfile.mkstemp(prefix='metadash_db_', dir=self.db_path, text=False)
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}'.format(self.db_fn)
         app.config['TESTING'] = True
-        self.app = app.test_client()
         db.create_all()
+        self.app = app.test_client()
 
     def tearDownTest(self):
+        db.session.remove()
         os.close(self.db_fd)
-        os.unlink(self.db_fn)
+        os.remove(self.db_fn)
+        os.rmdir(self.db_path)
 
 
 class EmptyDBTest(BasicTestCase):

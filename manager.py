@@ -34,7 +34,8 @@ def test():
             suite.addTests(loader.loadTestsFromName(plugin['import'] + '.tests'))
 
     runner = unittest.TextTestRunner()
-    runner.run(suite)
+    result = runner.run(suite)
+    return len(result.errors + result.failures)
 
 
 @manager.command
