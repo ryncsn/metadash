@@ -105,13 +105,13 @@ class EntityParser(reqparse.RequestParser):
                 )
 
     def parse_args(self, *a, **kw):
+        if not self.default_location:
+            if request.method == 'GET':
+                self.default_location.extend(['args'])
+            elif request.method == 'POST' or request.method == 'PUT':
+                self.default_location.extend(['json'])
         if not self.lazy_initialized:
             self.initialize()
-        self.default_location.clear()
-        if request.method == 'GET':
-            self.default_location.extend(['args'])
-        elif request.method == 'POST' or request.method == 'PUT':
-            self.default_location.extend(['json'])
         return super(EntityParser, self).parse_args(*a, **kw)
 
     def parse_extra(self, *a, **kw):

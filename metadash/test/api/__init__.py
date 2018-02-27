@@ -26,7 +26,8 @@ class BasicTestCase(unittest.TestCase):
 
     def setUpDev(self):
         self.app = app.test_client()
-        db.create_all()
+        with app.app_context():
+            db.create_all()
 
     def tearDownDev(self):
         pass

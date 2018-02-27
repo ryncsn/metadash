@@ -35,7 +35,6 @@ class TestCaseList(Resource):
         testcase = TestCase.from_dict(args)
         db.session.add(testcase)
         db.session.commit()
-        db.session.refresh(testcase)
         return testcase.as_dict()
 
 
@@ -51,7 +50,6 @@ class TestCaseDetail(Resource):
             404, message="TestResult {} doesn't exist".format(uuid_))
         testcase.from_dict(args)
         db.session.commit()
-        db.session.refresh(testcase)
         return testcase.as_dict()
 
 

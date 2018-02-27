@@ -45,6 +45,7 @@ class FixtureTest(BasicTestCase):
                 },
                 "status": "FINISHED",
             }
+            print('Testrun created %s' % i)
 
             testrun_rv = self.app.post('/api/testruns/', data=json.dumps(
                 testrun_data
@@ -81,14 +82,14 @@ class FixtureTest(BasicTestCase):
 if __name__ == '__main__':
     test = FixtureTest("test_testrun_submitting")
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('--testrun-count', type=int, default=50,
+    parser.add_argument('--testrun-count', type=int, default=20,
                         help='How many mock record to generate')
-    parser.add_argument('--testcase-per-testrun', type=int, default=200,
+    parser.add_argument('--testcase-per-testrun', type=int, default=50,
                         help='Size of each mock record')
     args = parser.parse_args()
 
     MOCK_TESTCASE_NUMBER = args.testcase_per_testrun
-    MOCK_TESTRUN_NUMBER = args.testrun_count
+    MOCK_TESTRECORDS_NUMBER = args.testrun_count
 
     FixtureTest.keep_data = True
 
