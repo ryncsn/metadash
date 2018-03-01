@@ -17,6 +17,9 @@ do
         --worker )
             WORKER_MODE=true
             ;;
+        --beat-worker )
+            BEAT_MODE=true
+            ;;
         -h | --help )
             echo "usage: setup.sh [-h] [--venv VENV_PATH]
             options:
@@ -34,8 +37,10 @@ if [[ $VENV == 'true' ]] ; then
     source $VENV_PATH/bin/activate
 fi
 
-if [[ $WORKER_MODE == 'true' ]] ; then
+if [[ $BEAT_MODE == 'true' ]] ; then
     celery worker -A metadash.async.task.celery -l info -B
+elif [[ $WORKER_MODE == 'true' ]] ; then
+    celery worker -A metadash.async.task.celery -l info
 else
     uwsgi --ini docker/uwsgi.ini
 fi
