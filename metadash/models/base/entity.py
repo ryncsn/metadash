@@ -146,8 +146,7 @@ class EntityModel(metaclass=EntityMeta):
 
     @classmethod
     def from_uuid(cls, uuid):
-        entity = cls()
-        entity.uuid = uuid
+        entity = cls.query.filter(uuid == uuid).first()
         return entity
 
     @hybridmethod
