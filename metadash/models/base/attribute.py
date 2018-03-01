@@ -21,7 +21,10 @@ def after_attribute_update_hook(mapper, connection, target):
     """
     uuid = target.entity_uuid
     if uuid:
-        entity = EntityModel.from_uuid(uuid)
+        entity = EntityModel()
+        # This works because cache only cares about UUID
+        # FIXME looks ugly
+        entity.uuid = uuid
         entity.cache.clear()
 
 
