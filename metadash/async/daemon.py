@@ -28,13 +28,23 @@ def current_milli_time():
     return round(time.time() * 1000)
 
 
+def another_running(daemon):
+    running_tasks = [task['name'] for task in get_running_task_status()]
+    if running_tasks.count(daemon.daemon_name) > 1:
+        logger.info('Another instance of {} is running, exiting', daemon.daemon_name)
+        return True
+    return False
+
+
 class DaemonStopper(threading.Thread):
     def __init__(self, daemon):
         super(DaemonStopper, self).__init__()
         self.daemon = daemon
 
     def run(self):
-        ShutingDown.wait()
+        while True:
+            if another_running(self.daemon) or ShutingDown.wait(30):
+                break
         self.daemon.stop()
 
 
@@ -50,9 +60,12 @@ def DaemonFnWrapper(daemon, fn):
     seperately and finnaly shutdown properly.
     """
     def func(self):
-        stopper = DaemonStopper(daemon)
-        stopper.start()
-        return fn(self)
+        if another_running(daemon):
+            return None
+        else:
+            stopper = DaemonStopper(daemon)
+            stopper.start()
+            return fn(self)
     return func
 
 
@@ -97,21 +110,30 @@ class Daemon(Task):
 #        })
 
 
-@task(periodic=10)
+@task(periodic=30)
 def guardian():
     """
     Guardian task
     """
-    mutex = get_mutex('metadash_daemon_guardian')
+    mutex = get_mutex('metadash_daemon_spawner')
     # Won't work if there is not mutex backend avaliable
-    if mutex:
-        with mutex:
-            running_tasks = dict(itertools.groupby(get_running_task_status(), lambda d: d['name']))
-            logger.debug('Expected running tasks: %s', Daemons.keys())
-            logger.debug('Actual running tasks: %s', running_tasks.keys())
-            for daemon in set(Daemons.keys()) - set(running_tasks.keys()):
-                logger.info('Spawning {}'.format(daemon))
-                Daemons[daemon].run()
+    # We only support redis, so this is a redis Lua Lock
+    if mutex is not None:
+        try:
+            acquired = mutex.acquire(blocking=True, blocking_timeout=0)
+            if acquired:
+                time.sleep(30)
+                running_tasks = dict(itertools.groupby(get_running_task_status(), lambda d: d['name']))
+                logger.debug('Expected running tasks: %s', Daemons.keys())
+                logger.debug('Actual running tasks: %s', running_tasks.keys())
+                for daemon in set(Daemons.keys()) - set(running_tasks.keys()):
+                    logger.info('Spawning {}'.format(daemon))
+                    Daemons[daemon].run()
+            else:
+                logger.info("Previous guardian still running, exiting")
+        finally:
+            if acquired:
+                mutex.release()
     else:
         logger.warning("No mutex supporeted cache backend detected, skipping background tasks executing")
 
