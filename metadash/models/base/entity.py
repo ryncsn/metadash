@@ -127,6 +127,11 @@ class EntityModel(_Jsonable, MetadashEntity, metaclass=RichMixinMeta):
         for sa_entity in SharedAttributeRegistry.values():
             sa_entity.build_relationship(sa_entity)
 
+        # TODO: move it
+        for key, value in subclass_dict.items():
+            if hasattr(value, '__cached_property'):
+                subclass.__cacheable_attributes__.add(getattr(value, '__cached_property'))
+
         MetadashEntity.__namespace_map__[subclass.__namespace__] = subclass
         # Clean cache on entity update
         event.listen(subclass, 'after_delete', after_entity_update_hook)
@@ -156,6 +161,7 @@ class EntityModel(_Jsonable, MetadashEntity, metaclass=RichMixinMeta):
             index=True, nullable=False, primary_key=not has_primary_key, default=uuid.uuid1
         )
 
+        subclass_dict['__cacheable_attributes__'] = set()
         subclass_dict['__namespace__'] = __namespace__
         subclass_dict['__mapper_args__'] = __mapper_args__
         subclass_dict['attribute_models'] = weakref.WeakValueDictionary()
@@ -213,6 +219,7 @@ class BareEntityModel(_Jsonable, MetadashEntity, metaclass=RichMixinMeta):
         # TODO: Error on already set?
 
         # pylint: disable=no-member
+        subclass_dict['__cacheable_attributes__'] = set()
         subclass_dict['__table__'] = MetadashEntity.__table__
         subclass_dict['__namespace__'] = __namespace__
         subclass_dict['__mapper_args__'] = __mapper_args__

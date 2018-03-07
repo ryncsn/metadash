@@ -20,6 +20,10 @@ cache_on_arguments = default_region.cache_on_arguments
 cache_multi_on_arguments = default_region.cache_on_arguments
 
 
+class CacheProperty(property):
+    pass
+
+
 def cache_on_entity(expiration_time=-1):
     """
     Cache a function for an entity, by argruments
@@ -43,21 +47,24 @@ def cached_entity_property(expiration_time=-1):
     A entity level property cache, bind a cache value to a UUID
     Whenever the entity is accessed and the cached is not expired, it's avaliable
     """
+    # TODO: move it
     def decorator(fn):
         # TODO: cached deferred?
         cache_name = fn.__name__
 
-        @property
+        @CacheProperty
         @wraps(fn)
         def cacher(self):  # TODO: expire manually
             assert hasattr(self, 'uuid')
             val = get_or_create_entity_cache(
-                self, cache_name, partial(fn, self), expiration_time=expiration_time)
+                self, cache_name, partial(fn, self), record=False, expiration_time=expiration_time)
             return val
 
         @cacher.setter
         def cacher(self, new_val):
-            return set_entity_cache(self, cache_name, new_val)
+            return set_entity_cache(self, cache_name, new_val, record=False)
+
+        setattr(cacher, '__cached_property', cache_name)
 
         return cacher
     return decorator

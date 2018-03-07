@@ -60,27 +60,23 @@ def entity_model_fn_wrapper(fn, expiration_time=None):
     return cached_fn
 
 
-def get_or_create_entity_model_cache(model, key, *args, **kwargs):
+def get_or_create_entity_model_cache(model, key, *args, record=True, **kwargs):
     """
     Get or create cache item belongs to an entity model
     """
     entity_scoped_key = entity_model_keyer(model, key)
-    cache_record_key = entity_model_rec_keyer(model)
-    entity_cache_record = get_or_create(cache_record_key, lambda: [], -1)
-    entity_cache_record.append(entity_scoped_key)
-    set_(cache_record_key, entity_cache_record)
+    if record:
+        record_entity_model_cache(model, entity_scoped_key)
     return get_or_create(entity_scoped_key, *args, **kwargs)
 
 
-def get_or_create_entity_cache(entity, key, *args, **kwargs):
+def get_or_create_entity_cache(entity, key, *args, record=True, **kwargs):
     """
     Get or create cache item belongs to an entity
     """
     entity_scoped_key = entity_keyer(entity, key)
-    cache_record_key = entity_rec_keyer(entity)
-    entity_cache_record = get_or_create(cache_record_key, lambda: [], -1)
-    entity_cache_record.append(entity_scoped_key)
-    set_(cache_record_key, entity_cache_record)
+    if record:
+        record_entity_cache(entity, entity_scoped_key)
     return get_or_create(entity_scoped_key, *args, **kwargs)
 
 
@@ -100,27 +96,23 @@ def get_entity_model_cache(model, key, *args, **kwargs):
     return get_(scoped_key, *args, **kwargs)
 
 
-def set_entity_cache(entity, key, *args, **kwargs):
+def set_entity_cache(entity, key, *args, record=True, **kwargs):
     """
     Get or create cache item belongs to an entity
     """
     entity_scoped_key = entity_keyer(entity, key)
-    cache_record_key = entity_rec_keyer(entity)
-    entity_cache_record = get_or_create(cache_record_key, lambda: [], -1)
-    entity_cache_record.append(entity_scoped_key)
-    set_(cache_record_key, entity_cache_record)
+    if record:
+        record_entity_cache(entity, entity_scoped_key)
     return set_(entity_scoped_key, *args, **kwargs)
 
 
-def set_entity_model_cache(model, key, *args, **kwargs):
+def set_entity_model_cache(model, key, *args, record=True, **kwargs):
     """
     Get or create cache item belongs to an entity
     """
     entity_scoped_key = entity_model_keyer(model, key)
-    cache_record_key = entity_model_rec_keyer(model)
-    entity_cache_record = get_or_create(cache_record_key, lambda: [], -1)
-    entity_cache_record.append(entity_scoped_key)
-    set_(cache_record_key, entity_cache_record)
+    if record:
+        record_entity_model_cache(model, entity_scoped_key)
     return set_(entity_scoped_key, *args, **kwargs)
 
 
@@ -128,6 +120,7 @@ def del_entity_cache(entity, key, *args, **kwargs):
     """
     Get or create cache item belongs to an entity
     """
+    # TODO: record
     entity_scoped_key = entity_keyer(entity, key)
     delete_(entity_scoped_key, *args, **kwargs)
 
@@ -136,27 +129,28 @@ def del_entity_model_cache(model, key, *args, **kwargs):
     """
     Get or create cache item belongs to an entity model
     """
+    # TODO: record
     entity_scoped_key = entity_model_keyer(model, key)
     delete_(entity_scoped_key, *args, **kwargs)
 
 
-def record_entity_cache(entity, key):
+def record_entity_cache(entity, *keys):
     """
     Tell the cache manager an cache entry have been created for an entity
     """
     cache_record_key = entity_rec_keyer(entity)
     entity_cache_record = get_or_create(cache_record_key, lambda: [], -1)
-    entity_cache_record.append(key)
+    entity_cache_record.extend(keys)
     return set_(cache_record_key, entity_cache_record)
 
 
-def record_entity_model_cache(entity, key):
+def record_entity_model_cache(entity, *keys):
     """
     Tell the cache manager an cache entry have been created for an entity
     """
     cache_record_key = entity_model_rec_keyer(entity)
     entity_cache_record = get_or_create(cache_record_key, lambda: [], -1)
-    entity_cache_record.append(key)
+    entity_cache_record.extend(keys)
     return set_(cache_record_key, entity_cache_record)
 
 
@@ -167,6 +161,8 @@ def clear_entity_model_cache(model):
     if cache_records:
         for key in cache_records:
             delete_(key)
+    for key in model.__cacheable_attributes__:
+        delete_(entity_model_keyer(model, key))
     set_(cache_record_key, [])
 
 
@@ -180,4 +176,6 @@ def clear_entity_cache(entity):
     if cache_records:
         for key in cache_records:
             delete_(key)
+    for key in entity.__cacheable_attributes__:
+        delete_(entity_keyer(entity, key))
     set_(cache_record_key, [])
