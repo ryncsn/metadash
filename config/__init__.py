@@ -35,7 +35,7 @@ class Config(object):
     DEBUG = True
     TESTING = False
     SECRET_KEY = ''  # Replace with some random string please
-    SECURITY = False
+    SECURITY = True
     DEVELOPMENT = True
     CACHE_DEFAULT_BACKEND = 'dogpile.cache.memory'
     CACHE_ARGUEMENTS = {}
