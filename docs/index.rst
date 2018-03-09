@@ -10,6 +10,8 @@ Welcome to Metadash's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   intro
+   quickstart
 
 
 Indices and tables
