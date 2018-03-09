@@ -1,11 +1,17 @@
 [[source]]
+
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 
+
 [dev-packages]
-flake8 = "*"
+
+"flake8" = "*"
+sphinx = "*"
+
 
 [packages]
+
 flask-restful = "*"
 flask-migrate = "*"
 sqlalchemy = "*"
@@ -13,17 +19,11 @@ resultsdb-api = "*"
 flask = "*"
 flask-sqlalchemy = "*"
 redis = "*"
-ldap3 = "*"
+"ldap3" = "*"
 celery = "*"
 requests = "*"
-flake8 = "*"
+"flake8" = "*"
 "dogpile.cache" = "*"
 coloredlogs = "*"
-Flask-RESTful = "*"
-Flask-Migrate = "*"
-SQLAlchemy = "*"
-resultsdb_api = "*"
-Flask = "*"
-Flask-SQLAlchemy = "*"
-Flask-Session = "*"
-uWSGI = "*"
+flask-session = "*"
+uwsgi = "*"
