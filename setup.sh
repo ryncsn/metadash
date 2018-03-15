@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 NO_VENT=false
 RED='\033[0;31m'
@@ -84,6 +84,10 @@ npm run build
 
 _info "***Initialize Database***"
 python manager.py initdb
+
+_info "***Building Docs***"
+cd docs && make html && cd ..
+cp -r ./docs/_build/html/* ./metadash/dist/docs/
 
 _info "***Migrating Database***"
 echo "//TODO Not implemented"
