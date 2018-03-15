@@ -77,7 +77,7 @@ for file in ./metadash/plugins/*/requirements.txt; do
 done
 
 _info "***Install node packages***"
-npm install
+npm install --production
 
 _info "***Rebuilding Assets***"
 npm run build
