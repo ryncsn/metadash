@@ -10,8 +10,11 @@ Welcome to Metadash's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   intro
-   quickstart
+   Intro <intro.rst>
+   Quick Start <quickstart.rst>
+   Feature & Performance <feature.rst>
+   Setup Development Environment & Contribute <dev.rst>
+   Deloy and scale <deploy.rst>
 
 
 Indices and tables

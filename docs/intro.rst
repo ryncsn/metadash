@@ -3,7 +3,9 @@ Intro
 
 What is it?
 
-Metadash is a (meta)data manager, a data aggregator, or a data gateway, a dashboard center, and supports plugins.
+Metadash is a data manager, data aggregator, data gateway, dashboard center, and supports plugins.
+
+Metadash provide a framework that could be used to collect and manage different kind os data in one place.
 
 Metadash make use of concepts like "Generic Foreign Key(GKF)", "Entity attribute value model(EAV)", and there are two type of data in metadash, entity and attribute, each entitie have UUID for indexing and caching. Though sometimes, some of thoes conceptions are considered anti-pattern, but with powerful ORM and helpers, it's extremely flexible with acceptable performence.
 
