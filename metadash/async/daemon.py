@@ -120,6 +120,7 @@ def guardian():
     # We only support redis, so this is a redis Lua Lock
     if mutex is not None:
         try:
+            acquired = None
             acquired = mutex.acquire(blocking=True, blocking_timeout=0)
             if acquired:
                 time.sleep(30)
@@ -133,7 +134,11 @@ def guardian():
                 logger.info("Previous guardian still running, exiting")
         finally:
             if acquired:
-                mutex.release()
+                try:
+                    mutex.release()
+                except Exception as e:
+                    logger.exception("Failed release the lock, maybe it time outed")
+                    return None
     else:
         logger.warning("No mutex supporeted cache backend detected, skipping background tasks executing")
 
