@@ -13,6 +13,7 @@ def _is_celery_avaliable():
     # XXX: Change to is_async_avaliable after we have single redis url config
     if app.config['CELERY_RESULT_BACKEND'] and app.config['CELERY_BROKER_URL']:
         return True
+    logger.info("Celery backend not found.")
     return False
 
 
@@ -22,6 +23,7 @@ def get_active_workers():
     # Get all running (active) jobs grouped by worker
     workers = celery.control.inspect().active()
     if workers is None:
+        logger.info("Celery worker not found")
         return {}
     return workers
 
