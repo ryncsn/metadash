@@ -31,7 +31,7 @@ def current_milli_time():
 def another_running(daemon):
     running_tasks = [task['name'] for task in get_running_task_status()]
     if running_tasks.count(daemon.daemon_name) > 1:
-        logger.info('Another instance of {} is running, exiting', daemon.daemon_name)
+        logger.info('Another instance of %s is running, exiting', daemon.daemon_name)
         return True
     return False
 
