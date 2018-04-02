@@ -15,5 +15,5 @@ class ActiveConfig(ProductionConfig):
 
     SECRET_KEY = 'c3VwZXItc2VjcmV0LWtleQo'
 
-    SQL_DATABASE_URI = 'postgresql://metadash:metadash@postgres/metadash'
-    REDIS_URI = 'redis://:metadash@redis:6379'
+    SQL_DATABASE_URI = 'postgresql://metadash:metadash@postgres:5432/metadash'
+    REDIS_URI = 'redis://redis:6379'

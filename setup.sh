@@ -4,6 +4,9 @@ NO_VENT=false
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
+DEV=false
+ONLY_DEP=false
+
 
 _error() {
     echo -e ${RED}$1${NC} > /dev/stderr; exit 1;
@@ -51,6 +54,9 @@ do
         --dev )
             DEV=true
             ;;
+         --dependency-only )
+            ONLY_DEP=true
+            ;;
         -h | --help )
             echo "usage: setup.sh [-h] [--venv VENV_PATH]
             options:
@@ -81,7 +87,7 @@ fi
 
 if [[ $DEV == 'true' && -f 'requirements.dev.txt' ]]; then
     _info "Installing dev requirements of Metadash"
-    _pip install -r requirements.txt
+    _pip install -r requirements.dev.txt
 fi
 
 _info "***Installing requirements of Plugins***"
@@ -92,7 +98,16 @@ for file in ./metadash/plugins/*/requirements.txt; do
 done
 
 _info "***Install node packages***"
-npm install --production
+if [[ $DEV == 'true' ]]; then
+    npm install
+else
+    npm install --production
+fi
+
+if [[ $ONLY_DEP == 'true' ]]; then
+    _info "***Dependency installation finished, exiting***"
+    exit 0;
+fi
 
 _info "***Rebuilding Assets***"
 npm run build

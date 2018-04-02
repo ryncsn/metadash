@@ -8,34 +8,39 @@
  * Metadash make use of concepts like "Generic Foreign Key(GKF)", "Entity attribute value model(EAV)", and there are two type of data in metadash, entity and attribute, each entitie have UUID for indexing and caching. Though sometimes, some of thoes conceptions are considered anti-pattern, but with powerful ORM and helpers, it's extremely flexible with acceptable performence.
  * Metadash uses Flask, SQLAlchemy, Vue, Webpack, and some plugins for them. There are some 'magic' and workaround, by which I try to make the model and api layer neat and clean, and make plugins as simple as possible. More documents is comming later.
 
-## Get started
-Deploy reference:
-(docker and docker-compose required)
+## Quick start:
+(Docker and docker-compose required)
+
+### Build docker image
 ```
-# Config
-cp config/__init__.py config/config.py
-$EDITOR config/config.py
-# Use you favourite editor to edit config/config.py #
-
-# Build docker image
 docker build -t metadash .
+```
 
-# Setup containers
+### Setup containers
+```
 docker-compose up -d
 ```
 
+## Setup Development Enviroment:
 Dev enviroment (With hot reload and dev server)
 (npm and pipenv required, and python > 3.5)
+
+### Setup dependency
 ```
-# Setup dependency
-bash setup.sh --dependency-only
+bash setup.sh --dependency-only --dev
+```
 
-# Config
-cp config/__init__.py config/config.py
+### Config Redis and SQL Database
+*(Optinal: Required if you want to try async tasks or have better performance)*
+```
+cp config/config.py.dev.example config/config.py
+
+# Edit config according to your requirement
 $EDITOR config/config.py
-# Use you favourite editor to edit config/config.py #
+```
 
-# Start devel server
+### Start devel server
+```
 npm run ui-dev
 python manager.py runserver
 ```
