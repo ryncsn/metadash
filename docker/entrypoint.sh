@@ -1,6 +1,23 @@
 #!/bin/bash
 WORKER_MODE=false
 
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+_error() {
+    echo -e ${RED}$1${NC} > /dev/stderr; exit 1;
+}
+
+_info() {
+    echo -e ${GREEN}$1${NC} > /dev/stdout
+}
+
+function _python () {
+    ($(command -v python3) --version &>/dev/null && (python3 $@; return $?)) ||
+    ($(command -v python) --version &>/dev/null && (python $@; return $?))
+}
+
 while [ $# -gt 0 ]
 do
     case $1 in
@@ -42,5 +59,11 @@ if [[ $BEAT_MODE == 'true' ]] ; then
 elif [[ $WORKER_MODE == 'true' ]] ; then
     celery worker -A metadash.async.task.celery -l info
 else
+    _info "***Initilize Database if not initialized***"
+    _python manager.py initdb
+
+    _info "***Migrate Database if an older version of Database is present***"
+    # TODO: not doing anything yet
+
     uwsgi --ini docker/uwsgi.ini
 fi

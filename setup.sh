@@ -96,13 +96,3 @@ npm install --production
 
 _info "***Rebuilding Assets***"
 npm run build
-
-_info "***Initialize Database***"
-python manager.py initdb
-
-_info "***Building Docs***"
-cd docs && make html && cd ..
-cp -r ./docs/_build/html/* ./metadash/dist/docs/
-
-_info "***Migrating Database***"
-echo "//TODO Not implemented"
