@@ -51,4 +51,4 @@ def task(*args, **kwargs):
 @celery.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     for periodic, task in cron:
-        sender.add_periodic_task(10.0, task.s(), name="Periodic Task")
+        sender.add_periodic_task(60.0, task.s(), name="Periodic Task")
