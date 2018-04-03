@@ -59,13 +59,14 @@ def DaemonFnWrapper(daemon, fn):
     up function to each worker, they should be able to do their clean up job
     seperately and finnaly shutdown properly.
     """
-    def func(self):
+    def func(task_self):
+        daemon._task_self = task_self
         if another_running(daemon):
             return None
         else:
             stopper = DaemonStopper(daemon)
             stopper.start()
-            return fn(self)
+            return fn(task_self)
     return func
 
 
@@ -81,6 +82,7 @@ class Daemon(Task):
         self.task = task(bind=True, name=daemon_name)(DaemonFnWrapper(self, fn))
         self._exit_fn = None
         self._failure_fn = None
+        self._task_self = None
 
 #    def is_alive(self):
 #        last_heartbeat = (get_(self.daemon_name) or {}).get(self.daemon_instance_id, {}).get("heartbeat")
@@ -101,7 +103,7 @@ class Daemon(Task):
 
     def stop(self):
         if self._exit_fn:
-            self._exit_fn(self.task)
+            self._exit_fn(self._task_self)
 
 #    def heartbeat(self):
 #        return get_or_create(self.daemon_name, lambda: {
