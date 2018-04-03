@@ -20,7 +20,7 @@ def update_task_info(summary, meta=None):
     """
     If running as task, update the task summary, else return directly
     """
-    if current_task.request.id is not None:
+    if current_task and current_task.request.id is not None:
         current_task.update_state(
             state=(summary[:35] + '..' + summary[-10:]) if len(summary) > 49 else summary,
             meta=meta)
