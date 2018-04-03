@@ -40,11 +40,17 @@ class DaemonStopper(threading.Thread):
     def __init__(self, daemon):
         super(DaemonStopper, self).__init__()
         self.daemon = daemon
+        self.running = True
+
+    def stop(self):
+        self.running = False
 
     def run(self):
-        while True:
+        while self.running:
             if another_running(self.daemon) or ShutingDown.wait(30):
                 break
+        if not self.running:
+            return
         self.daemon.stop()
 
 
@@ -66,7 +72,10 @@ def DaemonFnWrapper(daemon, fn):
         else:
             stopper = DaemonStopper(daemon)
             stopper.start()
-            return fn(task_self)
+            try:
+                return fn(task_self)
+            finally:
+                stopper.stop()
     return func
 
 
