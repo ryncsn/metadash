@@ -27,13 +27,19 @@ Firt, start the development flask server, execute:
 
     .. code-block:: shell
 
-        python manager.py runserver --listen 0.0.0.0
+        python manager.py runserver -h 0.0.0.0
+
+Second, run initdb for database, execute:
+
+    .. code-block:: shell
+
+       python manager.py initdb
 
 Then you should start the UI development server, and execute:
 
     .. code-block:: shell
 
-        node run ui-dev
+        npm run ui-dev
 
 Now the server (both frontend and backend) will auto refresh and hot reload as you change the code and save the change,
 which should provide you a very friendly development enviroment.
