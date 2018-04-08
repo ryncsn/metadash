@@ -1,20 +1,16 @@
 import logging
-
-from metadash import app
-from .task import celery
-
-
-logger = logging.getLogger(__name__)
-
-AsyncResult = celery.AsyncResult
+from .celery import celery
 
 
 def _is_celery_avaliable():
     # XXX: Change to is_async_avaliable after we have single redis url config
-    if app.config['CELERY_RESULT_BACKEND'] and app.config['CELERY_BROKER_URL']:
+    if celery is not None:
         return True
     logger.info("Celery backend not found.")
     return False
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_active_workers():
@@ -35,7 +31,7 @@ def get_running_task_status():
     workers = get_active_workers()
     for worker, tasks in workers.items():
         for task in tasks:
-            res = AsyncResult(task['id'])
+            res = celery.AsyncResult(task['id'])
             task_status.append({
                 'name': task['name'],
                 'id': task['id'],
@@ -52,7 +48,7 @@ def cancel_task(task_ids=[]):
     worker_tasks = get_active_workers()
     for worker, tasks in worker_tasks.items():
         for task in tasks:
-            res = AsyncResult(task['id'])
+            res = celery.AsyncResult(task['id'])
             task_status[task['name']] = {
                 'state': res.state,
                 'meta': res.info

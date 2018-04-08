@@ -11,6 +11,26 @@ logger = logging.getLogger(__name__)
 cron = []
 
 
+class DummyTask(object):
+    def __init__(self, fn):
+        self.fn = fn
+
+    def __call__(self, *args, **kwargs):
+        self.fn(*args, **kwargs)
+
+    def apply_async(self, args=None, kwargs=None, **options):
+        args = args or ()
+        kwargs = kwargs or {}
+        logger.warning("Running async tasks in main thread, this will block main server"
+                       "and slow down the performance, and options will be ignored")
+        self.fn(*args, **kwargs)
+        return self  # TODO: mimic celey task return
+
+    def delay(self, *args, **kwargs):
+        self.fn(*args, **kwargs)
+        return self  # TODO: mimic celey task return
+
+
 def debounce_wrapper(fn):
     # TODO
     pass
@@ -35,6 +55,9 @@ def task(*args, **kwargs):
     if debounce:
         raise NotImplementedError()
 
+    def dumb_wrapper(fn):
+        return DummyTask(fn)
+
     def task_wrapper(fn):
         """
         wrap again before return so we can catch the task
@@ -45,10 +68,14 @@ def task(*args, **kwargs):
             cron.append((periodic, task))
         return task
 
-    return task_wrapper
+    if celery:
+        return task_wrapper
+    else:
+        return dumb_wrapper
 
 
-@celery.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
-    for periodic, task in cron:
-        sender.add_periodic_task(60.0, task.s(), name="Periodic Task")
+if celery is not None:
+    @celery.on_after_configure.connect
+    def setup_periodic_tasks(sender, **kwargs):
+        for periodic, task in cron:
+            sender.add_periodic_task(60.0, task.s(), name="Periodic Task")
