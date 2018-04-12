@@ -17,7 +17,7 @@ function resolve (dir) {
 module.exports = {
   context: path.join(__dirname, '..'),
   entry: {
-    app: ['./src/libs/patternfly-style.js', './src/main.js']
+    app: ['./src/main.js']
   },
   output: {
     path: config.build.assetsRoot,

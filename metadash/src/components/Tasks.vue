@@ -1,23 +1,34 @@
 <template>
-  <div>
-    <div v-if="tasks.length == 0">
-      <div class="task-panel">
-        No Task running
-      </div>
-    </div>
-    <div class="task-panel" v-for="task in tasks">
-      <div class="progress-description">
-        <div class="spinner spinner-xs spinner-inline"></div> <strong>{{task.name}}</strong>
-      </div>
-      <div class="progress progress-label-top-right">
-        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-          style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-          {{task.meta}}
-          <span>{{task.state}}</span>
-        </div>
-      </div>
-    </div>
-  </div>
+  <v-list-group
+    prepend-icon="dashboard"
+  >
+    <v-list-tile slot="activator">
+      <v-list-tile-content>
+        <v-list-tile-title>Running tasks</v-list-tile-title>
+      </v-list-tile-content>
+    </v-list-tile>
+    <v-list-tile
+      v-if="tasks.length == 0"
+    >
+      <v-list-tile-content>
+        <v-list-tile-title>No Task running</v-list-tile-title>
+      </v-list-tile-content>
+    </v-list-tile>
+    <template v-for="task in tasks">
+      <v-list-tile
+        :key="task.name"
+      >
+        <v-list-tile-action>
+          <v-progress-circular color="primary" :value="task.meta"></v-progress-circular>
+        </v-list-tile-action>
+        <v-list-tile-content>
+          <v-list-tile-title>{{task.name}}</v-list-tile-title>
+          <v-spacer/>
+          <v-list-tile-sub-title>{{task.state}}</v-list-tile-sub-title>
+        </v-list-tile-content>
+      </v-list-tile>
+    </template>
+  </v-list-group>
 </template>
 <script>
 import _ from 'lodash'
@@ -50,7 +61,4 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.task-panel {
-  padding: 20px;
-}
 </style>

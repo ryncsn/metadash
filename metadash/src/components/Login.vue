@@ -1,20 +1,38 @@
 <template>
-  <form class="form-horizontal">
-    <div class="form-group" :class="{ 'has-error': error }">
-      <label class="col-sm-2 control-label" for="textInput-markup">Username</label>
-      <div class="col-sm-10">
-        <input type="text" id="textInput-markup" class="form-control" v-model="username" @keyup.enter="login">
-      </div>
-    </div>
-    <div class="form-group" :class="{ 'has-error': error }">
-      <label class="col-sm-2 control-label" for="inputError-markup">Password</label>
-      <div class="col-sm-10">
-        <input type="password" id="inputError-markup" class="form-control" v-model="password" @keyup.enter="login">
-        <span v-if="error" class="help-block">{{ error }}</span>
-      </div>
-    </div>
-    <button class="btn btn-primary btn-lg" :class="{'disabled': loginInProgress}" type="button" @click="login">Login</button>
-  </form>
+  <v-layout align-center justify-center>
+    <v-flex>
+      <v-card class="elevation-12">
+        <v-toolbar dark color="primary">
+          <v-toolbar-title>Login form</v-toolbar-title>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+        <v-card-text>
+          <v-form>
+            <v-text-field
+              prepend-icon="person"
+              name="username"
+              label="Login"
+              type="text"
+              v-model="username"
+            ></v-text-field>
+            <v-text-field
+              prepend-icon="lock"
+              name="password"
+              label="Password"
+              type="password"
+              v-model="password"
+              :rules="[check_error]"
+            ></v-text-field>
+          </v-form>
+        </v-card-text>
+        <v-progress-linear v-show="loginInProgress" :indeterminate="true"></v-progress-linear>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="login" :disabled="loginInProgress">Login</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
 </template>
 
 <script>
@@ -42,6 +60,13 @@ export default {
           this.error = 'Invalid username or password'
         })
         .catch(() => {}).then(() => { this.loginInProgress = false })
+    },
+    check_error () {
+      if (this.error === '') {
+        return true
+      } else {
+        return this.error
+      }
     }
   }
 }
@@ -49,12 +74,4 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-div {
-  text-align: center;
-}
-
-button {
-  margin-left: auto;
-  margin-right: auto;
-}
 </style>
