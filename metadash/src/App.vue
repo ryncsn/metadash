@@ -70,9 +70,12 @@
               </v-btn>
               <v-card>
                 <v-list>
-                  <v-btn icon v-for="item in plugins" :key="item.title" :to="item.path">
-                    <v-icon>{{ item.icon }}</v-icon>
-                  </v-btn>
+                  <v-tooltip v-for="item in plugins" :key="item.title" bottom>
+                    <v-btn slot="activator" icon :to="item.path">
+                      <v-icon>{{ item.icon }}</v-icon>
+                    </v-btn>
+                    <span>{{ item.title }}</span>
+                  </v-tooltip>
                 </v-list>
               </v-card>
             </v-menu>
