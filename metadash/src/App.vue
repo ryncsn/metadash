@@ -61,9 +61,9 @@
             <v-menu
               offset-y
               :close-on-content-click="false"
-              :nudge-width="200"
+              max-width="160"
+              nudge-left="60"
               slot="activator"
-              v-model="menu"
             >
               <v-btn icon slot="activator">
                 <v-icon>apps</v-icon>
@@ -79,12 +79,31 @@
             <span>Display App List</span>
           </v-tooltip>
           <v-tooltip bottom>
-            <v-badge slot="activator" overlap color="red">
-              <span v-if="NoticeNum > 0" slot="badge">{{ NoticeNum }}</span>
-              <v-btn icon @click.stop="showNotificationDrawer = !showNotificationDrawer">
-                <v-icon>notifications</v-icon>
-              </v-btn>
-            </v-badge>
+            <v-menu
+              offset-y
+              :close-on-content-click="false"
+              :nudge-width="changeNoticeSize ? 800 : 200"
+              :nudge-left="changeNoticeSize ? 650 : 100"
+              slot="activator"
+            >
+              <v-badge slot="activator" overlap color="red">
+                <span v-if="NoticeNum > 0" slot="badge">{{ NoticeNum }}</span>
+                <v-btn icon >
+                  <v-icon>notifications</v-icon>
+                </v-btn>
+              </v-badge>
+              <v-card>
+                <v-card-title>
+                  <v-btn icon @click="changeNoticeSize = !changeNoticeSize">
+                    <v-icon>swap_horiz</v-icon>
+                  </v-btn>
+                  <v-btn icon @click="noticeDialog = !noticeDialog">
+                    <v-icon>fullscreen</v-icon>
+                  </v-btn>
+                </v-card-title>
+                <Notices :metadashVersion="metadashVersion"/>
+              </v-card>
+            </v-menu>
             <span>Open Notice List</span>
           </v-tooltip>
           <v-tooltip bottom>
@@ -117,20 +136,41 @@
           <Alert/>
           <router-view ref="currentRouteComponent"></router-view>
         </v-content>
-        <v-dialog app v-model="showLoginDialog" width="800px">
+        <v-dialog v-model="showLoginDialog" width="800px">
           <Login @success="showLoginDialog = false"/>
         </v-dialog>
-        <v-dialog app v-model="showLogoutDialog" width="500px">
+        <v-dialog v-model="showLogoutDialog" width="500px">
           <user @success="showLogoutDialog = false"/>
         </v-dialog>
-        <v-navigation-drawer
-          fixed
-          v-model="showNotificationDrawer"
-          right
-          app
+        <v-dialog
+         v-model="noticeDialog"
+         fullscreen
+         transition="dialog-bottom-transition"
+         :overlay="false"
+         scrollable
         >
-          <Notices :metadashVersion="metadashVersion"/>
-        </v-navigation-drawer>
+          <v-card tile>
+            <v-toolbar card dark color="primary">
+              <v-btn icon @click.native="noticeDialog = false" dark>
+                <v-icon>close</v-icon>
+              </v-btn>
+            </v-toolbar>
+            <v-card-text>
+              <Notices :metadashVersion="metadashVersion"/>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+        <v-btn
+          fab
+          bottom
+          right
+          color="white"
+          fixed
+          v-if="loading"
+        >
+          <v-progress-circular indeterminate :size="40" color="primary">
+          </v-progress-circular>
+        </v-btn>
       </v-layout>
     </v-container>
   </v-app>
@@ -155,6 +195,8 @@ export default {
       loading: false,
       pluginsListDrawer: null,
       showNotificationDrawer: false,
+      changeNoticeSize: false,
+      noticeDialog: false,
       showLoginDialog: false,
       showLogoutDialog: false,
       showTopModal: false,
