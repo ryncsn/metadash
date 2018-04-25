@@ -50,35 +50,68 @@
           fixed
         >
           <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
-            <v-toolbar-side-icon @click.stop="pluginsListDrawer = !pluginsListDrawer"></v-toolbar-side-icon>
+            <v-tooltip bottom>
+              <v-toolbar-side-icon slot="activator" @click.stop="pluginsListDrawer = !pluginsListDrawer"></v-toolbar-side-icon>
+              <span>Open Plugin List</span>
+            </v-tooltip bottom>
             <span class="hidden-sm-and-down">Metadash</span>
           </v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn icon>
-            <v-icon>apps</v-icon>
-          </v-btn>
-          <v-badge overlap color="red">
-            <span v-if="NoticeNum > 0" slot="badge">{{ NoticeNum }}</span>
-            <v-btn icon @click.stop="showNotificationDrawer = !showNotificationDrawer">
-              <v-icon>notifications</v-icon>
+          <v-tooltip bottom>
+            <v-menu
+              offset-y
+              :close-on-content-click="false"
+              :nudge-width="200"
+              slot="activator"
+              v-model="menu"
+            >
+              <v-btn icon slot="activator">
+                <v-icon>apps</v-icon>
+              </v-btn>
+              <v-card>
+                <v-list>
+                  <v-btn icon v-for="item in plugins" :key="item.title" :to="item.path">
+                    <v-icon>{{ item.icon }}</v-icon>
+                  </v-btn>
+                </v-list>
+              </v-card>
+            </v-menu>
+            <span>Display App List</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <v-badge slot="activator" overlap color="red">
+              <span v-if="NoticeNum > 0" slot="badge">{{ NoticeNum }}</span>
+              <v-btn icon @click.stop="showNotificationDrawer = !showNotificationDrawer">
+                <v-icon>notifications</v-icon>
+              </v-btn>
+            </v-badge>
+            <span>Open Notice List</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <v-btn icon slot="activator" @click="refreshCurrentPage">
+              <v-icon>refresh</v-icon>
             </v-btn>
-          </v-badge>
-          <v-btn icon v-on:click="refreshCurrentPage">
-            <v-icon>refresh</v-icon>
-          </v-btn>
-          <v-btn v-show="!loggedIn" icon @click.stop="showLoginDialog = !showLoginDialog">
-            <v-icon>account_circle</v-icon>
-          </v-btn>
-          <v-menu bottom left v-show="loggedIn" offset-y>
-            <v-avatar class="red" slot="activator" :size="40">
-              <span class="white--text headline">{{ username.slice(0, 1).toUpperCase() }}</span>
-            </v-avatar>
-            <v-list>
-              <v-list-tile @click.stop="showLogoutDialog = !showLogoutDialog">
-                <v-list-tile-title>Logout</v-list-tile-title>
-              </v-list-tile>
-            </v-list>
-          </v-menu>
+            <span>Refresh Page</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <v-btn slot="activator" v-show="!loggedIn" icon @click.stop="showLoginDialog = !showLoginDialog">
+              <v-icon>account_circle</v-icon>
+            </v-btn>
+            <span>Login</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <v-menu slot="activator" bottom left v-show="loggedIn" offset-y>
+              <v-avatar slot="activator" class="red" :size="40">
+                <span class="white--text headline">{{ username.slice(0, 1).toUpperCase() }}</span>
+              </v-avatar>
+              <v-list>
+                <v-list-tile @click.stop="showLogoutDialog = !showLogoutDialog">
+                  <v-list-tile-title>Logout</v-list-tile-title>
+                </v-list-tile>
+              </v-list>
+            </v-menu>
+            <span>Account Actions</span>
+          </v-tooltip>
         </v-toolbar>
         <v-content v-if="allLoaded">
           <Alert/>
