@@ -1,8 +1,13 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
+import Vuetify from 'vuetify'
 import VueResource from 'vue-resource'
-import VuePatternfly from 'vue-patternfly'
+import 'vuetify/dist/vuetify.min.css'
+import 'roboto-npm-webfont'
+import 'c3/c3.css'
+import 'd3/build/d3.min.js'
+import 'c3/c3.min.js'
 
 import App from '@/App'
 import router from '@/router'
@@ -10,8 +15,8 @@ import store from '@/store'
 import { Plugins } from '@/plugin'
 
 Vue.use(VueResource)
+Vue.use(Vuetify)
 Vue.config.productionTip = false
-VuePatternfly.install(Vue)
 
 /* eslint-disable no-new */
 new Vue({

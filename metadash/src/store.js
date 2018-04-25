@@ -10,6 +10,7 @@ const store = new Vuex.Store({
   state: {
     configs: {},
     entities: {},
+    alerts: [],
     username: null,
     role: 'anonymous'
   },
@@ -41,7 +42,7 @@ const store = new Vuex.Store({
         })
     },
     fetchConfigs ({state}) {
-      return Vue.http.get('/api/configs')
+      return Vue.http.get('/api/configs/')
         .then(res => res.json())
         .then(data => data.data)
         .then(data => {
@@ -76,6 +77,9 @@ const store = new Vuex.Store({
     updateConfig ({state, dispatch}, {key, value}) {
       _changedConfigs[key] = value
       dispatch('saveConfigs')
+    },
+    newAlert ({state, dispatch}, {text, level}) {
+      state.alerts.push({ type: level, msg: text, alert: true })
     }
   },
   mutations: {

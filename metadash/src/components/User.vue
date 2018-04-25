@@ -1,22 +1,16 @@
 <template>
-  <div>
-    <div class="card-pf card-pf-view">
-      <div class="card-pf-body">
-        <div class="card-pf-top-element">
-          <span class="fa fa-user card-pf-icon-circle"></span>
-        </div>
-        <h2 class="card-pf-title text-center">
-          {{ username || 'Not Logged In' }}
-        </h2>
-        <div class="card-pf-items text-center">
-          {{ role }}
-          <br>
-          <br>
-          <button v-if="username" class="btn btn-danger btn-lg" :class="{'disabled': logoutInProgress}" type="button" @click="logout">Logout</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <v-layout align-center justify-center>
+    <v-flex>
+      <v-card>
+        <v-card-title class="headline">Do you really want to log out?</v-card-title>
+        <v-card-text>You will logout with user: {{ username || "Not Login" }} role: {{ role }}</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" flat @click="logout" :disabled="logoutInProgress">Yes</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
 </template>
 
 <script>
