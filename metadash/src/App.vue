@@ -70,11 +70,23 @@
               </v-btn>
               <v-card>
                 <v-list>
+                  <v-tooltip bottom>
+                    <v-btn slot="activator" icon :to="'/dashboard'">
+                      <v-icon>dashboard</v-icon>
+                    </v-btn>
+                    <span>Dashboard</span>
+                  </v-tooltip>
                   <v-tooltip v-for="item in plugins" :key="item.title" bottom>
                     <v-btn slot="activator" icon :to="item.path">
                       <v-icon>{{ item.icon }}</v-icon>
                     </v-btn>
                     <span>{{ item.title }}</span>
+                  </v-tooltip>
+                  <v-tooltip bottom>
+                    <v-btn slot="activator" icon :to="'/config'">
+                      <v-icon>settings</v-icon>
+                    </v-btn>
+                    <span>Config</span>
                   </v-tooltip>
                 </v-list>
               </v-card>
@@ -196,7 +208,7 @@ export default {
       metadashVersion: `Metadash ${version} Running`,
       allLoaded: false,
       loading: false,
-      pluginsListDrawer: null,
+      pluginsListDrawer: false,
       showNotificationDrawer: false,
       changeNoticeSize: false,
       noticeDialog: false,
