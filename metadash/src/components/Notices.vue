@@ -1,6 +1,6 @@
 <template>
   <v-list>
-    <v-list-group prepend-icon="dashboard">
+    <v-list-group>
       <v-list-tile slot="activator">
         <v-list-tile-content>
           <v-list-tile-title>Recent Activities</v-list-tile-title>
@@ -12,7 +12,7 @@
         </v-list-tile-content>
       </v-list-tile>
     </v-list-group>
-    <v-list-group prepend-icon="dashboard">
+    <v-list-group>
       <v-list-tile slot="activator">
         <v-list-tile-content>
           <v-list-tile-title>Alerts</v-list-tile-title>
@@ -25,7 +25,7 @@
       </v-list-tile>
     </v-list-group>
     <tasks/>
-    <v-list-group prepend-icon="dashboard">
+    <v-list-group>
       <v-list-tile slot="activator">
         <v-list-tile-content>
           <v-list-tile-title>Server Info</v-list-tile-title>

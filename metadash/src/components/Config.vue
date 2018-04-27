@@ -3,9 +3,8 @@
     <md-permission/>
     <v-card v-for="value in plugins" :key="value.plugin">
       <v-card-title>
-        <v-toolbar color="pink">
-          <v-toolbar-side-icon></v-toolbar-side-icon>
-          <v-toolbar-title class="white--text">{{ value.plugin }}</v-toolbar-title>
+        <v-toolbar dense color="blue-grey lighten-4">
+          <v-toolbar-title class="blue-grey--text">{{ value.plugin }}</v-toolbar-title>
           <v-spacer></v-spacer>
         </v-toolbar>
         <v-card-text>

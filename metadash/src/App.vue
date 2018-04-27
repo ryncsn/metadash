@@ -43,7 +43,7 @@
           </v-list>
         </v-navigation-drawer>
         <v-toolbar
-          color="blue darken-3"
+          color="blue-grey darken-1"
           dark
           app
           :clipped-left="$vuetify.breakpoint.lgAndUp"
@@ -135,10 +135,10 @@
           </v-tooltip>
           <v-tooltip bottom>
             <v-menu slot="activator" bottom left v-show="loggedIn" offset-y>
-              <v-avatar slot="activator" class="red" :size="40">
+              <v-avatar slot="activator" class="cyan darken-1" :size="40">
                 <span class="white--text headline">{{ username.slice(0, 1).toUpperCase() }}</span>
               </v-avatar>
-              <v-list>
+              <v-list dense>
                 <v-list-tile @click.stop="showLogoutDialog = !showLogoutDialog">
                   <v-list-tile-title>Logout</v-list-tile-title>
                 </v-list-tile>

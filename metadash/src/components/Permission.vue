@@ -26,7 +26,7 @@
     </v-data-table>
     <v-layout justify-center>
       <v-dialog v-model="showDialog" max-width="500px">
-        <v-btn color="primary" dark slot="activator" class="mb-2">Create User</v-btn>
+        <v-btn color="blue-grey lighten-2" dark slot="activator" class="mb-2">Create User</v-btn>
         <v-card>
           <v-card-title>
             <span class="headline">{{ formTitle }}</span>
