@@ -59,6 +59,7 @@
     "vue-strap": "github:yuche/vue-strap#v2",
     "vue-style-loader": "^2.0.0",
     "vue-template-compiler": "^2.4.2",
+    "vuedraggable": "^2.16.0",
     "vuetify": "^1.0.11",
     "vuex": "^2.3.1",
     "webpack": "^2.2.1",

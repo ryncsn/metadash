@@ -1,7 +1,5 @@
 <template>
-  <v-list-group
-    prepend-icon="dashboard"
-  >
+  <v-list-group>
     <v-list-tile slot="activator">
       <v-list-tile-content>
         <v-list-tile-title>Running tasks</v-list-tile-title>
