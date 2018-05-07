@@ -10,8 +10,9 @@ from ..types import UUID
 from .. import db
 
 from metadash.event import on
+from metadash.utils import pluralize
 from .entity import MetadashEntity, EntityModel
-from .utils import _pluralize, _get_alias_dict, _get_table_name_dict
+from .utils import _get_alias_dict, _get_table_name_dict
 from .utils import _all_leaf_class, _Jsonable, _format_for_json
 
 
@@ -80,7 +81,7 @@ class AttributeMeta(type(Model)):
         tablename = _get_table_name_dict(dict_)
         aliasname = _get_alias_dict(dict_)
 
-        proxy_name = dict_.setdefault('__proxy_name__', _pluralize(aliasname))
+        proxy_name = dict_.setdefault('__proxy_name__', pluralize(aliasname))
         backref_name = dict_.setdefault('__backref_name__', "{}_ref".format(proxy_name))
         entity_models = dict_.setdefault('entity_models',
                                          AttributeModel.entity_models[:])
@@ -148,7 +149,7 @@ class SharedAttributeMeta(type(Model)):
         tablename = _get_table_name_dict(dict_)
         aliasname = _get_alias_dict(dict_)
 
-        proxy_name = dict_.setdefault('__proxy_name__', _pluralize(aliasname))
+        proxy_name = dict_.setdefault('__proxy_name__', pluralize(aliasname))
         backref_name = dict_.setdefault('__backref_name__', "{}_ref".format(proxy_name))
         entity_models = dict_.setdefault('entity_models',
                                          SharedAttributeModel.entity_models[:])
@@ -323,7 +324,7 @@ def init_shared_attribute(attribute):
     for model in entities:
         model.attribute_models[attribute.ref_name] = attribute
         parentname = _get_alias_dict(model.__dict__)
-        parentsname = _pluralize(parentname)
+        parentsname = pluralize(parentname)
         attribute.entity_models.append(parentname)
 
         # TODO: autocache = attribute.__autocache__
