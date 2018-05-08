@@ -22,17 +22,6 @@ def _extend_column_arg_patch():
     Column.__init__ = _extend_attr
 
 
-def _all_leaf(cls):
-    subs = cls.__subclasses__()
-    return sum([_all_leaf(cls) for cls in subs], []) if subs else [cls]
-
-
-def _all_leaf_class(cls):
-    if cls.__subclasses__():
-        return _all_leaf(cls)
-    return []
-
-
 def _get_table_name_dict(dict_):
     _tablename = dict_.get('__tablename__', None)
     _table = dict_.get('__table__', None)

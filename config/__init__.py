@@ -39,6 +39,7 @@ class Config(object):
     SECRET_KEY = ''  # Replace with some random string please
     SECURITY = True
     DEVELOPMENT = True
+    DEFAULT_AUTH_BACKEND = 'local'
 
     # SQL Database URI format: "${DATABASE_ENGINE}://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_SERVICE}/${DATABASE_NAME}"
     # or (without authentication): "${DATABASE_ENGINE}://${DATABASE_SERVICE}/${DATABASE_NAME}"
@@ -98,7 +99,8 @@ class Config(object):
             if not ActiveConfig.DEVELOPMENT:
                 raise RuntimeError("Please set your secret key value for production!")
             else:
-                logger.warning("Using empty secret key, this is only supposed to be used with a development server.")
+                logger.warning("Using development secret key, this is only supposed to be used with a development server.")
+                config.SECRET_KEY = "DEVELOPEMENT"
 
         if not ActiveConfig.REDIS_URI:
             logger.warning('Redis is required for distribute async tasks to workers and high performance caching')

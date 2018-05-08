@@ -6,7 +6,7 @@ import VueResource from 'vue-resource'
 import 'vuetify/dist/vuetify.min.css'
 import 'roboto-npm-webfont'
 import 'c3/c3.css'
-import 'd3/build/d3.min.js'
+import 'd3/d3.min.js'
 import 'c3/c3.min.js'
 
 import App from '@/App'
@@ -29,7 +29,7 @@ new Vue({
   },
   components: { App },
   created () {
-    Vue.http.interceptors.push(function (request, next) {
+    Vue.http.interceptors.push((request, next) => {
       next((response) => {
         // Handle 401 error
         if (response.status === 401) {

@@ -1,10 +1,10 @@
-from flask import jsonify, session, request, Blueprint
+from flask import jsonify, request, Blueprint
 from .. import db
 from ..auth import get_identity, get_all_users, requires_roles
-from ..auth.ldap import try_login
-from ..auth.user import User
-from ..exceptions import AuthError
+from ..auth import user_login, user_logout, user_delete
+from ..auth.base import User
 from ..models import get_or_create
+from ..exceptions import APIError
 
 app = Blueprint = Blueprint('authentication', __name__)
 
@@ -17,22 +17,28 @@ def login():
     except KeyError:
         return jsonify({'message': 'Missing Credential'}), 400
     try:
-        user = try_login(username, password)
-    except AuthError:
-        return jsonify({'message': 'Invalid Credential'}), 400
+        user = user_login(username, password)
+    except APIError as error:
+        return jsonify({'message': error.message}), 400
     else:
-        session['username'] = user.username
-        ident = get_identity()
-        ident.update({'message': 'Login Success'})
-        return jsonify(ident)
+        if not user:
+            return jsonify({'message': 'Login Failed'}), 400
+        else:
+            ident = get_identity()
+            ident.update({'message': 'Login Success'})
+            return jsonify(ident)
 
 
 @app.route('/logout', methods=['GET'])
 def logout():
-    del(session['username'])
-    ident = get_identity()
-    ident.update({'message': 'Logout Success'})
-    return jsonify(ident), 200
+    try:
+        user_logout()
+        ident = get_identity()
+        ident.update({'message': 'Logout Success'})
+    except APIError as error:
+        return jsonify({'message': error.message}), 400
+    else:
+        return jsonify(ident), 200
 
 
 @app.route('/me', methods=['GET'])
@@ -45,12 +51,11 @@ def users():
     return jsonify(get_all_users())
 
 
-@app.route('/users/<username>', methods=['PUT', 'POST', 'DELETE'])
+@app.route('/users/<username>', methods=['PUT', 'DELETE'])
 @requires_roles('admin')
 def user(username):
     if request.method == 'DELETE':
-        u = User.query.filter(User.username == username).first_or_404()
-        db.session.delete(u)
+        user_delete(username)
     else:
         role = request.json.get('role', None)
         u, _ = get_or_create(db.session, User, username=username)

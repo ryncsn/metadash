@@ -39,6 +39,20 @@ def test():
 
 
 @manager.command
+@manager.option('-n', '--name', dest='name')
+@manager.option('-p', '--password', dest='password')
+def create_user(username=None, password=None):
+    """
+    Create or overlay a user with local authentication
+    """
+    if username and password:
+        from metadash.auth import user_signup
+        user_signup(username, password, 'local')
+    else:
+        raise "Username and password required"
+
+
+@manager.command
 def initdb():
     init_db()
 

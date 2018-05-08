@@ -28,6 +28,9 @@ def get(session, model, **kwargs):
 
 
 def get_or_create(session, model, **kwargs):
+    """
+    Get an object by query, or create by calling its __init__
+    """
     instance = session.query(model).filter_by(**kwargs).first()
     if instance:
         return instance, False

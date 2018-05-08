@@ -10,10 +10,10 @@ from ..types import UUID
 from .. import db
 
 from metadash.event import on
-from metadash.utils import pluralize
+from metadash.utils import pluralize, all_leaf_class
 from .entity import MetadashEntity, EntityModel
 from .utils import _get_alias_dict, _get_table_name_dict
-from .utils import _all_leaf_class, _Jsonable, _format_for_json
+from .utils import _Jsonable, _format_for_json
 
 
 def after_attribute_update_hook(mapper, connection, target):
@@ -37,7 +37,7 @@ def _find_entity(key):
         return key
     elif isinstance(key, (str)):
         # TODO: Poor Performance
-        for model in _all_leaf_class(EntityModel):
+        for model in all_leaf_class(EntityModel):
             if model.__name__ == key:
                 return model
             if getattr(model, '__namespace__') == key:
@@ -276,7 +276,7 @@ def init_attribute(attribute):
 
     entities = (
         [_find_entity(e) for e in attribute.__entities__]
-        if attribute.__entities__ is not None else _all_leaf_class(EntityModel)
+        if attribute.__entities__ is not None else all_leaf_class(EntityModel)
     )
     for model in entities:
         model.attribute_models[attribute.ref_name] = attribute
@@ -319,7 +319,7 @@ def init_shared_attribute(attribute):
 
     entities = (
         [_find_entity(e) for e in attribute.__entities__]
-        if attribute.__entities__ is not None else _all_leaf_class(EntityModel)
+        if attribute.__entities__ is not None else all_leaf_class(EntityModel)
     )
     for model in entities:
         model.attribute_models[attribute.ref_name] = attribute
@@ -369,7 +369,7 @@ def init():
     """
     Build relationship
     """
-    for attribute in _all_leaf_class(AttributeModel):
+    for attribute in all_leaf_class(AttributeModel):
         init_attribute(attribute)
-    for attribute in _all_leaf_class(SharedAttributeModel):
+    for attribute in all_leaf_class(SharedAttributeModel):
         init_shared_attribute(attribute)
