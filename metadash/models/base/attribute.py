@@ -2,6 +2,7 @@
 Helper to define attribute/metadata models.
 """
 import uuid
+import weakref
 
 from sqlalchemy.orm import backref, foreign, remote
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -14,6 +15,10 @@ from metadash.utils import pluralize, all_leaf_class
 from .entity import MetadashEntity, EntityModel
 from .utils import _get_alias_dict, _get_table_name_dict
 from .utils import _Jsonable, _format_for_json
+
+
+AttributesRegistry = weakref.WeakValueDictionary()
+SharedAttributesRegistry = weakref.WeakValueDictionary()
 
 
 def after_attribute_update_hook(mapper, connection, target):
@@ -56,6 +61,7 @@ class AttributeMeta(type(Model)):
         if classname == "AttributeModel":
             type.__init__(type, classname, bases, dict_, **kwargs)
         else:
+            AttributesRegistry[classname] = cls
             super(AttributeMeta, cls).__init__(classname, bases, dict_)
 
         # Clean cache
@@ -128,6 +134,7 @@ class SharedAttributeMeta(type(Model)):
         if classname == "SharedAttributeModel":
             type.__init__(type, classname, bases, dict_, **kwargs)
         else:
+            SharedAttributesRegistry[classname] = cls
             super(SharedAttributeMeta, cls).__init__(classname, bases, dict_, **kwargs)
 
     def __new__(mcs, classname, bases, dict_, **kwargs):

@@ -2,6 +2,7 @@
 Helper to define Entity models.
 """
 import uuid
+import weakref
 
 from .utils import (
     _get_table_name_dict, _Jsonable, hybridmethod)
@@ -14,6 +15,9 @@ from sqlalchemy import event
 
 
 Model = db.Model
+
+
+EntityRegistry = weakref.WeakValueDictionary()
 
 
 URN = '123e4567-e89b-12d3-a456-426655440000'
@@ -71,6 +75,7 @@ class EntityMeta(type(db.Model)):
 
         super(EntityMeta, cls).__init__(classname, bases, dict_)
         MetadashEntity.__namespace_map__[cls.namespace] = cls
+        EntityRegistry[classname] = cls
 
         # Clean cache on entity update
         event.listen(cls, 'after_delete', after_entity_update_hook)
@@ -106,7 +111,7 @@ class EntityMeta(type(db.Model)):
 
         dict_['__namespace__'] = __namespace__
         dict_['__mapper_args__'] = __mapper_args__
-        dict_['attribute_models'] = EntityModel.attribute_models.copy()
+        dict_['attribute_models'] = weakref.WeakValueDictionary()
 
         return super(EntityMeta, mcs).__new__(
             mcs, classname, (EntityModel, _Jsonable, MetadashEntity), dict_)
@@ -125,14 +130,14 @@ class EntityModel(metaclass=EntityMeta):
     Use hardcoded NS, each table have a NS.
     """
     # Don't create any sqlalchemy things here
-    # This class is just a skeleton
+    # This class is just a skeleton, for hinting
     # TODO: Raise error on create
 
     __alias__ = None
 
     __cacheable_attributes__ = set()
 
-    attribute_models = {}
+    attribute_models = weakref.WeakValueDictionary()
 
     uuid = None  # Just a hint
 

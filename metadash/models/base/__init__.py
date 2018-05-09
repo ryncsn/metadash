@@ -20,6 +20,11 @@ from .bare_entity import BareEntityModel
 
 from .utils import _extend_column_arg_patch
 
+from .mapper_hook import mapper_hook
+from sqlalchemy.orm import Mapper
+
+Mapper.__init__ = mapper_hook(Mapper.__init__)
+
 _extend_column_arg_patch()
 
 __all__ = ['EntityModel', 'AttributeModel', 'SharedAttributeModel', 'BareEntityModel']
