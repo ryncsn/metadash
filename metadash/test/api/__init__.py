@@ -1,9 +1,7 @@
 """
 Basic test boilerplate
 """
-import os
 import unittest
-import tempfile
 
 from metadash import app, db
 
@@ -33,18 +31,14 @@ class BasicTestCase(unittest.TestCase):
         pass
 
     def setUpTest(self):
-        self.db_path = tempfile.mkdtemp(prefix='metadash_')
-        (self.db_fd, self.db_fn) = tempfile.mkstemp(prefix='metadash_db_', dir=self.db_path, text=False)
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}'.format(self.db_fn)
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
         app.config['TESTING'] = True
         db.create_all()
         self.app = app.test_client()
 
     def tearDownTest(self):
         db.session.remove()
-        os.close(self.db_fd)
-        os.remove(self.db_fn)
-        os.rmdir(self.db_path)
+        db.drop_all()
 
 
 class EmptyDBTest(BasicTestCase):

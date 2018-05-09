@@ -79,16 +79,17 @@ def user_logout(backend=None):
 def get_identity():
     user_uuid = session.get('user_uuid')
     user_instance = None
+    user_role = 'anonymous'
+    username = None
     if user_uuid:
         user_instance = User.query.filter(User.uuid == user_uuid).first()
-    if user_instance:
-        user_role = user_instance.role
-        username = user_instance.username
-    else:
-        logger.warn("User {} session still active, "
-                    "but user permissoin record was deleted".format(user_uuid))
-        user_role = 'anonymous'
-        username = None
+        if user_instance is not None:
+            user_role = user_instance.role
+            username = user_instance.username
+        else:
+            user_uuid = None
+            logger.warn("User {} session still active, "
+                        "but user permissoin record was deleted".format(user_uuid))
     return {
         'uuid': user_uuid,
         'username': username,
@@ -109,10 +110,12 @@ def get_current_username():
     user_instance = None
     if user_uuid:
         user_instance = User.query.filter(User.uuid == user_uuid).first()
-    if user_instance is not None:
-        return user_instance.username
-    else:
-        return None
+        if user_instance is not None:
+            return user_instance.username
+        else:
+            logger.warn("User {} session still active, "
+                        "but user permissoin record was deleted".format(user_uuid))
+    return None
 
 
 def get_current_role():
@@ -132,9 +135,7 @@ def get_current_role():
         else:
             logger.warn("User {} session still active, "
                         "but user permissoin record was deleted".format(user_uuid))
-            return 'anonymous'
-    else:
-        return 'anonymous'
+    return 'anonymous'
 
 
 def requires_roles(*roles):
