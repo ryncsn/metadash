@@ -1,9 +1,6 @@
 from flask import jsonify, request, Blueprint
-from .. import db
 from ..auth import get_identity, get_all_users, requires_roles
-from ..auth import user_login, user_logout, user_delete
-from ..auth.base import User
-from ..models import get_or_create
+from ..auth import user_login, user_logout, user_delete, user_setrole
 from ..exceptions import APIError
 
 app = Blueprint = Blueprint('authentication', __name__)
@@ -56,13 +53,10 @@ def users():
 def user(username):
     if request.method == 'DELETE':
         user_delete(username)
-    else:
+    elif request.method == 'PUT':
         role = request.json.get('role', None)
-        u, _ = get_or_create(db.session, User, username=username)
-        if role:
-            u.role = role
-    db.session.commit()
-    return jsonify({
-        "username": u.username,
-        "role": u.role
-    })
+        user = user_setrole(username, role)
+        if user:
+            return user.as_dict()
+        else:
+            return jsonify({'message': 'No such user: "{}"'.format(username)}), 404

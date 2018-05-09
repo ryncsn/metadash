@@ -60,6 +60,17 @@ def user_setpass(username, password, backend=None):
     raise BadRequestError("Not allowed")
 
 
+def user_setrole(username, role):
+    user = User.query.filter(User.username == username)
+    user_instance = user.first()
+    if user_instance:
+        user_instance.role = role
+        user.session.commit()
+        return user_instance
+    else:
+        return None
+
+
 def user_logout(backend=None):
     del(session['user_uuid'])
     return True
@@ -74,6 +85,8 @@ def get_identity():
         user_role = user_instance.role
         username = user_instance.username
     else:
+        logger.warn("User {} session still active, "
+                    "but user permissoin record was deleted".format(user_uuid))
         user_role = 'anonymous'
         username = None
     return {

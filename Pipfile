@@ -8,6 +8,7 @@ verify_ssl = true
 
 "flake8" = "*"
 sphinx = "*"
+coverage = "*"
 
 
 [packages]

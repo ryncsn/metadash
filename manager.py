@@ -18,12 +18,17 @@ manager.add_command('db', MigrateCommand)
 @manager.command
 def test():
     import unittest
+    import os
     from metadash import plugins
 
     suite = unittest.TestSuite()
     loader = unittest.loader.defaultTestLoader
 
     suite.addTests(loader.loadTestsFromName("metadash.test.api"))
+
+    for file in os.listdir('metadash/test/api'):
+        if not file.startswith('_') and not file.startswith('.') and file.endswith('.py'):
+            suite.addTests(loader.loadTestsFromName("metadash.test.api.{}".format(file[:-3])))
 
     for plugin_name, plugin in plugins.get_all().items():
         try:
