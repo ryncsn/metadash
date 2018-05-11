@@ -1,11 +1,9 @@
 """
 Basic test boilerplate
 """
-import json
-
 from . import BasicTestCase
 from metadash.models import db
-from metadash.models.base import EntityModel
+from metadash.models.base import EntityModel, AttributeModel
 
 
 class Entity(EntityModel):
@@ -22,6 +20,25 @@ class Entity(EntityModel):
 
     def as_dict(self, **kwargs):
         ret = super(Entity, self).as_dict(**kwargs)
+        return ret
+
+
+class Attribute(AttributeModel):
+    """
+    Stands for a test case
+    """
+    __tablename__ = 'metadash-test-attribute'
+
+    # Key in resultsdb
+    key = db.Column(db.String(), primary_key=True, unique=True)
+    value = db.Column(db.String())
+
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+
+    def as_dict(self, **kwargs):
+        ret = super(Attribute, self).as_dict(**kwargs)
         return ret
 
 
@@ -48,5 +65,9 @@ class EntityTest(BasicTestCase):
         db.session.add(entity)
         db.session.commit()
 
+        entity = None
         entity = Entity.query.filter(Entity.value == VALUE).first()
         assert entity.as_dict()['value'] == VALUE
+        assert entity.as_dict()['properties']['prop1'] == 'prop_value1'
+        assert entity.as_dict()['properties']['prop2'][0] == 'prop_value2_1'
+        assert entity.as_dict()['properties']['prop2'][1] == 'prop_value2_2'

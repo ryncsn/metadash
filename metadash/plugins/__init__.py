@@ -5,7 +5,6 @@ from flask import Blueprint
 from metadash import logger
 from metadash.injector import NoServiceError
 from metadash.config import load_meta as load_config_meta
-from metadash.models.base.attribute import init as init_relation
 
 import importlib
 import json
@@ -149,9 +148,6 @@ class Plugins(dict):
         resolve_deps_loading(
             plugins,
             lambda plugin: model_loader(plugin))
-
-        # Initialize the relation between entities and attributes
-        init_relation()
 
         resolve_deps_loading(
             plugins,

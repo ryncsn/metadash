@@ -14,16 +14,10 @@ And to make the integrity easier, split out all the key (NS and UUID) of
 diffrent entities into one big table, which also make it more cache friendly.
 """
 
-from .entity import EntityModel
+from .entity import EntityModel, BareEntityModel
 from .attribute import AttributeModel, SharedAttributeModel
-from .bare_entity import BareEntityModel
 
 from .utils import _extend_column_arg_patch
-
-from .mapper_hook import mapper_hook
-from sqlalchemy.orm import Mapper
-
-Mapper.__init__ = mapper_hook(Mapper.__init__)
 
 _extend_column_arg_patch()
 

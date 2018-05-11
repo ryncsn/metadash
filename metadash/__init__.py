@@ -65,11 +65,6 @@ from metadash.plugins import Plugins as plugins # noqa
 plugins.regist(app)
 
 
-# Initialize attribute models
-from metadash.models.base.attribute import init as attribute_init # noqa
-attribute_init()
-
-
 # Load tasks query API
 from .apis.tasks import Blueprint as tasks # noqa
 app.register_blueprint(tasks, url_prefix="/api")
