@@ -65,15 +65,26 @@ class ProxyList(list):
             list.__setitem__(self, index, value)
 
 
-class MaappedAggregationCollection(collections.defaultdict):
+class MappedAggregationCollection(collections.defaultdict):
     """
     Return value directly if there is only one value, else give a list
+
+    Every value in this dict is a list, which make it possible to aggregate
+    collection which have duplicated keys
+
+    if always_use_list is set to False, when a key is unique, access it's value
+    will return value itself. If a key is duplicated, access it's value will return
+    a list of value sharing the same key.
     """
     def __init__(self, keyfunc, always_use_list=False):
-        super(MaappedAggregationCollection, self).__init__(
+        super(MappedAggregationCollection, self).__init__(
             lambda: ProxyList(_collecion_adapter=collection_adapter(self)))
         self.keyfunc = keyfunc
         self.always_use_list = always_use_list  # TODO
+
+    def factory(self, *args, **kwargs):
+        # kwargs['_collecion_adapter'] = collection_adapter(self)
+        return ProxyList(*args, **kwargs)
 
     @collection.appender
     def add(self, value, _sa_initiator=None):
@@ -88,12 +99,16 @@ class MaappedAggregationCollection(collections.defaultdict):
     @collection.internally_instrumented
     def __setitem__(self, key, value):
         adapter = collection_adapter(self)
-        if isinstance(value, list):
-            for item in value:
-                item = adapter.fire_append_event(item, None)
+        if isinstance(value, ProxyList):
+            collections.defaultdict.__setitem__(self, key, self.factory(value))
+        elif isinstance(value, list):
+            value_ = value.copy()
+            for idx, item in enumerate(value_):
+                value_[idx] = adapter.fire_append_event(item, None)
+            collections.defaultdict.__setitem__(self, key, self.factory(value_))
         else:
-            value = [adapter.fire_append_event(value)]
-        collections.defaultdict.__setitem__(self, key, value)
+            value_ = [adapter.fire_append_event(value)]
+            collections.defaultdict.__setitem__(self, key, self.factory(value_))
 
     @collection.internally_instrumented
     def __delitem__(self, key, value):
@@ -103,12 +118,18 @@ class MaappedAggregationCollection(collections.defaultdict):
         collections.defaultdict.__delitem__(self, key, value)
 
     def __getitem__(self, key, raw=False):
-        if raw or self.always_use_list or key in self:
+        if raw is True:
+            return collections.defaultdict.__getitem__(self, key)
+        elif key in self:
             item_list = collections.defaultdict.__getitem__(self, key)
-            if not raw and not self.always_use_list and len(item_list) == 1:
+            if len(item_list) == 1 and not self.always_use_list:
                 return item_list[0]
-            return item_list
-        return None
+            else:
+                return item_list
+        elif self.always_use_list:
+            return collections.defaultdict.__getitem__(self, key)
+        else:
+            return None
 
     @collection.iterator
     def iterate(self):
@@ -137,4 +158,4 @@ def attribute_mapped_list_collection(attr_name):
 
     """
     getter = operator.attrgetter(attr_name)
-    return lambda: MaappedAggregationCollection(getter)
+    return lambda: MappedAggregationCollection(getter)

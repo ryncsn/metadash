@@ -110,7 +110,8 @@ class AttributeModel(_Jsonable, Model, metaclass=RichMixinMeta):
                 model,
                 primaryjoin=foreign(attribute.entity_uuid) == remote(model.uuid),
                 backref=backref(
-                    backref_name, uselist=not unique_attribute, collection_class=collector
+                    backref_name, uselist=not unique_attribute,
+                    collection_class=collector, cascade="all, delete-orphan"
                 ),
                 uselist=False, single_parent=True,
                 cascade="all, delete-orphan",

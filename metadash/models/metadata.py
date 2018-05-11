@@ -30,7 +30,7 @@ class Property(AttributeModel):
         self.value = value
 
     def __repr__(self):
-        return '<Property "{}":"{}" of Entiry({}): %s, %s:%s>'.format(self.key, self.value, self.entity)
+        return '<Property "{}": "{}" of Entiry({})>'.format(self.key, self.value, self.entity)
 
     @staticmethod
     def all_values(entity_model, key, limit=None):
@@ -71,7 +71,7 @@ class Detail(AttributeModel):
         self.value = value
 
     def __repr__(self):
-        return '<Detail "{}":"{}" of Entiry({}): %s, %s:%s>'.format(self.key, self.value, self.entity)
+        return '<Detail "{}": "{}" of Entiry({})>'.format(self.key, self.value, self.entity)
 
 
 class Tag(SharedAttributeModel):
@@ -90,7 +90,7 @@ class Tag(SharedAttributeModel):
         self.name = name
 
     def __repr__(self):
-        return '<Tag "{}" of Entity({}): %s, %s:%s>'.format(self.name, self.entity)
+        return '<Tag "{}" of Entity({})>'.format(self.name, self.entity)
 
     @staticmethod
     def all_tags(entity_model, limit=None):
