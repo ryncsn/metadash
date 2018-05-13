@@ -2,7 +2,6 @@
 Extended From https://groups.google.com/forum/#!msg/sqlalchemy/2wkMVfWBHeQ/vyPd75VSyMQJ
 """
 
-import collections
 import operator
 
 from sqlalchemy.orm.collections import collection, collection_adapter
@@ -14,7 +13,9 @@ class ProxyList(list):
     which contains a list of target value of all elements in this list.
     """
     def __init__(self, *args, **kwargs):
+        self._creator = kwargs.pop('_creator', lambda x: x)
         self._collecion_adapter = kwargs.pop('_collecion_adapter', None)
+        self._proxied_reference = kwargs.pop('_proxied_reference', None)
         super(ProxyList, self).__init__(*args, **kwargs)
 
     def _append_event(self, value, _sa_initiator=None):
@@ -29,16 +30,27 @@ class ProxyList(list):
         """
         if name.startswith('_'):
             raise AttributeError()
-        return [getattr(i, name) for i in self]
+        return ProxyList([getattr(i, name) for i in self],
+                         _collecion_adapter=self._collecion_adapter,
+                         _creator=self._creator,
+                         _proxied_reference=self
+                         )
 
     def append(self, value, _sa_initiator=None, event=True):
-        if event is not False:
+        if self._proxied_reference:
+            self._proxied_reference.append(self._proxied_reference._creator(value),
+                                           _sa_initiator, event)
+        elif event is not False:
             value = self._append_event(value, _sa_initiator)
         list.append(self, value)
 
     def remove(self, value, _sa_initiator=None, event=True):
         if event is not False:
-            self._remove_event(value, _sa_initiator)
+            if self._proxied_reference:
+                idx = self.index(value)
+                self._proxied_reference.__delitem__(idx, _sa_initiator=_sa_initiator)
+            else:
+                self._remove_event(value, _sa_initiator)
         list.remove(self, value)
 
     def pop(self, _sa_initiator=None):
@@ -52,7 +64,7 @@ class ProxyList(list):
     def extend(self):
         raise NotImplementedError()
 
-    def __delitem__(self, index):
+    def __delitem__(self, index, _sa_initiator=None):
         val = self[index]
         self._remove_event(val)
         list.__delitem__(self, index)
@@ -65,7 +77,11 @@ class ProxyList(list):
             list.__setitem__(self, index, value)
 
 
-class MappedAggregationCollection(collections.defaultdict):
+def default_creator(key, value):
+    raise NotImplementedError()
+
+
+class MappedAggregationCollection(dict):
     """
     Return value directly if there is only one value, else give a list
 
@@ -76,14 +92,16 @@ class MappedAggregationCollection(collections.defaultdict):
     will return value itself. If a key is duplicated, access it's value will return
     a list of value sharing the same key.
     """
-    def __init__(self, keyfunc, always_use_list=False):
-        super(MappedAggregationCollection, self).__init__(
-            lambda: ProxyList(_collecion_adapter=collection_adapter(self)))
-        self.keyfunc = keyfunc
+    def __init__(self, attr_name, creator=None, always_use_list=False):
+        self.keyfunc = operator.attrgetter(attr_name)
+        self.creator = creator or default_creator
         self.always_use_list = always_use_list  # TODO
 
-    def factory(self, *args, **kwargs):
-        # kwargs['_collecion_adapter'] = collection_adapter(self)
+        super(MappedAggregationCollection, self).__init__()
+
+    def factory(self, key, *args, **kwargs):
+        kwargs['_collecion_adapter'] = collection_adapter(self)
+        kwargs['_creator'] = lambda value: self.creator(key, value)
         return ProxyList(*args, **kwargs)
 
     @collection.appender
@@ -100,34 +118,42 @@ class MappedAggregationCollection(collections.defaultdict):
     def __setitem__(self, key, value):
         adapter = collection_adapter(self)
         if isinstance(value, ProxyList):
-            collections.defaultdict.__setitem__(self, key, self.factory(value))
+            dict.__setitem__(self, key, value)
         elif isinstance(value, list):
             value_ = value.copy()
             for idx, item in enumerate(value_):
                 value_[idx] = adapter.fire_append_event(item, None)
-            collections.defaultdict.__setitem__(self, key, self.factory(value_))
+            dict.__setitem__(self, key, self.factory(key, value_))
         else:
             value_ = [adapter.fire_append_event(value)]
-            collections.defaultdict.__setitem__(self, key, self.factory(value_))
+            dict.__setitem__(self, key, self.factory(key, value_))
 
     @collection.internally_instrumented
     def __delitem__(self, key, value):
         adapter = collection_adapter(self)
         for item in value:
             item = adapter.fire_remove_event(item, None)
-        collections.defaultdict.__delitem__(self, key, value)
+        dict.__delitem__(self, key, value)
+
+    def __getdefaultitem__(self, key):
+        if key in self:
+            return dict.__getitem__(self, key)
+        else:
+            value = self.factory(key)
+            dict.__setitem__(self, key, value)
+            return value
 
     def __getitem__(self, key, raw=False):
         if raw is True:
-            return collections.defaultdict.__getitem__(self, key)
+            return self.__getdefaultitem__(key)
+        elif self.always_use_list:
+            return self.__getdefaultitem__(key)
         elif key in self:
-            item_list = collections.defaultdict.__getitem__(self, key)
+            item_list = self.__getdefaultitem__(key)
             if len(item_list) == 1 and not self.always_use_list:
                 return item_list[0]
             else:
                 return item_list
-        elif self.always_use_list:
-            return collections.defaultdict.__getitem__(self, key)
         else:
             return None
 
@@ -144,7 +170,7 @@ class MappedAggregationCollection(collections.defaultdict):
                 yield item
 
 
-def attribute_mapped_list_collection(attr_name):
+def attribute_mapped_list_collection(attr_name, **kwargs):
     """A dictionary-based collection type with attribute-based keying.
 
     Returns a :class:`.MappedCollection` factory with a keying based on the
@@ -157,5 +183,4 @@ def attribute_mapped_list_collection(attr_name):
     after a session flush.
 
     """
-    getter = operator.attrgetter(attr_name)
-    return lambda: MappedAggregationCollection(getter)
+    return lambda: MappedAggregationCollection(attr_name, **kwargs)

@@ -7,6 +7,13 @@ from .collections import attribute_mapped_list_collection
 from . import db
 
 
+def list_property_creator(key, value):
+    if not isinstance(value, list):
+        return Property(key, value)
+    else:
+        return [Property(key, value) for value in value]
+
+
 class Property(AttributeModel):
     """
     Property, key-value pairs, indexed for querying
@@ -14,7 +21,8 @@ class Property(AttributeModel):
     """
     __alias__ = 'property'
     __tablename__ = 'metadash_property'
-    __collector__ = attribute_mapped_list_collection("key")
+    __collector__ = attribute_mapped_list_collection("key", creator=list_property_creator)
+    __creator__ = list_property_creator
     __outline__ = "value"
     __cacheable__ = True
 
@@ -42,16 +50,6 @@ class Property(AttributeModel):
             .filter(Property.key == key)\
             .distinct().limit(limit or 50)
         return [r.value for r in q.all()]
-
-
-def list_property_creator(key, value):
-    if not isinstance(value, list):
-        return Property(key, value)
-    else:
-        return [Property(key, value) for value in value]
-
-
-Property.__creator__ = list_property_creator
 
 
 class Detail(AttributeModel):
