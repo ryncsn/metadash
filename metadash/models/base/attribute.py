@@ -114,7 +114,6 @@ class AttributeModel(_Jsonable, Model, metaclass=RichMixinMeta):
                     collection_class=collector, cascade="all, delete-orphan"
                 ),
                 uselist=False, single_parent=True,
-                cascade="all, delete-orphan",
             )
 
             # will call _add_attribute of SQLAlchmey

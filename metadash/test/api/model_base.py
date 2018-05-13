@@ -73,8 +73,8 @@ class EntityTest(BasicTestCase):
         PROPERTIES["prop2"].append("prop_value2_4")
         entity.properties["prop2"].append("prop_value2_4")
 
-        # PROPERTIES["prop2"].remove("prop_value2_1")
-        # entity.properties_ref["prop2"].remove("prop_value2_1")
+        PROPERTIES["prop2"].remove("prop_value2_1")
+        entity.properties["prop2"].remove("prop_value2_1")
 
         PROPERTIES["prop3"] = "prop_value3"
         entity.properties["prop3"] = "prop_value3"

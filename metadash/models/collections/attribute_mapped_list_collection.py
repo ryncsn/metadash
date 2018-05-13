@@ -45,13 +45,14 @@ class ProxyList(list):
         list.append(self, value)
 
     def remove(self, value, _sa_initiator=None, event=True):
-        if event is not False:
-            if self._proxied_reference:
-                idx = self.index(value)
-                self._proxied_reference.__delitem__(idx, _sa_initiator=_sa_initiator)
-            else:
-                self._remove_event(value, _sa_initiator)
-        list.remove(self, value)
+        if value in self:
+            if event is not False:
+                if self._proxied_reference:
+                    idx = self.index(value)
+                    self._proxied_reference.__delitem__(idx, _sa_initiator=_sa_initiator)
+                else:
+                    self._remove_event(value, _sa_initiator)
+            list.remove(self, value)
 
     def pop(self, _sa_initiator=None):
         value = list.pop(self)
