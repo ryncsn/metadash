@@ -162,10 +162,12 @@ def record_entity_model_cache(entity, key):
 
 def clear_entity_model_cache(model):
     # Clean model caches
-    cache_records = get_(entity_model_rec_keyer(model))
+    cache_record_key = entity_model_rec_keyer(model)
+    cache_records = get_or_create(cache_record_key, lambda: [], -1)
     if cache_records:
         for key in cache_records:
             delete_(key)
+    set_(cache_record_key, [])
 
 
 def clear_entity_cache(entity):
@@ -173,7 +175,9 @@ def clear_entity_cache(entity):
     Clear belong to an entity and it's model
     """
     # Clean instance caches
-    cache_records = get_(entity_rec_keyer(entity))
+    cache_record_key = entity_rec_keyer(entity)
+    cache_records = get_or_create(cache_record_key, lambda: [], -1)
     if cache_records:
         for key in cache_records:
             delete_(key)
+    set_(cache_record_key, [])

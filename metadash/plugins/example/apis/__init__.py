@@ -41,15 +41,6 @@ class ExampleAPI(Resource):
         db.session.commit()
         return jsonify(example_entity.as_dict())
 
-    def put(self):
-        instance, _ = get_or_create(db.session, ExampleEntity, name="Plugin: Hello, World!")
-        if _:
-            db.session.commit()
-        dict_ = instance.as_dict()
-        dict_['cached_function'] = instance.cached_function()
-        dict_['cached_property'] = instance.cached_property
-        return dict_
-
 
 Api.add_resource(ExampleAPI, '/example/', endpoint='example')
 

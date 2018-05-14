@@ -73,8 +73,12 @@ class ProxyList(list):
     def __setitem__(self, index, value):
         existing = self[index]
         if existing is not value:
-            self._remove_event(existing)
-            self._append_event(value)
+            if self._proxied_reference:
+                self._proxied_reference.__setitem__(
+                    index, self._proxied_reference._creator(value))
+            else:
+                self._remove_event(existing)
+                self._append_event(value)
             list.__setitem__(self, index, value)
 
 
@@ -130,11 +134,11 @@ class MappedAggregationCollection(dict):
             dict.__setitem__(self, key, self.factory(key, value_))
 
     @collection.internally_instrumented
-    def __delitem__(self, key, value):
+    def __delitem__(self, key):
         adapter = collection_adapter(self)
-        for item in value:
-            item = adapter.fire_remove_event(item, None)
-        dict.__delitem__(self, key, value)
+        if key in self:
+            adapter.fire_remove_event(self[key], None)
+            dict.__delitem__(self, key)
 
     def __getdefaultitem__(self, key):
         if key in self:
@@ -156,7 +160,7 @@ class MappedAggregationCollection(dict):
             else:
                 return item_list
         else:
-            return None
+            raise KeyError(key)
 
     @collection.iterator
     def iterate(self):

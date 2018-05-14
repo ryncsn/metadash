@@ -31,7 +31,7 @@ class PropertyList(Resource):
         db.session.commit()
 
     def get(self):
-        return [prop.as_dict(detail=True) for prop  in Property.query.all()]
+        return [prop.as_dict(detail=True) for prop in Property.query.all()]
 
 
 class TagList(Resource):

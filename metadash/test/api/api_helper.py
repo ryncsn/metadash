@@ -15,13 +15,12 @@ from metadash.models.base import EntityModel
 from metadash.apis import EntityParser, pager, envolop
 
 
-class TestResource(EntityModel):
+class TestResource(EntityModel):  # pragma: no cover
     """
     Stands for a test case
     """
     __tablename__ = __alias__ = __namespace__ = 'metadash-test-resource'
 
-    # Key in resultsdb
     attr_1 = db.Column(db.String(), nullable=False)
     attr_2 = db.Column(db.String())
     attr_3 = db.Column(db.DateTime())
@@ -54,7 +53,7 @@ Api(Blueprint).add_resource(TestResourceAPI, '/', endpoint='_test_resource')
 app.register_blueprint(Blueprint, url_prefix='/_test_resource')
 
 
-class APIHelperTest(BasicTestCase):
+class APIHelperTest(BasicTestCase):  # pragma: no cover
     def _query(self, data):
         rv = self.app.get(
             '/_test_resource/', data=json.dumps(data),
@@ -78,6 +77,9 @@ class APIHelperTest(BasicTestCase):
         )
         data = json.loads(rv.data)
         data['attr_3'] = data['attr_3'].replace(' ', 'T')
+        DATA['tags'] = set(DATA['tags'])
+        data['tags'] = set(data['tags'])
+
         self.assertDictContainsSubset(DATA, data)
 
     def test_get_paged(self):

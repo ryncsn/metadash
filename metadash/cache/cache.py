@@ -1,4 +1,4 @@
-from functools import partial
+from functools import partial, wraps
 from .region import default_region
 from .manager import (
     get_or_create_entity_cache,
@@ -48,13 +48,15 @@ def cached_entity_property(expiration_time=-1):
         cache_name = fn.__name__
 
         @property
+        @wraps(fn)
         def cacher(self):  # TODO: expire manually
-            # assert isinstance(self, Entity)
-            return get_or_create_entity_cache(
+            assert hasattr(self, 'uuid')
+            val = get_or_create_entity_cache(
                 self, cache_name, partial(fn, self), expiration_time=expiration_time)
+            return val
 
         @cacher.setter
-        def cache_set(self, new_val):
+        def cacher(self, new_val):
             return set_entity_cache(self, cache_name, new_val)
 
         return cacher

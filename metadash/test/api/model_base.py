@@ -6,13 +6,12 @@ from metadash.models import db
 from metadash.models.base import EntityModel
 
 
-class Entity(EntityModel):
+class Entity(EntityModel):  # pragma: no cover
     """
     Stands for a test case
     """
     __tablename__ = __alias__ = __namespace__ = 'metadash-test-entity'
 
-    # Key in resultsdb
     value = db.Column(db.String())
 
     def __init__(self, value):
@@ -23,7 +22,7 @@ class Entity(EntityModel):
         return ret
 
 
-class EntityTest(BasicTestCase):
+class EntityTest(BasicTestCase):  # pragma: no cover
     def test_entity_with_properties(self):
         VALUE = 'entity1'
         PROPERTIES = {
@@ -52,17 +51,12 @@ class EntityTest(BasicTestCase):
         VALUE = 'entity1'
         PROPERTIES = {
             "prop1": "prop_value1",
-            "prop2": [
-                "prop_value2_1",
-                "prop_value2_2",
-                "prop_value2_3",
-            ],
-            "prop3": None,
         }
 
         entity = Entity(VALUE)
         entity.properties = PROPERTIES
-        entity.properties['prop1'] = 'prop_value1'
+        entity.properties['prop2'] = 'prop_value2'
+        PROPERTIES['prop2'] = 'prop_value2'
         db.session.add(entity)
         db.session.commit()
 
@@ -70,19 +64,75 @@ class EntityTest(BasicTestCase):
         entity = Entity.query.filter(Entity.value == VALUE).first()
         self.assertDictEqual(dict(entity.properties), PROPERTIES)
 
-        PROPERTIES["prop2"].append("prop_value2_4")
-        entity.properties["prop2"].append("prop_value2_4")
-
-        PROPERTIES["prop2"].remove("prop_value2_1")
-        entity.properties["prop2"].remove("prop_value2_1")
+        del PROPERTIES["prop1"]
+        del entity.properties["prop1"]
 
         PROPERTIES["prop3"] = "prop_value3"
         entity.properties["prop3"] = "prop_value3"
-
-        PROPERTIES["prop4"] = "prop_value4"
-        entity.properties["prop4"] = "prop_value4"
 
         db.session.commit()
         entity = None
         entity = Entity.query.filter(Entity.value == VALUE).first()
         self.assertDictEqual(dict(entity.properties), PROPERTIES)
+
+    def test_entity_modify_proxied_properties(self):
+        VALUE = 'entity1'
+        PROPERTIES = {
+            "prop1": [
+                "prop_value1_1",
+                "prop_value1_2",
+                "prop_value1_3",
+                "prop_value1_4",
+                "prop_value1_5",
+            ],
+            "prop2": "prop2_value"
+        }
+
+        entity = Entity(VALUE)
+        entity.properties = PROPERTIES
+        db.session.add(entity)
+        db.session.commit()
+
+        entity = None
+        entity = Entity.query.filter(Entity.value == VALUE).first()
+        self.assertDictEqual(dict(entity.properties), PROPERTIES)
+
+        PROPERTIES["prop1"].append("prop_value1_6")
+        entity.properties["prop1"].append("prop_value1_6")
+
+        PROPERTIES["prop1"].remove("prop_value1_1")
+        entity.properties["prop1"].remove("prop_value1_1")
+
+        del PROPERTIES["prop1"][0]
+        del entity.properties_ref["prop1"][0]
+
+        PROPERTIES["prop1"][0] = "set_prop"
+        entity.properties["prop1"][0] = "set_prop"
+
+        PROPERTIES["prop1"].pop()
+        entity.properties_ref["prop1"].pop()
+
+        PROPERTIES.remove("prop2")
+        entity.properties.remove("prop2")
+
+        db.session.commit()
+        entity = None
+        entity = Entity.query.filter(Entity.value == VALUE).first()
+        self.assertEqual(set(entity.properties["prop1"]), set(PROPERTIES["prop1"]))
+
+        db.session.delete(entity)
+        db.session.commit()
+
+    def test_entity_modify_proxied_properties(self):
+        VALUE = 'entity1'
+
+        entity = Entity(VALUE)
+
+        exception = None
+
+        try:
+            entity.properties['NON_EXIST']
+        except KeyError as error:
+            exception = error
+
+        self.assertIn("NON_EXIST", str(exception))
