@@ -3,10 +3,10 @@ Basic test boilerplate
 """
 from . import BasicTestCase
 from metadash.models import db
-from metadash.models.base import EntityModel
+from metadash.models.base import EntityModel, BareEntityModel
 
 
-class Entity(EntityModel):  # pragma: no cover
+class Entity(EntityModel):
     """
     Stands for a test case
     """
@@ -17,12 +17,37 @@ class Entity(EntityModel):  # pragma: no cover
     def __init__(self, value):
         self.value = value
 
-    def as_dict(self, **kwargs):
-        ret = super(Entity, self).as_dict(**kwargs)
-        return ret
+
+class BareEntity(BareEntityModel):
+    """
+    Stands for a test case
+    """
+    __namespace__ = 'metadash-test-bareentity'
 
 
 class EntityTest(BasicTestCase):  # pragma: no cover
+    def test_bareentity_with_properties(self):
+        PROPERTIES = {
+            "prop1": "prop_value1",
+            "prop2": [
+                "prop_value2_1",
+                "prop_value2_2",
+                "prop_value2_3",
+            ],
+            "prop3": None,
+        }
+
+        entity = BareEntity()
+        entity.properties = PROPERTIES
+        db.session.add(entity)
+        db.session.commit()
+
+        entity = None
+        entity = BareEntity.query.first()
+        self.assertDictEqual(dict(entity.properties), PROPERTIES)
+        db.session.delete(entity)
+        db.session.commit()
+
     def test_entity_with_properties(self):
         VALUE = 'entity1'
         PROPERTIES = {

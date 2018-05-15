@@ -5,6 +5,7 @@ import uuid
 import weakref
 
 from sqlalchemy import event
+from sqlalchemy.orm import column_property
 
 from .utils import (
     _get_table_name_dict, _Jsonable, hybridmethod)
@@ -36,7 +37,7 @@ class MetadashEntity(Model):
     __namespace_map__ = weakref.WeakValueDictionary()
     __namespace__ = uuid.uuid5(uuid.UUID(URN), __tablename__)
 
-    namespace = db.Column(UUID(), index=True, nullable=False, primary_key=True)
+    namespace = db.Column(UUID(), index=True, nullable=False)
     index_uuid = db.Column(UUID(), index=True, nullable=False, unique=True, primary_key=True,
                            default=uuid.uuid1)
 
@@ -75,8 +76,6 @@ class EntityModel(_Jsonable, MetadashEntity, metaclass=RichMixinMeta):
     __cacheable_attributes__ = set()
 
     attribute_models = weakref.WeakValueDictionary()
-
-    uuid = None  # Just a hint
 
     cache = EntityCacheManager()
 
@@ -128,7 +127,7 @@ class EntityModel(_Jsonable, MetadashEntity, metaclass=RichMixinMeta):
         for sa_entity in SharedAttributeRegistry.values():
             sa_entity.build_relationship(sa_entity)
 
-        MetadashEntity.__namespace_map__[subclass.namespace] = subclass
+        MetadashEntity.__namespace_map__[subclass.__namespace__] = subclass
         # Clean cache on entity update
         event.listen(subclass, 'after_delete', after_entity_update_hook)
         event.listen(subclass, 'after_update', after_entity_update_hook)
@@ -172,17 +171,17 @@ class BareEntityModel(_Jsonable, MetadashEntity, metaclass=RichMixinMeta):
     __namespace__ should be either a UUID or a string, which will be
     hashed into a uuid5.
     """
+    rmixin_registry = EntityRegistry
+
     # Don't create any sqlalchemy things here
     # This class is just a skeleton
     # TODO: Raise error on create
 
-    rmixin_registry = EntityRegistry
-
     __alias__ = None
 
-    attribute_models = weakref.WeakValueDictionary()
+    __cacheable_attributes__ = set()
 
-    uuid = None  # Just a hint
+    attribute_models = weakref.WeakValueDictionary()
 
     def identity(self):
         return '{}:{}(bare)'.format(self.__namespace__, self.uuid)
@@ -195,16 +194,15 @@ class BareEntityModel(_Jsonable, MetadashEntity, metaclass=RichMixinMeta):
         return dict_
 
     def sub_init(baseclass, subclass, subclass_name, baseclasses, subclass_dict):
+        setattr(subclass, 'uuid', column_property(MetadashEntity.index_uuid))
         for a_entity in AttributeRegistry.values():
             a_entity.build_relationship(a_entity)
         for sa_entity in SharedAttributeRegistry.values():
             sa_entity.build_relationship(sa_entity)
 
-        MetadashEntity.__namespace_map__[subclass.namespace] = subclass
+        MetadashEntity.__namespace_map__[subclass.__namespace__] = subclass
 
     def sub_new(baseclass, subclass_name, baseclasses, subclass_dict):
-        subclass_dict = dict(subclass_dict)  # Make it writable
-
         __namespace__ = subclass_dict.get('__namespace__', None)
         if isinstance(__namespace__, str):
             __namespace__ = uuid.uuid5(uuid.UUID(URN), __namespace__)

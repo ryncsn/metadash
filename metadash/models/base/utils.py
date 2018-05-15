@@ -1,7 +1,6 @@
 """
 Helper mostly for internal use
 """
-from ... import logger
 from functools import wraps
 from sqlalchemy.ext.associationproxy import (
     _AssociationDict, _AssociationSet, _AssociationList)
