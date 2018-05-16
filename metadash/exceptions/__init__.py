@@ -87,7 +87,6 @@ class RemoteAuthError(MetadashAPIError):
         self.mech = mech
         self.message = message
 
-    @staticmethod
     def response(self):
         """
         An helper to auto reauth for remote authentication error
