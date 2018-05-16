@@ -16,7 +16,8 @@ manager.add_command('db', MigrateCommand)
 
 
 @manager.command
-def test():
+@manager.option('-t', '--testcase', dest='testcase')
+def test_api(testcase=None):
     import unittest
     import os
     from metadash import plugins
@@ -24,19 +25,27 @@ def test():
     suite = unittest.TestSuite()
     loader = unittest.loader.defaultTestLoader
 
-    suite.addTests(loader.loadTestsFromName("metadash.test.api"))
-
-    for file in os.listdir('metadash/test/api'):
-        if not file.startswith('_') and not file.startswith('.') and file.endswith('.py'):
-            suite.addTests(loader.loadTestsFromName("metadash.test.api.{}".format(file[:-3])))
-
-    for plugin_name, plugin in plugins.get_all().items():
+    if testcase:
         try:
-            __import__(plugin['import'] + '.tests')
+            suite.addTests(loader.loadTestsFromName(testcase))
         except ModuleNotFoundError:
-            pass
+            return "Python test case not found"
         else:
-            suite.addTests(loader.loadTestsFromName(plugin['import'] + '.tests'))
+            pass
+    else:
+        suite.addTests(loader.loadTestsFromName("metadash.test.api"))
+
+        for file in os.listdir('metadash/test/api'):
+            if not file.startswith('_') and not file.startswith('.') and file.endswith('.py'):
+                suite.addTests(loader.loadTestsFromName("metadash.test.api.{}".format(file[:-3])))
+
+        for plugin_name, plugin in plugins.get_all().items():
+            try:
+                __import__(plugin['import'] + '.tests')
+            except ModuleNotFoundError:
+                pass
+            else:
+                suite.addTests(loader.loadTestsFromName(plugin['import'] + '.tests'))
 
     runner = unittest.TextTestRunner()
     result = runner.run(suite)
@@ -48,7 +57,7 @@ def test():
 @manager.option('-p', '--password', dest='password')
 def create_user(username=None, password=None):
     """
-    Create or overlay a user with local authentication
+    reate or overlay a user with local authentication
     """
     if username and password:
         from metadash.auth import user_signup

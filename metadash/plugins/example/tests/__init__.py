@@ -24,6 +24,15 @@ class ExampleTestCase(BasicTestCase):
 
         self.assertDictContainsSubset(DATA, data)
 
+    def test_get_config(self):
+        rv = self.app.get('/api/configs/')
+        data = json.loads(rv.data)
+        self.assertTrue(any([
+            conf['description'] == 'Example Config' and
+            conf['key'] == 'EXAMPLE_CONFIG'
+            for conf in data['data']
+        ]))
+
 
 if __name__ == '__main__':
     unittest.main()
