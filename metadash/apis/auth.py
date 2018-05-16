@@ -11,10 +11,11 @@ def login():
     try:
         username = request.json['username']
         password = request.json['password']
+        method = request.json.get('method', None)
     except KeyError:
         return jsonify({'message': 'Missing Credential'}), 400
     try:
-        user = user_login(username, password)
+        user = user_login(username, password, method)
     except APIError as error:
         return jsonify({'message': error.message}), 400
     else:

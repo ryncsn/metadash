@@ -151,10 +151,10 @@
           <Alert/>
           <router-view ref="currentRouteComponent"></router-view>
         </v-content>
-        <v-dialog v-model="showLoginDialog" width="800px">
+        <v-dialog v-model="showLoginDialog" max-width="800px">
           <Login @success="showLoginDialog = false"/>
         </v-dialog>
-        <v-dialog v-model="showLogoutDialog" width="500px">
+        <v-dialog v-model="showLogoutDialog" max-width="500px">
           <user @success="showLogoutDialog = false"/>
         </v-dialog>
         <v-dialog

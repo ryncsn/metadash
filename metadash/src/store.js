@@ -15,10 +15,11 @@ const store = new Vuex.Store({
     role: 'anonymous'
   },
   actions: {
-    login ({state}, {username, password}) {
+    login ({state}, {username, password, method}) {
       return Vue.http.post('/api/login', {
         username: username,
-        password: password
+        password: password,
+        method: method || 'local'
       }).then(res => res.json())
         .then(data => {
           state.username = data.username

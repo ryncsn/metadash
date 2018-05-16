@@ -24,7 +24,10 @@ DefaultAuthBackend = config.DEFAULT_AUTH_BACKEND
 def user_login(username, password, backend=None):
     try:
         backend = backend or DefaultAuthBackend
-        user = AuthBackends[backend].try_login(username, password)
+        if backend not in AuthBackends.keys():
+            raise AuthError("Bad Login Method")
+        else:
+            user = AuthBackends[backend].try_login(username, password)
     except NotImplementedError as error:
         raise BadRequestError("Login is not supported by this authentication method")
     except AuthError as error:
