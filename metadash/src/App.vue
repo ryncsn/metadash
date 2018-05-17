@@ -1,16 +1,14 @@
 <template>
   <v-app>
     <v-container fluid>
-      <v-layout>
+      <v-layout v-if="appReady">
         <v-navigation-drawer
+          fixed dark app
           id="app"
-          fixed
-          :clipped="$vuetify.breakpoint.lgAndUp"
-          mini-variant.sync="mini"
-          dark
-          app
           v-model="pluginsListDrawer"
-        >
+          mini-variant.sync="mini"
+          :clipped="$vuetify.breakpoint.lgAndUp"
+          >
           <v-list>
             <v-list-tile @click="" :to="'/dashboard'">
               <v-list-tile-action>
@@ -43,17 +41,15 @@
           </v-list>
         </v-navigation-drawer>
         <v-toolbar
+          dark fixed app
           color="blue-grey darken-1"
-          dark
-          app
           :clipped-left="$vuetify.breakpoint.lgAndUp"
-          fixed
-        >
+          >
           <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
             <v-tooltip bottom>
               <v-toolbar-side-icon slot="activator" @click.stop="pluginsListDrawer = !pluginsListDrawer"></v-toolbar-side-icon>
               <span>Open Plugin List</span>
-            </v-tooltip bottom>
+            </v-tooltip>
             <span class="hidden-sm-and-down">Metadash</span>
           </v-toolbar-title>
           <v-spacer></v-spacer>
@@ -64,7 +60,7 @@
               max-width="160"
               nudge-left="60"
               slot="activator"
-            >
+              >
               <v-btn icon slot="activator">
                 <v-icon>apps</v-icon>
               </v-btn>
@@ -97,10 +93,10 @@
             <v-menu
               offset-y
               :close-on-content-click="false"
-              :nudge-width="changeNoticeSize ? 800 : 200"
-              :nudge-left="changeNoticeSize ? 650 : 100"
+              :nudge-width="expandNotificationDrawer ? 800 : 200"
+              :nudge-left="expandNotificationDrawer ? 650 : 100"
               slot="activator"
-            >
+              >
               <v-badge slot="activator" overlap color="red">
                 <span v-if="NoticeNum > 0" slot="badge">{{ NoticeNum }}</span>
                 <v-btn icon >
@@ -109,7 +105,7 @@
               </v-badge>
               <v-card>
                 <v-card-title>
-                  <v-btn icon @click="changeNoticeSize = !changeNoticeSize">
+                  <v-btn icon @click="expandNotificationDrawer = !expandNotificationDrawer">
                     <v-icon>swap_horiz</v-icon>
                   </v-btn>
                   <v-btn icon @click="noticeDialog = !noticeDialog">
@@ -147,23 +143,25 @@
             <span>Account Actions</span>
           </v-tooltip>
         </v-toolbar>
-        <v-content v-if="allLoaded">
+        <v-content v-if="appReady">
           <Alert/>
           <router-view ref="currentRouteComponent"></router-view>
         </v-content>
         <v-dialog v-model="showLoginDialog" max-width="800px">
           <Login @success="showLoginDialog = false"/>
         </v-dialog>
-        <v-dialog v-model="showLogoutDialog" max-width="500px">
-          <user @success="showLogoutDialog = false"/>
+
+        <v-dialog v-model="showLoginDialog" max-width="800px">
+          <User @success="showLoginDialog = false">
+          </User>
         </v-dialog>
         <v-dialog
-         v-model="noticeDialog"
-         fullscreen
-         transition="dialog-bottom-transition"
-         :overlay="false"
-         scrollable
-        >
+          v-model="noticeDialog"
+          fullscreen
+          transition="dialog-bottom-transition"
+          :overlay="false"
+          scrollable
+          >
           <v-card tile>
             <v-toolbar card dark color="primary">
               <v-btn icon @click.native="noticeDialog = false" dark>
@@ -182,35 +180,37 @@
           color="white"
           fixed
           v-if="loading"
-        >
+          >
           <v-progress-circular indeterminate :size="40" color="primary">
           </v-progress-circular>
         </v-btn>
       </v-layout>
+      <Splash v-else/>
     </v-container>
   </v-app>
 </template>
 
 <script>
-import version from './libs/metadash-version.js'
 import Vue from 'vue'
-import Login from '@/components/Login.vue'
+import version from './libs/metadash-version.js'
 import User from '@/components/User.vue'
+import Login from '@/components/Login.vue'
 import Alert from '@/components/Alert.vue'
+import Splash from '@/components/Splash.vue'
 import Notices from '@/components/Notices.vue'
 import _ from 'lodash'
 export default {
   name: 'app',
   props: ['plugins'],
-  components: { Login, User, Alert, Notices },
+  components: { Login, User, Alert, Notices, Splash },
   data () {
     return {
       metadashVersion: `Metadash ${version} Running`,
-      allLoaded: false,
+      appReady: false,
       loading: false,
       pluginsListDrawer: false,
       showNotificationDrawer: false,
-      changeNoticeSize: false,
+      expandNotificationDrawer: false,
       noticeDialog: false,
       showLoginDialog: false,
       showLogoutDialog: false,
@@ -232,10 +232,6 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('fetchMe').then(() =>
-      this.$store.dispatch('fetchConfigs')
-    ).then(() => { this.allLoaded = true })
-
     Vue.http.interceptors.push((request, next) => {
       this.loading = true
       next((response) => {
@@ -263,6 +259,9 @@ export default {
         return response
       })
     })
+    this.$store.dispatch('fetchMe').then(() =>
+      this.$store.dispatch('fetchConfigs')
+    ).then(() => { this.appReady = true })
   },
   mounted () {
   },

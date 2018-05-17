@@ -3,15 +3,20 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import VueResource from 'vue-resource'
+
+// CSS
 import 'vuetify/dist/vuetify.min.css'
-import 'roboto-npm-webfont'
 import 'c3/c3.css'
 import 'd3/d3.min.js'
 import 'c3/c3.min.js'
 
+// Font
+import 'roboto-npm-webfont'
+
+// Components
 import App from '@/App'
-import router from '@/router'
 import store from '@/store'
+import router from '@/router'
 import { Plugins } from '@/plugin'
 
 Vue.use(VueResource)
