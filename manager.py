@@ -55,13 +55,15 @@ def test_api(testcase=None):
 @manager.command
 @manager.option('-n', '--name', dest='name')
 @manager.option('-p', '--password', dest='password')
-def create_user(username=None, password=None):
+@manager.option('-r', '--role', dest='role')
+def create_user(username=None, password=None, role="admin"):
     """
     reate or overlay a user with local authentication
     """
     if username and password:
-        from metadash.auth import user_signup
+        from metadash.auth import user_signup, user_setrole
         user_signup(username, password, 'local')
+        user_setrole(username, role)
     else:
         raise "Username and password required"
 

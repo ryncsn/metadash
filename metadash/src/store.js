@@ -15,12 +15,16 @@ const store = new Vuex.Store({
     role: 'anonymous'
   },
   actions: {
-    login ({state}, {username, password, method}) {
+    login ({state}, {username, password, method, ignoreAPIError}) {
       return Vue.mdAPI.post('/login', {
         username: username,
         password: password,
         method: method || 'local'
-      }).then(res => res.json())
+      }, {
+        ignoreAPIError: ignoreAPIError || false
+      })
+        .then(res => res.ok())
+        .then(res => res.json())
         .then(data => {
           state.username = data.username
           state.role = data.role

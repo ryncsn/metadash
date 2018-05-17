@@ -12,7 +12,7 @@ class API {
     this.interceptors = []
 
     this.interceptors.push = (...args) => {
-      for (let handler of this.interceptors) {
+      for (let handler of args) {
         Vue.http.interceptors.push((request, next) => {
           if (request.apiRequestPrefix === this.apiPrefix) {  // Only intercept relative URL
             handler(request, next)
@@ -22,16 +22,22 @@ class API {
       return Array.prototype.push.apply(this.interceptors, ...args)
     }
 
-    let APIRequest = (method, url, options) => {
+    let APIRequest = (method, url, options, ...args) => {
       options = Object.assign(options || {}, {
         apiRequestPrefix: this.apiPrefix
       })
-      return Vue.http[method](this.getAPIUrl(url), options)
+      return Vue.http[method](this.getAPIUrl(url), ...args, options)
     }
 
-    ['get', 'delete', 'head', 'put'].forEach(method => {
-      this[method] = function (url, ...args) {
-        return APIRequest(method, url, ...args)
+    ['get', 'delete', 'head', 'jsonp'].forEach(method => {
+      this[method] = function (url, options) {
+        return APIRequest(method, url, options)
+      }
+    });
+
+    ['post', 'put', 'patch'].forEach(method => {
+      this[method] = function (url, body, options) {
+        return APIRequest(method, url, options, body)
       }
     })
   }

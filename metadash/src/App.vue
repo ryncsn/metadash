@@ -150,9 +150,8 @@
         <v-dialog v-model="showLoginDialog" max-width="800px">
           <Login @success="showLoginDialog = false"/>
         </v-dialog>
-
-        <v-dialog v-model="showLoginDialog" max-width="800px">
-          <User @success="showLoginDialog = false">
+        <v-dialog v-model="showLogoutDialog" max-width="800px">
+          <User @success="showLogoutDialog = false">
           </User>
         </v-dialog>
         <v-dialog
@@ -237,7 +236,6 @@ export default {
       this.loading = true
       next((response) => {
         this.loading = false
-
         if (request.ignoreAPIError) {
           return response
         } else if (response.status === 401) {

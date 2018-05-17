@@ -53,11 +53,22 @@ def users():
 @requires_roles('admin')
 def user(username):
     if request.method == 'DELETE':
-        user_delete(username)
+        user = user_delete(username)
+        user = user.as_dict()
+        user.update({
+            "message": "Delete Success"
+        })
+        return jsonify(user.as_dict())
     elif request.method == 'PUT':
         role = request.json.get('role', None)
         user = user_setrole(username, role)
         if user:
-            return user.as_dict()
+            user = user.as_dict()
+            user.update({
+                "message": "Delete Success"
+            })
+            return jsonify(user)
         else:
-            return jsonify({'message': 'No such user: "{}"'.format(username)}), 404
+            return jsonify({
+                'message': 'No such user: "{}"'.format(username)
+            }), 404

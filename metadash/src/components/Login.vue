@@ -13,6 +13,8 @@
           label="Username"
           v-model="username"
           :rules="usernameRules"
+          :error="usernameError"
+          :error-messages="usernameErrorMessages"
           @keyup.enter="login"
           required
           ></v-text-field>
@@ -23,6 +25,8 @@
           label="Password"
           v-model="password"
           :rules="passwordRules"
+          :error="passwordError"
+          :error-messages="passwordErrorMessages"
           @keyup.enter="login"
           required
           ></v-text-field>
@@ -58,10 +62,14 @@ export default {
       usernameRules: [
         v => !!v || 'Username is required'
       ],
+      usernameError: false,
+      usernameErrorMessages: [],
       password: '',
       passwordRules: [
         v => !!v || 'Password is required'
       ],
+      passwordError: false,
+      passwordErrorMessages: [],
       loginMethod: 'local',
       loginMethods: [
         'local',
@@ -70,20 +78,40 @@ export default {
       loginInProgress: false
     }
   },
+  watch: {
+    username () {
+      this.usernameError = false
+      this.usernameErrorMessages = this.passwordErrorMessages = []
+    },
+    password () {
+      this.passwordError = false
+      this.usernameErrorMessages = this.passwordErrorMessages = []
+    }
+  },
   methods: {
     login () {
       this.loginInProgress = true
       this.$store.dispatch('login', {
         username: this.username,
         password: this.password,
-        method: this.loginMethod
+        method: this.loginMethod,
+        ignoreAPIError: true
       })
         .then(() => {
           this.$emit('success')
-        }, () => {
-          this.$emit('failed')
         })
-        .catch(() => {})
+        .catch((response) => {
+          this.usernameError = this.passwordError = true
+          this.usernameErrorMessages = this.passwordErrorMessages = []
+          return response
+        })
+        .then((response) => response.json())
+        .then((json) => {
+          this.usernameErrorMessages = this.passwordErrorMessages = [json['message']]
+        })
+        .catch((response) => {
+          this.usernameErrorMessages = this.passwordErrorMessages = ['Server didn\'t response in a expected way']
+        })
         .then(() => {
           this.loginInProgress = false
         })
