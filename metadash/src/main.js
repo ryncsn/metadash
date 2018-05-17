@@ -18,9 +18,11 @@ import App from '@/App'
 import store from '@/store'
 import router from '@/router'
 import { Plugins } from '@/plugin'
+import MetadashAPI from '@/libs/metadash-api'
 
 Vue.use(VueResource)
 Vue.use(Vuetify)
+Vue.use(MetadashAPI)
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

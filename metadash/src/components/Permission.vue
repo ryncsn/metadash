@@ -84,21 +84,21 @@ export default {
   },
   methods: {
     createNewUser (username, role) {
-      this.$http.post('/api/users/' + username, { role: role })
+      this.$mdAPI.post('/users/' + username, { role: role })
         .then(() => this.debouncedRefresh())
         .catch(() => this.debouncedRefresh())
     },
     deleteUser (username) {
       let res = confirm(`Delete user "${username}"?`)
       if (res) {
-        this.$http.delete('/api/users/' + username)
+        this.$mdAPI.delete('/users/' + username)
           .then(() => this.debouncedRefresh())
           .catch(() => this.debouncedRefresh())
       }
       return res
     },
     setPermission (username, role) {
-      this.$http.put('/api/users/' + username, { role: role })
+      this.$mdAPI.put('/users/' + username, { role: role })
         .then(() => this.debouncedRefresh())
         .catch(() => this.debouncedRefresh())
     },
@@ -107,7 +107,7 @@ export default {
       this.refresh()
     }, 500),
     refresh () {
-      this.$http.get('/api/users')
+      this.$mdAPI.get('/users')
         .then(res => res.json())
         .then(data => {
           this.users = data

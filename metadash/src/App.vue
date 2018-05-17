@@ -232,27 +232,29 @@ export default {
     }
   },
   created () {
-    Vue.http.interceptors.push((request, next) => {
+    Vue.mdAPI.interceptors.push((request, next) => {
+      // Following code only work when interacting with Metadash's API
       this.loading = true
       next((response) => {
         this.loading = false
-        if (response.status === 401) {
+
+        if (request.ignoreAPIError) {
+          return response
+        } else if (response.status === 401) {
           this.makeToast('You don\'t have required permission', 'error')
         } else if (response.status === 202) {
           response.json().then((data) => {
             this.makeToast(data.message, 'info')
           }, () => {
-            this.makeToast(response.body || 'No Response', 'warning')  // TODO: Danger!!!
+            this.makeToast(response.body || 'No Response', 'warning')
           })
         } else if (!response.ok) {
           response.json().then((data) => {
             if (data.message) {
-              this.makeToast(data.message, 'error')
-            } else {
-              this.makeToast('Unknown Error: ' + JSON.stringify(data), 'error')
+              this.makeToast(data.message || JSON.stringify(data), 'error')
             }
           }, () => {
-            this.makeToast(response.statusText || 'No Response', 'error')  // TODO: Danger!!!
+            this.makeToast(response.statusText || 'No Response', 'error')
           })
           return response
         }

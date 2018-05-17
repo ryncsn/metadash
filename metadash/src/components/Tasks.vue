@@ -42,7 +42,7 @@ export default {
   },
   methods: {
     refresh () {
-      return this.$http.get('/api/tasks')
+      return this.$mdAPI.get('/tasks')
         .then(res => res.json())
         .then(data => {
           this.tasks = data

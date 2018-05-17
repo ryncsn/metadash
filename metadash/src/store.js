@@ -16,7 +16,7 @@ const store = new Vuex.Store({
   },
   actions: {
     login ({state}, {username, password, method}) {
-      return Vue.http.post('/api/login', {
+      return Vue.mdAPI.post('/login', {
         username: username,
         password: password,
         method: method || 'local'
@@ -27,7 +27,7 @@ const store = new Vuex.Store({
         })
     },
     logout ({state}) {
-      return Vue.http.get('/api/logout')
+      return Vue.mdAPI.get('/logout')
         .then(res => res.json())
         .then(data => {
           state.username = data.username
@@ -35,7 +35,7 @@ const store = new Vuex.Store({
         })
     },
     fetchMe ({state}) {
-      return Vue.http.get('/api/me')
+      return Vue.mdAPI.get('/me')
         .then(res => res.json())
         .then(data => {
           state.username = data.username
@@ -43,7 +43,7 @@ const store = new Vuex.Store({
         })
     },
     fetchConfigs ({state}) {
-      return Vue.http.get('/api/configs/')
+      return Vue.mdAPI.get('/configs/')
         .then(res => res.json())
         .then(data => data.data)
         .then(data => {
@@ -61,7 +61,7 @@ const store = new Vuex.Store({
       for (let key in configsToSubmit) {
         let value = configsToSubmit[key]
         let config = _.find(state.configs, {key})
-        Vue.http.put('/api/configs/' + key, {
+        Vue.mdAPI.put('/configs/' + key, {
           value: value
         }).then(() => {
           config.value = value
