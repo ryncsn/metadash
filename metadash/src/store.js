@@ -23,7 +23,6 @@ const store = new Vuex.Store({
       }, {
         ignoreAPIError: ignoreAPIError || false
       })
-        .then(res => res.ok())
         .then(res => res.json())
         .then(data => {
           state.username = data.username

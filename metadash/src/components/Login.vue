@@ -97,20 +97,20 @@ export default {
         method: this.loginMethod,
         ignoreAPIError: true
       })
-        .then(() => {
+        .then((json) => {
           this.$emit('success')
+          return json
         })
         .catch((response) => {
           this.usernameError = this.passwordError = true
           this.usernameErrorMessages = this.passwordErrorMessages = []
-          return response
-        })
-        .then((response) => response.json())
-        .then((json) => {
-          this.usernameErrorMessages = this.passwordErrorMessages = [json['message']]
-        })
-        .catch((response) => {
-          this.usernameErrorMessages = this.passwordErrorMessages = ['Server didn\'t response in a expected way']
+          return response.json()
+            .then((json) => {
+              this.usernameErrorMessages = this.passwordErrorMessages = [json['message']]
+            })
+            .catch((response) => {
+              this.usernameErrorMessages = this.passwordErrorMessages = ['Server didn\'t response in a expected way']
+            })
         })
         .then(() => {
           this.loginInProgress = false
