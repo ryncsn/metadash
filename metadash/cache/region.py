@@ -10,6 +10,8 @@ from metadash import logger
 backend = ActiveConfig.CACHE_DEFAULT_BACKEND
 arguments = ActiveConfig.CACHE_ARGUEMENTS
 
+EXPIRATION_TIME = -1
+
 
 def flatten(obj, recusrsion=3):
     if recusrsion == 0:
@@ -40,6 +42,19 @@ default_region = make_region(key_mangler=universal_key_mangler).configure(
     expiration_time=-1,
     arguments=arguments
 )
+
+
+origin_get = default_region.get
+
+
+def patched_get(key, *args, **kwargs):
+    if kwargs.setdefault('expiration_time', EXPIRATION_TIME) == -1:
+        kwargs.setdefault('ignore_expiration', True)
+    return origin_get(key, *args, **kwargs)
+
+
+default_region.get = patched_get
+
 
 # TODO: backend using redis
 # storage = make_region().configure(
