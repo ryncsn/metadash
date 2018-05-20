@@ -51,6 +51,16 @@ class Property(AttributeModel):
             .distinct().limit(limit or 50)
         return [r.value for r in q.all()]
 
+    @staticmethod
+    def all_keys(entity_model, limit=None):
+        """
+        Get all candidate value of properties belongs to a entity model
+        """
+        q = db.session.query(Property.key)\
+            .select_from(entity_model).join(Property)\
+            .distinct().limit(limit or 50)
+        return [r.key for r in q.all()]
+
 
 class Detail(AttributeModel):
     """

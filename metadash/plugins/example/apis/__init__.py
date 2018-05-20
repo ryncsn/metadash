@@ -25,8 +25,9 @@ def ensure_default_column():
 class ExampleAPI(Resource):
     def get(self):
         ensure_default_column()
+        args = ExampleParser.parse_extra()
         ret = []
-        for row in ExampleEntity.query.all():
+        for row in ExampleEntity.query.filter(*args).all():
             dict_ = row.as_dict()
             dict_['cached_function'] = row.cached_function()
             dict_['cached_property'] = row.cached_property

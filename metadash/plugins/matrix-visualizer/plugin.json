@@ -1,0 +1,8 @@
+{
+    "name": "matrix-visulizer",
+    "author": "Kairui Song",
+    "description": "Visualize any data in 2D matrix",
+    "configs": {
+    },
+    "version": "0.0.0"
+}
