@@ -290,6 +290,10 @@ export default {
         .attr('y', gridHeight * 0.1)
         .attr('height', gridHeight * 0.8)
         .attr('width', gridWidth * 0.8)
+        .style('fill', d => 'rgb(255,255,255)')
+        .transition()
+        .duration(750)
+        .ease('linear')
         .style('fill', d => 'rgb(' + colorScaleR(d.length) + ', ' + colorScaleG(d.length) + ', ' + colorScaleB(d.length) + ')')
 
       cells.append('text')
@@ -299,8 +303,12 @@ export default {
         .attr('x', gridWidth * 0.5)
         .attr('y', gridHeight * 0.5 + 5)
         .attr('font-size', '20px')
-        .attr('fill', d => 'rgb(' + colorScaleR(d.length) * 2 + ', ' + colorScaleG(d.length) * 2 + ', ' + colorScaleB(d.length) * 2 + ')')
+        .attr('fill', d => 'rgb(255,255,255)')
         .style('text-anchor', 'middle')
+        .transition()
+        .duration(750)
+        .ease('linear')
+        .attr('fill', d => 'rgb(' + colorScaleR(d.length) * 2 + ', ' + colorScaleG(d.length) * 2 + ', ' + colorScaleB(d.length) * 2 + ')')
     }
   },
   mounted () {
