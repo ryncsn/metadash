@@ -52,22 +52,22 @@
                         required
                         ></v-select>
                     </v-flex>
+                    <v-flex xs12>
+                      <v-select
+                        v-model="cellAggregator"
+                        :items="avaliableAggregatorNames"
+                        :rules="[v => !!v || 'Item is required']"
+                        label="Cell Aggregator"
+                        required
+                        ></v-select>
+                    </v-flex>
                   </v-layout>
                 </v-flex>
                 <v-flex xs12 md6 class="px-4">
                   <v-layout wrap>
                     <v-flex xs12>
-                      <h4>Aggregator</h4>
+                      <h4>Aggregator Parameters</h4>
                       <v-divider class="my-3"> </v-divider>
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-select
-                        v-model="cellAggregator"
-                        :items="avaliableAggregators"
-                        :rules="[v => !!v || 'Item is required']"
-                        label="Cell Aggregator"
-                        required
-                        ></v-select>
                     </v-flex>
                     <v-flex xs5>
                       <v-text-field
@@ -89,6 +89,17 @@
                         required
                         ></v-text-field>
                     </v-flex>
+                    <div v-for="aggregatorParam in aggregatorParams">
+                      <v-flex xs12>
+                        <v-text-field
+                          :type="aggregatorParam.type"
+                          :label="aggregatorParam.label"
+                          v-model="aggregatorParam.value"
+                          :rules="[v => !!v || 'Item is required']"
+                          required
+                          ></v-text-field>
+                      </v-flex>
+                    </div>
                   </v-layout>
                 </v-flex>
                 <v-flex xs12 class="px-5">
@@ -113,6 +124,8 @@
 
 <script>
 import * as d3 from 'd3'
+import heatAggregator from './aggregators/heat'
+import barChartAggregator from './aggregators/barChart'
 import _ from 'lodash'
 
 var svg = null
@@ -132,12 +145,25 @@ export default {
       entityLimit: 100,
       avaliableEntities: {},
       avaliableAttributes: [],
-      avaliableAggregators: [
-        'Heat'
-      ],
+      avaliableAggregators: {
+        heatAggregator,
+        barChartAggregator
+      },
+      avaliableAggregatorParams: {
+        heatAggregator: [],
+        barChartAggregator: [
+          {
+            'name': 'attribute',
+            'type': 'text',
+            'label': 'Attributes to be used for bar chart (eg. results.PASSED)',
+            'value': ''
+          }
+        ]
+      },
 
       targetEntity: null,
-      cellAggregator: 'Heat',
+      cellAggregator: null,
+      aggregatorParams: [],
       xAttribute: null,
       yAttribute: null,
 
@@ -148,9 +174,15 @@ export default {
   computed: {
     avaliableEntityNames () {
       return Object.keys(this.avaliableEntities)
+    },
+    avaliableAggregatorNames () {
+      return Object.keys(this.avaliableAggregators)
     }
   },
   watch: {
+    cellAggregator (newAggregator) {
+      this.aggregatorParams = this.avaliableAggregatorParams[newAggregator]
+    },
     targetEntity (newTarget) {
       this.avaliableAttributes = this.avaliableEntities[newTarget].properties
       this.xAttribute = null
@@ -170,7 +202,7 @@ export default {
         })
     },
     refresh () {
-      this.$mdAPI.get('/matrix-visualizer')
+      return this.$mdAPI.get('/matrix-visualizer')
         .then(res => res.json())
         .then(data => {
           this.avaliableEntities = data
@@ -199,10 +231,10 @@ export default {
       let data = this.data
       let gridHeight = this.gridHeight
       let gridWidth = this.gridWidth
-      let margin = {top: 100, right: 100, bottom: 100, left: 200}
+      let aggregator = this.avaliableAggregators[this.cellAggregator]
+      let margin = {top: gridHeight, right: gridWidth, bottom: gridHeight, left: gridWidth}
       let rows = Array.from(data.reduce((set, entity) => set.add(entity['properties'][this.yAttribute]), new Set()))
       let cols = Array.from(data.reduce((set, entity) => set.add(entity['properties'][this.xAttribute]), new Set()))
-
       let width = gridWidth * cols.length
       let height = gridHeight * rows.length
       let maxLen = 0
@@ -221,6 +253,7 @@ export default {
 
       data.forEach((entity) => {
         let arr = matrixDict[entity['properties'][this.yAttribute]][entity['properties'][this.xAttribute]]
+        entity._arr = arr
         arr.push(entity)
         maxLen = arr.length > maxLen ? arr.length : maxLen
       })
@@ -261,7 +294,7 @@ export default {
         .attr('y', 0)
         .attr('x', (d, i) => gridWidth * (i + 0.5))
         .style('text-anchor', 'middle')
-        .attr('transform', 'translate(0,-' + margin.top * 0.5 + ')')
+        .attr('transform', 'translate(0,-' + margin.top * 0.2 + ')')
 
       let cellRow = g.selectAll('cell-row')
         .data(matrixArr)
@@ -273,42 +306,17 @@ export default {
         .enter().append('g')
         .attr('transform', (d, i) => 'translate(' + gridWidth * i + ', 0)')
 
-      let colorScaleR = d3.scale.linear()
-        .domain([0, maxLen])
-        .rangeRound([255, 0])
-
-      let colorScaleG = d3.scale.linear()
-        .domain([0, maxLen])
-        .rangeRound([255, 80])
-
-      let colorScaleB = d3.scale.linear()
-        .domain([0, maxLen])
-        .rangeRound([255, 0])
-
-      cells.append('rect')
-        .attr('x', gridWidth * 0.1)
-        .attr('y', gridHeight * 0.1)
-        .attr('height', gridHeight * 0.8)
-        .attr('width', gridWidth * 0.8)
-        .style('fill', d => 'rgb(255,255,255)')
-        .transition()
-        .duration(750)
-        .ease('linear')
-        .style('fill', d => 'rgb(' + colorScaleR(d.length) + ', ' + colorScaleG(d.length) + ', ' + colorScaleB(d.length) + ')')
-
-      cells.append('text')
-        .text((d, i) => {
-          return '' + d.length
-        })
-        .attr('x', gridWidth * 0.5)
-        .attr('y', gridHeight * 0.5 + 5)
-        .attr('font-size', '20px')
-        .attr('fill', d => 'rgb(255,255,255)')
-        .style('text-anchor', 'middle')
-        .transition()
-        .duration(750)
-        .ease('linear')
-        .attr('fill', d => 'rgb(' + colorScaleR(d.length) * 2 + ', ' + colorScaleG(d.length) * 2 + ', ' + colorScaleB(d.length) * 2 + ')')
+      aggregator({
+        cells,
+        gridWidth,
+        gridHeight,
+        matrixData: matrixArr,
+        params: this.aggregatorParams.reduce(
+          (params, param) => {
+            params[param.name] = param.value
+            return params
+          }, {})
+      })
     }
   },
   mounted () {
@@ -325,5 +333,16 @@ div {
 
 h1, h2 {
   font-weight: normal;
+}
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
 }
 </style>
