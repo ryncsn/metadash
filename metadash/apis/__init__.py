@@ -42,6 +42,8 @@ class EntityParser(reqparse.RequestParser):
         self.entity = entity
         self.lazy_initialized = False
 
+        self.initialize()
+
     def default_required(self):
         if self.ignore_required_on_get and request.method in ('GET', 'PUT'):
             return False
