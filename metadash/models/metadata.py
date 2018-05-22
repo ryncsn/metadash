@@ -3,15 +3,9 @@ Some basic metadata
 """
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from .base import SharedAttributeModel, AttributeModel
-from .collections import attribute_mapped_list_collection
+from .collections import attribute_mapped_list_collection_attr
+
 from . import db
-
-
-def list_property_creator(key, value):
-    if not isinstance(value, list):
-        return Property(key, value)
-    else:
-        return [Property(key, value) for value in value]
 
 
 class Property(AttributeModel):
@@ -21,8 +15,7 @@ class Property(AttributeModel):
     """
     __alias__ = 'property'
     __tablename__ = 'metadash_property'
-    __collector__ = attribute_mapped_list_collection("key", creator=list_property_creator)
-    __creator__ = list_property_creator
+    __collector__ = attribute_mapped_list_collection_attr("key")
     __outline__ = "value"
     __cacheable__ = True
 

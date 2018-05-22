@@ -86,6 +86,24 @@ def default_creator(key, value):
     raise NotImplementedError()
 
 
+def proxy_bulk_set():
+    pass
+
+
+def creator_factory(target_model):
+    def proxy_creator(key, value):
+        """
+        If value is a list, create a instance for each element in value list
+
+        Don't work with __init__ expecting a list as single argument to pass in.
+        """
+        if isinstance(value, list):
+            return [target_model(key, value) for value in value]
+        else:
+            return target_model(key, value)
+    return proxy_creator
+
+
 class MappedAggregationCollection(dict):
     """
     Return value directly if there is only one value, else give a list
@@ -101,12 +119,15 @@ class MappedAggregationCollection(dict):
         self.keyfunc = operator.attrgetter(attr_name)
         self.creator = creator or default_creator
         self.always_use_list = always_use_list  # TODO
+        self.owning_class = None
 
         super(MappedAggregationCollection, self).__init__()
 
     def factory(self, key, *args, **kwargs):
         kwargs['_collecion_adapter'] = collection_adapter(self)
         kwargs['_creator'] = lambda value: self.creator(key, value)
+        print(collection_adapter(self).attr._CollectionAttributeImpl__copy)
+        print(dir(collection_adapter(self).attr._CollectionAttributeImpl__copy))
         return ProxyList(*args, **kwargs)
 
     @collection.appender
@@ -175,17 +196,32 @@ class MappedAggregationCollection(dict):
                 yield item
 
 
-def attribute_mapped_list_collection(attr_name, **kwargs):
-    """A dictionary-based collection type with attribute-based keying.
-
-    Returns a :class:`.MappedCollection` factory with a keying based on the
-    'attr_name' attribute of entities in the collection, where ``attr_name``
-    is the string name of the attribute.
-
-    The key value must be immutable for the lifetime of the object.  You
-    can not, for example, map on foreign key values if those key values will
-    change during the session, i.e. from None to a database-assigned integer
-    after a session flush.
-
+class attribute_mapped_list_collection_factory(object):
     """
-    return lambda: MappedAggregationCollection(attr_name, **kwargs)
+    A dictionary-based collection type with attribute-based keying,
+    similar to attribute_mapped_collection, but allow key value to be
+    duplicated and in such case, will create a list containing all values.
+
+    When used with associate_proxy, __proxy_args__ must be passed to associate_proxy
+    as keyword argument, and `target_class` should be provided or this class should
+    be an attribute of `target_class`. Else associate_proxy might try to initialize a
+    `target_class` object with list as arguments when trying to assign a list to an key.
+
+    And pass __proxy_args__ to associate_proxy will improve the performance with
+    bulk insert.
+    """
+    target_class = None
+
+    def __init__(self, target_class=None):
+        self.owning_class = target_class
+
+    def __get__(self, obj, class_):
+        if self.owning_class is None:
+            self.owning_class = class_ and class_ or type(obj)
+        return self
+
+    def __call__(self, attr_name, **kwargs):
+        if not self.owning_class:
+            raise AttributeError('attribute_mapped_list_collection_attr '
+                                 'should be used as an class\'s attribute')
+        return lambda: MappedAggregationCollection(self.owning_class, attr_name, **kwargs)
