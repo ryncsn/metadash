@@ -46,11 +46,10 @@ class Property(AttributeModel):
         """
         Get all candidate value of properties belongs to a entity model
         """
-        q = db.session.query(func.count(Property.id), Property.value)\
+        q = db.session.query(func.count(Property.value), Property.value)\
             .select_from(entity_model).join(Property)\
             .filter(Property.key == key)\
-            .group_by(Property.value)\
-            .distinct()
+            .group_by(Property.value)
         return [r[1] for r in q.all()]
 
     @staticmethod
@@ -58,10 +57,9 @@ class Property(AttributeModel):
         """
         Get all candidate value of properties belongs to a entity model
         """
-        q = db.session.query(func.count(Property.id), Property.key)\
+        q = db.session.query(func.count(Property.key), Property.key)\
             .select_from(entity_model).join(Property)\
-            .group_by(Property.key)\
-            .distinct()
+            .group_by(Property.key)
         return [r[1] for r in q.all()]
 
 
@@ -104,11 +102,11 @@ class Tag(SharedAttributeModel):
         return '<Tag "{}" of Entity({})>'.format(self.name, self.entity)
 
     @staticmethod
-    def all_tags(entity_model, limit=None):
+    def all_tags(entity_model):
         """
         Get all candidate tags belongs to a entity model
         """
-        q = db.session.query(Tag.name)\
+        q = db.session.query(func.count(Tag.name), Tag.name)\
             .select_from(entity_model).join(Tag.__secondary__).join(Tag)\
-            .distinct().limit(limit or 50)
+            .group_by(Tag.name)
         return [r.name for r in q.all()]
