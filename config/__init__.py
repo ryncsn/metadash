@@ -55,6 +55,7 @@ class Config(object):
     # Refer to function initialize for more detail
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = ''
+    SQLALCHEMY_ECHO = False
     CACHE_DEFAULT_BACKEND = ''
     CACHE_ARGUEMENTS = {}
     CELERY_BROKER_URL = ''

@@ -103,7 +103,6 @@ class AttributeModel(_Jsonable, Model, metaclass=RichMixinMeta):
             proxy_name = attribute.__proxy_name__
             collector = attribute.__collector__
             outline = attribute.__outline__
-            creator = attribute.__creator__
             unique_attribute = attribute.__unique_attr__
 
             relationship = db.relationship(
@@ -120,10 +119,12 @@ class AttributeModel(_Jsonable, Model, metaclass=RichMixinMeta):
             setattr(attribute, parentname, relationship)
 
             if outline:
-                setattr(model, proxy_name,
-                        association_proxy(backref_name, outline,
-                                          **({'creator': lambda *args, **kwargs: attribute.__creator__(*args, **kwargs)}
-                                             if creator else {})))
+                if hasattr(collector, '__proxy_args__'):
+                    setattr(model, proxy_name,
+                            association_proxy(backref_name, outline, **collector.__proxy_args__))
+                else:
+                    setattr(model, proxy_name,
+                            association_proxy(backref_name, outline))
 
     def sub_init(baseclass, subclass, subclass_name, baseclasses, subclass_dict):
         # Clean cache
@@ -190,8 +191,6 @@ class SharedAttributeModel(_Jsonable, Model, metaclass=RichMixinMeta):
     __collector__ = list
     # If specified will use associationproxy, and this is the key
     __outline__ = None  # TODO: Accept a dict
-    # Used when outline is specified
-    __creator__ = None
     # If cache the entry automatically after is't modified or created
     __autocache__ = False
     # If this is cacheable or not
@@ -235,7 +234,6 @@ class SharedAttributeModel(_Jsonable, Model, metaclass=RichMixinMeta):
             proxy_name = attribute.__proxy_name__
             collector = attribute.__collector__
             outline = attribute.__outline__
-            creator = attribute.__creator__
 
             relationship = db.relationship(
                 model,
@@ -252,6 +250,11 @@ class SharedAttributeModel(_Jsonable, Model, metaclass=RichMixinMeta):
             setattr(attribute, parentname, relationship)
 
             if outline:
+                if hasattr(collector, '__proxy_args__'):
+                    creator = collector.__proxy_args__.get('creator', None)
+                else:
+                    creator = None
+
                 def get_or_create_attribute(*args, **kwargs):
                     attribute_dict = {outline: args[0]}
                     attr = attribute.query.filter_by(**attribute_dict).first()
@@ -262,8 +265,13 @@ class SharedAttributeModel(_Jsonable, Model, metaclass=RichMixinMeta):
                             attr = attribute(*args, **kwargs)
                     return attr
 
-                setattr(model, proxy_name,
-                        association_proxy(backref_name, outline, creator=get_or_create_attribute))
+                if hasattr(collector, '__proxy_args__'):
+                    collector.__proxy_args__.set('creator', get_or_create_attribute)
+                    setattr(model, proxy_name,
+                            association_proxy(backref_name, outline, **collector.__proxy_args__))
+                else:
+                    setattr(model, proxy_name,
+                            association_proxy(backref_name, outline, creator=get_or_create_attribute))
 
     def sub_init(baseclass, subclass, subclass_name, baseclasses, subclass_dict):
         subclass.build_relationship(subclass)

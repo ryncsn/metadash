@@ -101,6 +101,7 @@ class MappedAggregationCollection(dict):
         self.keyfunc = operator.attrgetter(attr_name)
         self.creator = creator or default_creator
         self.always_use_list = always_use_list  # TODO
+        self.owning_class = None
 
         super(MappedAggregationCollection, self).__init__()
 
@@ -119,18 +120,23 @@ class MappedAggregationCollection(dict):
         key = self.keyfunc(value)
         self[key].remove(value, _sa_initiator, event=False)
 
+    # def _set(self, items):
+    #     bulk_appender = collection_adapter(self).bulk_appender()
+    #     for key, value in items.items():
+    #         self.__setitem__(key, value, bulk_appender)
+
     @collection.internally_instrumented
-    def __setitem__(self, key, value):
-        adapter = collection_adapter(self)
+    def __setitem__(self, key, value, appender=None):
+        appender = appender or collection_adapter(self).fire_append_event
         if isinstance(value, ProxyList):
             dict.__setitem__(self, key, value)
         elif isinstance(value, list):
             value_ = value.copy()
             for idx, item in enumerate(value_):
-                value_[idx] = adapter.fire_append_event(item, None)
+                value_[idx] = appender(item)
             dict.__setitem__(self, key, self.factory(key, value_))
         else:
-            value_ = [adapter.fire_append_event(value)]
+            value_ = [appender(value)]
             dict.__setitem__(self, key, self.factory(key, value_))
 
     @collection.internally_instrumented
@@ -175,17 +181,60 @@ class MappedAggregationCollection(dict):
                 yield item
 
 
-def attribute_mapped_list_collection(attr_name, **kwargs):
-    """A dictionary-based collection type with attribute-based keying.
-
-    Returns a :class:`.MappedCollection` factory with a keying based on the
-    'attr_name' attribute of entities in the collection, where ``attr_name``
-    is the string name of the attribute.
-
-    The key value must be immutable for the lifetime of the object.  You
-    can not, for example, map on foreign key values if those key values will
-    change during the session, i.e. from None to a database-assigned integer
-    after a session flush.
-
+class attribute_mapped_list_collection(object):
     """
-    return lambda: MappedAggregationCollection(attr_name, **kwargs)
+    A dictionary-based collection type with attribute-based keying,
+    similar to attribute_mapped_collection, but allow key value to be
+    duplicated and in such case, will create a list containing all values.
+
+    When used with associate_proxy, __proxy_args__ must be passed to associate_proxy
+    as keyword argument, and `target_class` should be provided or this class should
+    be an attribute of `target_class`. Else associate_proxy might try to initialize a
+    `target_class` object with list as arguments when trying to assign a list to an key.
+
+    And pass __proxy_args__ to associate_proxy will improve the performance with
+    bulk insert.
+    """
+    target_class = None
+
+    # TODO: noway to implement implicit bulk update yet
+    # @staticmethod
+    # def proxy_bulk_set(proxy, values):
+    #     update = dict(
+    #         (key, proxy._create(key, value)) for key, value in values.items())
+    #     proxy.col._set(update)
+
+    def creator_factory(self):
+        def proxy_creator(key, value):
+            """
+            If value is a list, create a instance for each element in value list
+
+            Don't work with __init__ expecting a list as single argument to pass in.
+            """
+            target_model = self.owning_class
+            if isinstance(value, list):
+                return [target_model(key, value) for value in value]
+            else:
+                return target_model(key, value)
+        return proxy_creator
+
+    def __init__(self, attr_name, target_class=None, **kwargs):
+        self.owning_class = target_class
+        self.attr_name = attr_name
+        self.extra_kwargs = kwargs
+        self.creator = self.creator_factory()
+        self.__proxy_args__ = {
+            'creator': self.creator,
+            # 'proxy_bulk_set': self.proxy_bulk_set
+        }
+
+    def __get__(self, obj, class_):
+        if self.owning_class is None:
+            self.owning_class = class_ and class_ or type(obj)
+        return self
+
+    def __call__(self):
+        if not self.owning_class:
+            raise AttributeError('attribute_mapped_list_collection_attr '
+                                 'should be used as an class\'s attribute')
+        return MappedAggregationCollection(self.attr_name, creator=self.creator, **self.extra_kwargs)
