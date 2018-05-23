@@ -1,6 +1,7 @@
 """
 Some basic metadata
 """
+from sqlalchemy import func
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from .base import SharedAttributeModel, AttributeModel
 from .collections import attribute_mapped_list_collection
@@ -41,25 +42,27 @@ class Property(AttributeModel):
         return '<Property "{}": "{}" of Entiry({})>'.format(self.key, self.value, self.entity)
 
     @staticmethod
-    def all_values(entity_model, key, limit=None):
+    def all_values(entity_model, key):
         """
         Get all candidate value of properties belongs to a entity model
         """
-        q = db.session.query(Property.value)\
+        q = db.session.query(func.count(Property.id), Property.value)\
             .select_from(entity_model).join(Property)\
             .filter(Property.key == key)\
-            .distinct().limit(limit or 50)
-        return [r.value for r in q.all()]
+            .group_by(Property.value)\
+            .distinct()
+        return [r[1] for r in q.all()]
 
     @staticmethod
-    def all_keys(entity_model, limit=None):
+    def all_keys(entity_model):
         """
         Get all candidate value of properties belongs to a entity model
         """
-        q = db.session.query(Property.key)\
+        q = db.session.query(func.count(Property.id), Property.key)\
             .select_from(entity_model).join(Property)\
-            .distinct().limit(limit or 50)
-        return [r.key for r in q.all()]
+            .group_by(Property.key)\
+            .distinct()
+        return [r[1] for r in q.all()]
 
 
 class Detail(AttributeModel):
