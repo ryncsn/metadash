@@ -33,78 +33,78 @@ class EntityParser(reqparse.RequestParser):
     If this parser is initialize before attributes are initialized,
     thing may go wrong. *TODO*
     """
-    def __init__(self, entity, *a, **kw):
-        kw.setdefault('bundle_errors', True)
-        self.default_location = kw.pop('location', [])
-        self.relation_overlay = kw.pop('relation_overlay', False)
-        self.ignore_required_on_get = kw.pop('ignore_required_on_get', True)
-        super(EntityParser, self).__init__(*a, **kw)
-        self.entity = entity
-        self.lazy_initialized = False
-
-        self.initialize()
+    __slots__ = [
+        'default_location', 'relation_overlay', 'normal_arg_names'
+    ]
 
     def default_required(self):
-        if self.ignore_required_on_get and request.method in ('GET', 'PUT'):
+        if request.method == 'GET' or request.method == 'PUT':
             return False
         else:
             return None
 
-    def initialize(self):
-        if self.entity:
-            columns = inspect(self.entity).columns
-            relation_column = {}
-            for relationship in inspect(self.entity).relationships:
-                if len(relationship.local_columns):
-                    column, = relationship.local_columns
-                    relation_column[column.name] = relationship.key
+    def __init__(self, entity, *a, **kw):
+        kw.setdefault('bundle_errors', True)
+        self.default_location = kw.pop('location', [])
+        self.relation_overlay = kw.pop('relation_overlay', False)
 
-            for column in columns:
-                # TODO: better validation
-                if column.name in ['namespace']:  # TODO: move this to columns defination
-                    continue
-                type_ = column.type.python_type
-                if type_ == datetime:
-                    type_ = inputs.datetime_from_iso8601
-                self.add_argument(
-                    column.name if (
-                        not self.relation_overlay or column.name not in relation_column
-                    ) else relation_column[column.name],
-                    type=type_,
-                    location=self.default_location,
-                    store_missing=False,
-                    required=FuncBool(self.default_required, column.default is None and not column.nullable),
-                    dest=column.name
-                )
+        super(EntityParser, self).__init__(*a, **kw)
 
-            for attr in self.entity.attribute_models.values():
-                duck_type = duck_type_collection(attr.__collector__())
+        columns = inspect(entity).columns
+        relation_column = {}
+        for relationship in inspect(entity).relationships:
+            if len(relationship.local_columns):
+                column, = relationship.local_columns
+                relation_column[column.name] = relationship.key
+
+        for column in columns:
+            # TODO: better validation
+            if column.name in ['namespace']:  # TODO: move this to columns defination
+                continue
+            type_ = column.type.python_type
+            if type_ == datetime:
+                type_ = inputs.datetime_from_iso8601
+            self.add_argument(
+                column.name if (
+                    not self.relation_overlay or column.name not in relation_column
+                ) else relation_column[column.name],
+                type=type_,
+                location=self.default_location,
+                store_missing=False,
+                required=FuncBool(self.default_required, column.default is None and not column.nullable),
+                dest=column.name
+            )
+
+        for attr in entity.attribute_models.values():
+            duck_type = duck_type_collection(attr.__collector__())
+            default = None
+
+            # Don't give None on empty for compatibility with associate proxy
+            action = 'store'
+            if duck_type in (dict,):
+                default = duck_type()
+            elif duck_type in (list, set):
+                type_ = duck_type
+                action = 'append'
+
+                def duck_type(x):
+                    return x
+            else:
                 default = None
 
-                # Don't give None on empty for compatibility with associate proxy
-                action = 'store'
-                if duck_type in (dict,):
-                    default = duck_type()
-                elif duck_type in (list, set):
-                    type_ = duck_type
-                    action = 'append'
+            if not duck_type:
+                logger.error('Unsupported attribute collection for attribute: {}'.format(attr))
 
-                    def duck_type(x):
-                        return x
-                else:
-                    default = None
+            self.add_argument(
+                attr.ref_name,
+                type=duck_type,
+                location=self.default_location,
+                store_missing=False,
+                default=default,
+                action=action
+            )
 
-                if not duck_type:
-                    logger.error('Unsupported attribute collection for attribute: {}'.format(attr))
-
-                self.add_argument(
-                    attr.ref_name,
-                    type=duck_type,
-                    location=self.default_location,
-                    store_missing=False,
-                    default=default,
-                    action=action
-                )
+        self.normal_arg_names = [arg.name for arg in self.args]
 
     def parse_args(self, *a, **kw):
         if not self.default_location:
@@ -112,22 +112,17 @@ class EntityParser(reqparse.RequestParser):
                 self.default_location.extend(['args'])
             elif request.method == 'POST' or request.method == 'PUT':
                 self.default_location.extend(['json'])
-        if not self.lazy_initialized:
-            self.initialize()
         return super(EntityParser, self).parse_args(*a, **kw)
 
     def parse_extra(self, *a, **kw):
         """
-        Using with GET only, parse all extra aguements
+        Suppose to be use with GET for filtering, ignore required arguments missing
+        problem and parse extra parameters
         TODO: delclare property/tag explitily, limit/page is confusing
         """
-        assert (request.method == 'GET')
-        if not self.lazy_initialized:
-            self.initialize()
-        normal_arg_names = [arg.name for arg in self.args]
-        extra_args = {}  # Use MultiDict
+        extra_args = {}  # TODO: Use MultiDict
         for key, value in request.args.items():
-            if key in normal_arg_names or key in ['limit', 'page']:
+            if key in self.normal_arg_names or key in ['limit', 'page']:
                 continue
             extra_args.setdefault(key, []).append(value)
         return dict((k, v[0]) if len(v) == 1 else v for k, v in extra_args.items())
