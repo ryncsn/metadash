@@ -17,8 +17,9 @@ class EntityModels(Resource):
     def get(self):
         ret = {}
         for name, entity in EntityRegistry.items():
+            properties = entity.cache.get_or_create('all_property_keys', lambda: Property.all_keys(entity))
             ret[name] = {
-                'properties': Property.all_keys(entity)
+                'properties': properties
             }
         return jsonify(ret)
 
@@ -39,7 +40,7 @@ class EntityList(Resource):
             q = entity.query.filter_by(**args)
             q = pager(q)
             return envolop([
-                e.as_dict(exclude=['details']) for e in q.all()
+                e.as_dict(exclude=['details', 'tags']) for e in q.all()
             ])
 
     # TODO
