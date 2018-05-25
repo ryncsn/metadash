@@ -189,6 +189,8 @@ class BareEntityModel(_Jsonable, MetadashEntity, metaclass=RichMixinMeta):
 
     attribute_models = weakref.WeakValueDictionary()
 
+    cache = EntityCacheManager()
+
     def identity(self):
         return '{}:{}(bare)'.format(self.__namespace__, self.uuid)
 
