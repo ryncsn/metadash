@@ -31,53 +31,80 @@ def entity_rec_keyer(entity):
 
 
 def entity_fn_wrapper(fn, expiration_time=None):
+    def generate_key(entity, *args, **kwargs):
+        key = "_fncache_" + "_".join(
+            [str(entity.uuid), fn.__name__] +
+            [str(x) for x in args] +
+            ["{}:{}".format(k, v) for k, v in kwargs.items()])
+        kwargs['__md_fncache'] = key
+        return key
+
+    def fn_with_record(entity, *args, **kwargs):
+        key = generate_key(entity, *args, **kwargs)
+        record_entity_cache(entity, key)
+        return fn(entity, *args, **kwargs)
+
     def keyer(namesapce, fn):
-        def generate_key(entity, *args, **kwargs):
-            key = "_fncache_" + "_".join(
-                [str(entity.uuid), fn.__name__] +
-                [str(x) for x in args] +
-                ["{}:{}".format(k, v) for k, v in kwargs.items()])
-            record_entity_cache(entity, key)
-            return key
+        """
+        Don't use namespace here or it breaks fn_with_record
+        """
         return generate_key
+
     cached_fn = cache_on_arguments(namespace='md_entities', expiration_time=expiration_time or -1,
-                                   function_key_generator=keyer)(fn)
+                                   function_key_generator=keyer)(fn_with_record)
     return cached_fn
 
 
 def entity_model_fn_wrapper(fn, expiration_time=None):
+    def generate_key(model, *args, **kwargs):
+        key = "_fncache_" + "_".join(
+            [str(model.__namespace__), fn.__name__] +
+            [str(x) for x in args] +
+            ["{}:{}".format(k, v) for k, v in kwargs.items()])
+        return key
+
+    def fn_with_record(model, *args, **kwargs):
+        key = generate_key(model, *args, **kwargs)
+        record_entity_model_cache(model, key)
+        return fn(model, *args, **kwargs)
+
     def keyer(namesapce, fn):
-        def generate_key(model, *args, **kwargs):
-            key = "_fncache_" + "_".join(
-                [str(model.__namespace__), fn.__name__] +
-                [str(x) for x in args] +
-                ["{}:{}".format(k, v) for k, v in kwargs.items()])
-            record_entity_model_cache(model, key)
-            return key
+        """
+        Don't use namespace here or it breaks fn_with_record
+        """
         return generate_key
+
     cached_fn = classmethod(cache_on_arguments(namespace='md_entities', expiration_time=expiration_time or -1,
-                                               function_key_generator=keyer)(fn))
+                                               function_key_generator=keyer)(fn_with_record))
     return cached_fn
 
 
-def get_or_create_entity_model_cache(model, key, *args, record=True, **kwargs):
+def get_or_create_entity_model_cache(model, key, fn, record=True, **kwargs):
     """
     Get or create cache item belongs to an entity model
     """
     entity_scoped_key = entity_model_keyer(model, key)
-    if record:
-        record_entity_model_cache(model, entity_scoped_key)
-    return get_or_create(entity_scoped_key, *args, **kwargs)
+
+    def fn_with_record(*args, **kwargs):
+        if record:
+            record_entity_model_cache(model, entity_scoped_key)
+        return fn(*args, **kwargs)
+
+    return get_or_create(entity_scoped_key, fn, **kwargs)
 
 
-def get_or_create_entity_cache(entity, key, *args, record=True, **kwargs):
+def get_or_create_entity_cache(entity, key, fn, record=True, **kwargs):
     """
     Get or create cache item belongs to an entity
     """
     entity_scoped_key = entity_keyer(entity, key)
-    if record:
-        record_entity_cache(entity, entity_scoped_key)
-    return get_or_create(entity_scoped_key, *args, **kwargs)
+
+    def fn_with_record(*args, **kwargs):
+        if record:
+            record_entity_cache(entity, entity_scoped_key)
+        return fn(*args, **kwargs)
+
+    return get_or_create(entity_scoped_key, fn, **kwargs)
 
 
 def get_entity_cache(entity, key, *args, **kwargs):
