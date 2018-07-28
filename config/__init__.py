@@ -111,7 +111,7 @@ class Config(object):
         config.SQLALCHEMY_DATABASE_URI = config.SQL_DATABASE_URI
 
         if config.REDIS_URI:
-            URI_RE = r'redis://(?::(?P<password>.*?)@)?(?P<host>[\w^:\-]+?)(?::(?P<port>\d+))'
+            URI_RE = r'redis://(?::(?P<password>.*?)@)?(?P<host>[\w\d\.^:\-]+?)(?::(?P<port>\d+))'
             password, host, port = re.match(URI_RE, config.REDIS_URI).groups()
             config.CACHE_DEFAULT_BACKEND = "dogpile.cache.redis"
             config.CACHE_ARGUEMENTS = {
