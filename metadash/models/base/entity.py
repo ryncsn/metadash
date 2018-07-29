@@ -87,7 +87,7 @@ class EntityModel(_Jsonable, MetadashEntity, metaclass=RichMixinMeta):
 
     @classmethod
     def from_uuid(cls, uuid):
-        entity = cls.query.filter(uuid == uuid).first()
+        entity = cls.query.filter(cls.uuid == uuid).one()
         return entity
 
     @hybridmethod
