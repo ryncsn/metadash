@@ -21,12 +21,12 @@ class LocalAuthTest(BasicTestCase):
 
     def test_get_default_identity(self):
         rv = self.app.get('/api/me')
-        data = json.loads(rv.data)
+        data = json.loads(rv.data.decode())
         assert data['role'] == 'anonymous'
 
     def test_login_admin(self):
         rv = self.app.get('/api/me')
-        data = json.loads(rv.data)
+        data = json.loads(rv.data.decode())
         assert data['role'] == 'anonymous'
 
         self.create_admin()
@@ -37,5 +37,5 @@ class LocalAuthTest(BasicTestCase):
         }), content_type='application/json')
 
         rv = self.app.get('/api/me')
-        data = json.loads(rv.data)
+        data = json.loads(rv.data.decode())
         assert data['role'] == 'admin'

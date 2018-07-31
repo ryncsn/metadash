@@ -83,11 +83,14 @@ app.register_blueprint(metadata, url_prefix="/api")
 @app.route('/', defaults={"path": ""})
 @app.route('/<path>')
 def index(path):
-    return app.send_static_file('index.html')
+    if os.path.exists(os.path.join(app.static_folder, 'index.html')):
+        return app.send_static_file('index.html')
+    else:
+        return 'Frontend page not built, see README to setup the app first'
 
 
 # If not catch by any view, fallback to index on non-static
 @app.errorhandler(404)
 def page_not_found(e):
-    return app.send_static_file('index.html'), 200
+    return index(), 302
 # Then fallback to static files

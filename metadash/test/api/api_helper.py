@@ -75,7 +75,7 @@ class APIHelperTest(BasicTestCase):  # pragma: no cover
             '/_test_resource/', data=json.dumps(DATA),
             content_type='application/json'
         )
-        data = json.loads(rv.data)
+        data = json.loads(rv.data.decode())
         data['attr_3'] = data['attr_3'].replace(' ', 'T')
         DATA['tags'] = set(DATA['tags'])
         data['tags'] = set(data['tags'])
@@ -98,8 +98,8 @@ class APIHelperTest(BasicTestCase):  # pragma: no cover
             )
 
         rv = self.app.get('/_test_resource/?limit=35')
-        data = json.loads(rv.data)
+        data = json.loads(rv.data.decode())
         self.assertEqual(len(data['data']), 35)
 
         rv = self.app.get(data['next'])
-        self.assertEqual(len(json.loads(rv.data)['data']), 35)
+        self.assertEqual(len(json.loads(rv.data.decode())['data']), 35)

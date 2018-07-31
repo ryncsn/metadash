@@ -90,7 +90,7 @@ def get_or_create_entity_model_cache(model, key, fn, record=True, **kwargs):
             record_entity_model_cache(model, entity_scoped_key)
         return fn(*args, **kwargs)
 
-    return get_or_create(entity_scoped_key, fn, **kwargs)
+    return get_or_create(entity_scoped_key, fn_with_record, **kwargs)
 
 
 def get_or_create_entity_cache(entity, key, fn, record=True, **kwargs):
@@ -104,7 +104,7 @@ def get_or_create_entity_cache(entity, key, fn, record=True, **kwargs):
             record_entity_cache(entity, entity_scoped_key)
         return fn(*args, **kwargs)
 
-    return get_or_create(entity_scoped_key, fn, **kwargs)
+    return get_or_create(entity_scoped_key, fn_with_record, **kwargs)
 
 
 def get_entity_cache(entity, key, *args, **kwargs):
