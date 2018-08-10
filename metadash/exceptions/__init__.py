@@ -98,7 +98,7 @@ class RemoteAuthError(MetadashAPIError):
                 utils.kinit()
             except RuntimeError as error:
                 response = jsonify({
-                    'message': 'Kerberos init failed with "{}", caused by "{}"'.format(error, error.message),
+                    'message': 'Kerberos init failed with "{}"'.format(error),
                 })
             except Exception as error:
                 response = jsonify({
