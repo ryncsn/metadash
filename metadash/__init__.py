@@ -92,5 +92,5 @@ def index(path):
 # If not catch by any view, fallback to index on non-static
 @app.errorhandler(404)
 def page_not_found(e):
-    return index(), 302
+    return index('/'), 302
 # Then fallback to static files
