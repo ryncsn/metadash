@@ -27,7 +27,7 @@ Dev enviroment (With hot reload and dev server)
 
 ### Setup dependency
 ```
-bash setup.sh --dependency-only --dev
+python manager.py initialize --dependency-only --dev
 ```
 
 ### Config Redis and SQL Database
