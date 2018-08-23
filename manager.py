@@ -54,29 +54,7 @@ def do_initialize(dev=False, inst_py_dep=True, inst_node_dep=True, build_assert=
         raise
 
 
-if __name__ == 'main':
-    try:
-        _script, cmd, *args = sys.argv
-        if cmd == 'initialize':
-            dev, only_dep, only_build = False, False, False
-            for arg in args:
-                if arg == '--dev':
-                    dev = True
-                elif arg == '--only-dependency':
-                    only_dep = True
-                elif arg == '--only-build':
-                    only_build = True
-                else:
-                    error('Unknown arg {}'.format(arg))
-            do_initialize(dev,
-                          not only_build,
-                          not only_build,
-                          not only_dep)
-    except ValueError:
-        # No args
-        # Supposed to print an help info help, just leave it to flask-manager
-        pass
-
+if __name__ == '__main__':
     try:
         import coloredlogs
         coloredlogs.install(level='INFO')
@@ -92,18 +70,41 @@ if __name__ == 'main':
         manager = Manager(app)
         manager.add_command('db', MigrateCommand)
     except ImportError:
-        error('Failed with following exception, please'
-              'make sure you have run "manager.py initialize first"!')
+        try:
+            _script, cmd, *args = sys.argv
+            if cmd == 'initialize':
+                dev, only_dep, only_build = False, False, False
+                for arg in args:
+                    if arg == '--dev':
+                        dev = True
+                    elif arg == '--only-dependency':
+                        only_dep = True
+                    elif arg == '--only-build':
+                        only_build = True
+                    else:
+                        error('Unknown arg {}'.format(arg))
+                do_initialize(dev,
+                              not only_build,
+                              not only_build,
+                              not only_dep)
+                sys.exit(0)
+        except Exception:
+            pass
+
+        # Will reach here only if manager.py is called,
+        # dependency not fully installed, and initialize cmd is not given
+        error('Failed with following exception, please '
+              'make sure you have ran "manager.py initialize" first!')
         raise
 
     @manager.command
     @manager.option('-d', '--develop', dest='dev')
     @manager.option('-o', '--only-dependency', dest='only_dep')
-    @manager.option('-b', '--only-build', dest='only_build')
-    def initialize(dev=False, only_dep=False, only_build=False):
+    @manager.option('-b', '--only-build', dest='_only_build')
+    def initialize(dev=False, only_dep=False, _only_build=False):
         do_initialize(dev,
-                      not only_build,
-                      not only_build,
+                      not _only_build,
+                      not _only_build,
                       not only_dep)
 
     @manager.command
