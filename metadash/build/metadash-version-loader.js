@@ -2,7 +2,7 @@ const execSync = require('child_process').execSync
 var currentVersion
 
 try {
-  currentVersion = String(execSync('gitscribe --always')).trim()
+  currentVersion = String(execSync('git describe --always')).trim()
 } catch (e) {
   currentVersion = ''
 }
