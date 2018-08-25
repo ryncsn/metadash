@@ -32,6 +32,7 @@ setup_params = dict(
     author_email='ryncsn@gmail.com',
     license='GPLv3',
     python_requires='>=3.5',
+    install_requires=find_all_requirements(),
     packages=find_packages(),
     package_data={
         '': [
