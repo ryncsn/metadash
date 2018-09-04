@@ -177,6 +177,26 @@ class AttributeModel(_Jsonable, Model, metaclass=RichMixinMeta):
         subclass_dict['__table_args__'] = table_args
 
 
+class GetOrCreateAttribute(object):
+    """
+    Callable class for get or create attr
+    """
+    def __init__(self, attribute, creator):
+        self.attribute = attribute
+        self.creator = creator
+
+    def __call__(self, *args, **kwargs):
+        outline = self.attribute.__outline__
+        attribute_dict = {outline: args[0]}
+        attr = self.attribute.query.filter_by(**attribute_dict).first()
+        if not attr:
+            if self.creator:
+                attr = self.creator(*args, **kwargs)
+            else:
+                attr = self.attribute(*args, **kwargs)
+        return attr
+
+
 class SharedAttributeModel(_Jsonable, Model, metaclass=RichMixinMeta):
     """
     An attribute shared by multiple entity.
@@ -255,15 +275,7 @@ class SharedAttributeModel(_Jsonable, Model, metaclass=RichMixinMeta):
                 else:
                     creator = None
 
-                def get_or_create_attribute(*args, **kwargs):
-                    attribute_dict = {outline: args[0]}
-                    attr = attribute.query.filter_by(**attribute_dict).first()
-                    if not attr:
-                        if creator:
-                            attr = creator(*args, **kwargs)
-                        else:
-                            attr = attribute(*args, **kwargs)
-                    return attr
+                get_or_create_attribute = GetOrCreateAttribute(attribute, creator)
 
                 if hasattr(collector, '__proxy_args__'):
                     collector.__proxy_args__.set('creator', get_or_create_attribute)
