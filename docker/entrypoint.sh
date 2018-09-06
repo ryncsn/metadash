@@ -64,5 +64,5 @@ else
     _info "***Migrate Database if an older version of Database is present***"
     # TODO: not doing anything yet
 
-    uwsgi --ini docker/uwsgi.ini
+    gunicorn -c docker/gunicorn.py wsgi
 fi
