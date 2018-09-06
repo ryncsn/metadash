@@ -141,7 +141,12 @@ class MappedAggregationCollection(dict):
 
     @collection.internally_instrumented
     def __setitem__(self, key, value, appender=None):
-        appender = appender or collection_adapter(self).fire_append_event
+        c_inst = collection_adapter(self)
+        if not appender:
+            # Avoid AttributeError: 'NoneType' object has no attribute
+            # 'fire_append_event'
+            if c_inst:
+                appender = c_inst.fire_append_event
         if isinstance(value, ProxyList):
             dict.__setitem__(self, key, value)
         elif isinstance(value, list):
