@@ -44,7 +44,11 @@ class EntityTest(BasicTestCase):  # pragma: no cover
 
         entity = None
         entity = BareEntity.query.first()
-        self.assertDictEqual(dict(entity.properties), PROPERTIES)
+        for key, value in PROPERTIES.items():
+            if type(value) is list:
+                self.assertSetEqual(set(value), set(entity.properties[key]))
+            else:
+                self.assertEqual(value, entity.properties[key])
         db.session.delete(entity)
         db.session.commit()
 
@@ -68,7 +72,11 @@ class EntityTest(BasicTestCase):  # pragma: no cover
 
         entity = None
         entity = Entity.query.filter(Entity.value == VALUE).first()
-        self.assertDictEqual(dict(entity.properties), PROPERTIES)
+        for key, value in PROPERTIES.items():
+            if type(value) is list:
+                self.assertSetEqual(set(value), set(entity.properties[key]))
+            else:
+                self.assertEqual(value, entity.properties[key])
         db.session.delete(entity)
         db.session.commit()
 
