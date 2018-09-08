@@ -86,6 +86,20 @@ def default_creator(key, value):
     raise NotImplementedError()
 
 
+class CreatorProxy:
+    """
+    Return a function object which accept one argument value
+    with the specific key.
+    """
+
+    def __init__(self, creator, key):
+        self.creator = creator
+        self.key = key
+
+    def __call__(self, value):
+        return self.creator(self.key, value)
+
+
 class MappedAggregationCollection(dict):
     """
     Return value directly if there is only one value, else give a list
@@ -107,7 +121,7 @@ class MappedAggregationCollection(dict):
 
     def factory(self, key, *args, **kwargs):
         kwargs['_collecion_adapter'] = collection_adapter(self)
-        kwargs['_creator'] = lambda value: self.creator(key, value)
+        kwargs['_creator'] = CreatorProxy(self.creator, key)
         return ProxyList(*args, **kwargs)
 
     @collection.appender
@@ -127,7 +141,12 @@ class MappedAggregationCollection(dict):
 
     @collection.internally_instrumented
     def __setitem__(self, key, value, appender=None):
-        appender = appender or collection_adapter(self).fire_append_event
+        c_inst = collection_adapter(self)
+        if not appender:
+            # Avoid AttributeError: 'NoneType' object has no attribute
+            # 'fire_append_event'
+            if c_inst:
+                appender = c_inst.fire_append_event
         if isinstance(value, ProxyList):
             dict.__setitem__(self, key, value)
         elif isinstance(value, list):
@@ -180,6 +199,24 @@ class MappedAggregationCollection(dict):
             for item in collection_or_item:
                 yield item
 
+class CreatorFactory:
+    """
+    If value is a list, create a instance for each element in value list.
+
+    If duplicate value in the list, get rid of it, it's supposed to have
+    unique value.
+    """
+
+    def __init__(self, owning_cl):
+        self.owning_cl = owning_cl
+
+    def __call__(self, key, value):
+        target_model = self.owning_cl
+        if isinstance(value, list):
+            return [target_model(key, value) for value in set(value)]
+        else:
+            return target_model(key, value)
+
 
 class attribute_mapped_list_collection(object):
     """
@@ -204,25 +241,11 @@ class attribute_mapped_list_collection(object):
     #         (key, proxy._create(key, value)) for key, value in values.items())
     #     proxy.col._set(update)
 
-    def creator_factory(self):
-        def proxy_creator(key, value):
-            """
-            If value is a list, create a instance for each element in value list
-
-            Don't work with __init__ expecting a list as single argument to pass in.
-            """
-            target_model = self.owning_class
-            if isinstance(value, list):
-                return [target_model(key, value) for value in value]
-            else:
-                return target_model(key, value)
-        return proxy_creator
-
     def __init__(self, attr_name, target_class=None, **kwargs):
         self.owning_class = target_class
         self.attr_name = attr_name
         self.extra_kwargs = kwargs
-        self.creator = self.creator_factory()
+        self.creator = CreatorFactory(self.owning_class)
         self.__proxy_args__ = {
             'creator': self.creator,
             # 'proxy_bulk_set': self.proxy_bulk_set
@@ -231,6 +254,11 @@ class attribute_mapped_list_collection(object):
     def __get__(self, obj, class_):
         if self.owning_class is None:
             self.owning_class = class_ and class_ or type(obj)
+            self.creator = CreatorFactory(self.owning_class)
+            self.__proxy_args__ = {
+                'creator': self.creator,
+                # 'proxy_bulk_set': self.proxy_bulk_set
+            }
         return self
 
     def __call__(self):
