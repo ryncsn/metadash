@@ -14,7 +14,7 @@ def read_file(file_name):
 
 
 def find_all_requirements(develop=False):
-    requirements = {read_file('requirements.txt').splitlines()}
+    requirements = set(read_file('requirements.txt').splitlines())
     if develop:
         requirements.update(read_file('requirements.dev.txt').splitlines())
     for filename in glob.glob('metadash/plugins/*/requirements.txt'):
@@ -22,7 +22,7 @@ def find_all_requirements(develop=False):
         if develop:
             for filename in glob.glob('metadash/plugins/*/requirements.dev.txt'):
                 requirements.update(read_file(filename).splitlines())
-    return requirements
+    return list(requirements)
 
 
 setup_params = dict(
