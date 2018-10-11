@@ -2,8 +2,8 @@ import logging
 
 from flask import session
 from functools import wraps
-from config import ActiveConfig as config
 
+from ..settings import AppSettings as settings
 from .local import LocalAuth
 from .ldap import LDAPAuth
 from .base import User, AuthError
@@ -18,7 +18,7 @@ AuthBackends = {
     "ldap": LDAPAuth
 }
 
-DefaultAuthBackend = config.DEFAULT_AUTH_BACKEND
+DefaultAuthBackend = settings.DEFAULT_AUTH_BACKEND
 
 
 def user_login(username, password, backend=None):
@@ -127,7 +127,7 @@ def get_current_role():
     SECURITY is set to False
     Return 'anonymous' if not logged in
     """
-    if not config.SECURITY:
+    if not settings.SECURITY:
         return 'admin'
 
     user_uuid = session.get('user_uuid')

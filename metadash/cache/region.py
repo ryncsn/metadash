@@ -2,13 +2,13 @@
 Initialize the region
 """
 
-from config import ActiveConfig
 from dogpile.cache import make_region
 from dogpile.cache.util import sha1_mangle_key
-from metadash import logger
+from .. import logger
+from ..settings import AppSettings
 
-backend = ActiveConfig.CACHE_DEFAULT_BACKEND
-arguments = ActiveConfig.CACHE_ARGUEMENTS
+backend = AppSettings.CACHE_DEFAULT_BACKEND
+arguments = AppSettings.CACHE_ARGUEMENTS
 
 EXPIRATION_TIME = -1
 

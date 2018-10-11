@@ -1,17 +1,20 @@
 """
-Config manager
+Config manager for plugins and generic usage
 """
 import os
 import itertools
-from .model import ConfigItem as ConfigItemModel
 from ..exceptions import ConfigError
 from ..models import db, get_or_create
 
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../metadash"))
 
 
-class ConfigItem(object):
+class ConfigItemModel(db.Model):
+    key = db.Column(db.Text(), primary_key=True, nullable=False)
+    value = db.Column(db.Text())
 
+
+class ConfigItem(object):
     def __init__(self, key, value=None, **kwargs):
         self.description = kwargs.pop("description", "No description")
         self.nullable = kwargs.pop("nullable", False)

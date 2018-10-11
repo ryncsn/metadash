@@ -6,12 +6,13 @@ Provides logging, DB acccess, config etc.
 import logging
 import json
 import os
-import config
 
 # Load Flask and config
 from flask import Flask
+from . import settings
 app = Flask(__name__, static_url_path="", static_folder="dist/")
-app.config.from_object('config.ActiveConfig')
+app.config.from_object(settings.AppSettings)
+settings = settings.AppSettings
 
 
 # setup logging
