@@ -27,13 +27,13 @@ Firt, start the development flask server, execute:
 
     .. code-block:: shell
 
-        python manager.py runserver -h 0.0.0.0
+        bin/md-manager runserver -h 0.0.0.0
 
 Second, run initdb for database, execute:
 
     .. code-block:: shell
 
-       python manager.py initdb
+       bin/md-manager create_database
 
 Then you should start the UI development server, and execute:
 

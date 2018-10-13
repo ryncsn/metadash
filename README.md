@@ -29,7 +29,7 @@ Dev enviroment (With hot reload and dev server)
 
 ### Setup dependency
 ```
-python manager.py initialize --dependency-only --dev
+bin/md-manager setup --develop --no-build
 ```
 
 ### Config Redis and SQL Database
@@ -44,7 +44,7 @@ $EDITOR config/config.py
 ### Start devel server
 ```
 npm run ui-dev
-python manager.py runserver
+bin/md-manager runserver
 ```
 
 Any contribute, suggestion, issue is high welcomed!

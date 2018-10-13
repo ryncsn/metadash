@@ -77,20 +77,22 @@ if __name__ == '__main__':
         try:
             _script, cmd, *args = sys.argv
             if cmd == 'setup':
-                dev, only_dep, only_build = False, False, False
+                dev, no_py, no_node, no_build = False, False, False, False
                 for arg in args:
                     if arg in ('-d', '--develop'):
                         dev = True
-                    elif arg in ('-o', '--only-dependency'):
-                        only_dep = True
-                    elif arg in ('-b', '--only-build'):
-                        only_build = True
+                    elif arg in ('-p', '--no-py-dep'):
+                        no_py = True
+                    elif arg in ('-n', '--no-node-dep'):
+                        no_node = True
+                    elif arg in ('-b', '--no-build'):
+                        no_build = True
                     else:
                         error('Unknown arg {}'.format(arg))
                 do_setup(dev,
-                         not only_build,
-                         (not only_build) or only_dep,
-                         not only_dep)
+                         not no_py,
+                         not no_node,
+                         not no_build)
                 sys.exit(0)
         except Exception:
             pass
@@ -102,14 +104,15 @@ if __name__ == '__main__':
         raise
 
     @manager.option('-d', '--develop', dest='dev', action='store_true')
-    @manager.option('-o', '--only-dependency', dest='only_dep', action='store_true')
-    @manager.option('-b', '--only-build', dest='only_build', action='store_true')
+    @manager.option('-p', '--no-py-dep', dest='no_py', action='store_true')
+    @manager.option('-n', '--no-node-dep', dest='no_node', action='store_true')
+    @manager.option('-b', '--no-build-assert', dest='no_build', action='store_true')
     @manager.command
     def setup(**kwargs):
         do_setup(kwargs['dev'],
-                 not kwargs['only_build'],
-                 (not kwargs['only_build']) or kwargs['only_dep'],
-                 not kwargs['only_dep'])
+                 not kwargs['no_py'],
+                 not kwargs['no_node'],
+                 not kwargs['no_build'])
 
     @manager.command
     @manager.option('-t', '--testcase', dest='testcase')

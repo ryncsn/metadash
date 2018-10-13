@@ -59,7 +59,7 @@ elif [[ $WORKER_MODE == 'true' ]] ; then
     celery worker -A metadash.async.task.celery -l info
 else
     _info "***Initilize Database if not initialized***"
-    _python manager.py initdb
+    _python bin/md-manager initdb
 
     _info "***Migrate Database if an older version of Database is present***"
     # TODO: not doing anything yet
