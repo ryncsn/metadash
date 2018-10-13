@@ -1,8 +1,8 @@
 language: python
 python: "3.6"
 install:
-    - ./manager.py initialize
-    - ./manager.py create_database
+    - ./bin/md-manager setup
+    - ./bim/md-manager create_database
     - pip install codecov coverage
-script: coverage run manager.py test_api
+script: coverage run bin/md-manager test_api
 after_success: codecov
