@@ -4,8 +4,12 @@
 # It is not supposed to be install as a common package at all
 
 import glob
+import sys
+import subprocess
+
 from setuptools import setup, find_packages
-from manager import do_initialize
+from setuptools.command.develop import develop
+from setuptools.command.install import install
 
 
 def read_file(file_name):
@@ -25,6 +29,18 @@ def find_all_requirements(develop=False):
     return list(requirements)
 
 
+class DevelopCommand(develop):
+    def run(self):
+        subprocess.run(['bin/md-manager', 'setup', '--only-build', '--develop'])
+        develop.run(self)
+
+
+class InstallCommand(install):
+    def run(self):
+        subprocess.run(['bin/md-manager', 'setup', '--only-build'])
+        install.run(self)
+
+
 setup_params = dict(
     name='metadash',
     version='1.0',
@@ -34,6 +50,10 @@ setup_params = dict(
     python_requires='>=3.5',
     install_requires=find_all_requirements(),
     packages=find_packages(),
+    cmdclass={
+        'develop': DevelopCommand,
+        'install': InstallCommand,
+    },
     package_data={
         '': [
             'config/*',
@@ -48,7 +68,5 @@ setup_params = dict(
     ],
 )
 
-
 if __name__ == '__main__':
-    do_initialize(dev=False, inst_py_dep=False, inst_node_dep=True, build_assert=True)
     setup(**setup_params)

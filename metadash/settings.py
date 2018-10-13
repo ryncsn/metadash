@@ -121,7 +121,3 @@ class AppSettings(object):
             settings.CACHE_ARGUEMENTS = {}
             settings.CELERY_BROKER_URL = ''
             settings.CELERY_RESULT_BACKEND = ''
-
-
-AppSettings.update_from_env()
-AppSettings.initialize()

@@ -11,8 +11,10 @@ import os
 from flask import Flask
 from . import settings
 app = Flask(__name__, static_url_path="", static_folder="dist/")
-app.config.from_object(settings.AppSettings)
 settings = settings.AppSettings
+settings.update_from_env()
+settings.initialize()
+app.config.from_object(settings)
 
 
 # setup logging
