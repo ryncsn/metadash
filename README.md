@@ -1,6 +1,6 @@
 # Metadash
 
-[Live Demo](http://metadash-metadash-openshift-online.a3c1.starter-us-west-1.openshiftapps.com/dashboard)
+[Live Demo](http://metadash-frontend-metadash-openshift-online.a3c1.starter-us-west-1.openshiftapps.com/dashboard)
 
 [![Build Status](https://travis-ci.org/ryncsn/metadash.svg?branch=master)](https://travis-ci.org/ryncsn/metadash) [![codecov](https://codecov.io/gh/ryncsn/metadash/branch/master/graph/badge.svg)](https://codecov.io/gh/ryncsn/metadash) 
 
