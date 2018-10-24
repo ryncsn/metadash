@@ -53,5 +53,5 @@ else
     _info "***Migrate Database if an older version of Database is present***"
     # TODO: not doing anything yet
 
-    _pipenv run gunicorn -c docker/gunicorn.py wsgi
+    _pipenv run gunicorn -c deploy/gunicorn.py wsgi
 fi
