@@ -3,28 +3,40 @@
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 
+[requires]
+python_version = '3.6'
 
 [dev-packages]
-
 "flake8" = "*"
 sphinx = "*"
 coverage = "*"
 
 
 [packages]
-
-flask-restful = "*"
-flask-migrate = "*"
-sqlalchemy = "*"
-resultsdb-api = "*"
-flask = "*"
-flask-sqlalchemy = "*"
-redis = "*"
-"ldap3" = "*"
+alembic = "*"
+amqp = "*"
+"aniso8601" = "*"
+appdirs = "*"
+astroid = "*"
+billiard = "*"
 celery = "*"
-requests = "*"
-"flake8" = "*"
+kombu = "*"
 "dogpile.cache" = "*"
+"flake8" = "*"
+kerberos = "*"
+"ldap3" = "*"
+pytz = "*"
+redis = "*"
+requests = "*"
 coloredlogs = "*"
-flask-session = "*"
-uwsgi = "*"
+"psycopg2-binary" = "*"
+gunicorn = "*"
+Flask = "*"
+Flask-Migrate = "*"
+Flask-RESTful = "*"
+Flask-Script = "*"
+Flask-Session = "*"
+Flask-SQLAlchemy = "*"
+Flask-WTF = "*"
+SQLAlchemy = "*"
+Sphinx = "*"

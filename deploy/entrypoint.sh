@@ -13,21 +13,13 @@ _info() {
     echo -e ${GREEN}$1${NC} > /dev/stdout
 }
 
-function _python () {
-    ($(command -v python3) --version &>/dev/null && (python3 $@; return $?)) ||
-    ($(command -v python) --version &>/dev/null && (python $@; return $?))
+function _pipenv () {
+    ($(command -v pipenv) --version &>/dev/null && (pipenv $@; return $?))
 }
 
 while [ $# -gt 0 ]
 do
     case $1 in
-        --venv )
-            VENV=true && shift
-            VENV_PATH=$1
-            if [[ -z $VENV_PATH ]] ; then
-                echo "VENV_PATH" is required
-            fi
-            ;;
         --debug )
             DEBUG=true
             ;;
@@ -38,10 +30,11 @@ do
             BEAT_MODE=true
             ;;
         -h | --help )
-            echo "usage: setup.sh [-h] [--venv VENV_PATH]
+            echo "usage: $0 [-h]
             options:
-            --venv      Enter a virtualenv before run server
-            --debug     Enable debug options
+            --debug         Enable debug options
+            --worker        Start celery worker
+            --beat-worker   Start celery beat worker
             "
             exit 0
             ;;
@@ -49,20 +42,16 @@ do
     shift
 done
 
-if [[ $VENV == 'true' ]] ; then
-    source $VENV_PATH/bin/activate
-fi
-
 if [[ $BEAT_MODE == 'true' ]] ; then
-    celery worker -A metadash.async.task.celery -l info -B
+    _pipenv run celery worker -A metadash.async.task.celery -l info -B
 elif [[ $WORKER_MODE == 'true' ]] ; then
-    celery worker -A metadash.async.task.celery -l info
+    _pipenv run celery worker -A metadash.async.task.celery -l info
 else
     _info "***Initilize Database if not initialized***"
-    _python bin/md-manager initdb
+    _pipenv run bin/md-manager db migrate
 
     _info "***Migrate Database if an older version of Database is present***"
     # TODO: not doing anything yet
 
-    gunicorn -c docker/gunicorn.py wsgi
+    _pipenv run gunicorn -c docker/gunicorn.py wsgi
 fi
