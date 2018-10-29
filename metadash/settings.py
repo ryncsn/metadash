@@ -33,6 +33,10 @@ class AppSettings(object):
     TESTING = False
     SECRET_KEY = ''  # Replace with some random string please
     DEFAULT_AUTH_BACKEND = 'local'
+    LDAP_SERVER = ''
+    KERBEROS_KEYTAB_FILE = ''
+    KERBEROS_PRINCIPLE = ''
+
 
     # SQL Database URI format: "${DATABASE_ENGINE}://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_SERVICE}/${DATABASE_NAME}"
     # or (without authentication): "${DATABASE_ENGINE}://${DATABASE_SERVICE}/${DATABASE_NAME}"
