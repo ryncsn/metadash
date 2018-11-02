@@ -10,6 +10,7 @@ basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../metadash")
 
 
 class ConfigItemModel(db.Model):
+    __tablename__ = '__metadash_config'
     key = db.Column(db.Text(), primary_key=True, nullable=False)
     value = db.Column(db.Text())
 
