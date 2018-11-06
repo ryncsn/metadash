@@ -1,16 +1,14 @@
 #!/bin/env node
+// This is intend to be used for production frontend server
 
 const path = require('path')
 const express = require('express')
 const proxyMiddleware = require('http-proxy-middleware')
 const morgan = require('morgan')
 
-// default port where dev server listens for incoming traffic
 const apiServerUrl = process.env.API_SERVER_URL || 'http://localhost:5000'
 const port = process.env.PORT || 8080
 
-// automatically open browser, if not set will be false
-// https://github.com/chimurai/http-proxy-middleware
 const proxyTable = {
   '/api': {
     target: apiServerUrl
