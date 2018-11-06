@@ -1,7 +1,7 @@
 import time
 
-from metadash.async import task, daemon
-from metadash.async.task import update_task_info
+from metadash.worker import task, daemon
+from metadash.worker.task import update_task_info
 
 
 @task()

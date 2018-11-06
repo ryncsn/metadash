@@ -1,5 +1,5 @@
 from flask import jsonify, Blueprint
-from metadash.async.inspect import get_active_workers, get_running_task_status
+from metadash.worker.inspect import get_active_workers, get_running_task_status
 
 
 app = Blueprint = Blueprint('tasks', __name__)
