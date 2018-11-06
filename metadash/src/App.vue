@@ -231,33 +231,46 @@ export default {
     }
   },
   created () {
-    Vue.mdAPI.interceptors.push((request, next) => {
-      // Following code only work when interacting with Metadash's API
+    Vue.mdAPI.interceptors.request.use(config => {
       this.loading = true
-      next((response) => {
-        this.loading = false
-        if (request.ignoreAPIError) {
-          return response
-        } else if (response.status === 401) {
-          this.makeToast('You don\'t have required permission', 'error')
-        } else if (response.status === 202) {
-          response.json().then((data) => {
-            this.makeToast(data.message, 'info')
-          }, () => {
-            this.makeToast(response.body || 'No Response', 'warning')
-          })
-        } else if (!response.ok) {
-          response.json().then((data) => {
-            if (data.message) {
-              this.makeToast(data.message || JSON.stringify(data), 'error')
-            }
-          }, () => {
-            this.makeToast(response.statusText || 'No Response', 'error')
-          })
-          return response
-        }
+      return config
+    }, error => {
+      return Promise.reject(error)
+    })
+    Vue.mdAPI.interceptors.response.use(response => {
+      this.loading = false
+      if (response.config.ignoreAPIError) {
         return response
-      })
+      } else if (response.status === 401) {
+        this.makeToast('You don\'t have required permission', 'error')
+      } else if (response.status === 202) {
+        response.data.message && (
+          this.makeToast(response.data.message, 'info') ||
+          this.makeToast(JSON.stringify(response.data), 'warning'))
+      } else if (response.status < 300 && response.status >= 200) {
+        // Do nothing
+      } else {
+        response.data.message && (
+          this.makeToast(response.data.message, 'error') ||
+          this.makeToast(JSON.stringify(response.data), 'error'))
+      }
+      return response
+    }, error => {
+      // Following code only work when interacting with Metadash's API
+      this.loading = false
+      if (error.response) {
+        let response = error.response
+        if (response.config.ignoreAPIError) {
+          return Promise.reject(error)
+        } else {
+          response.data.message && (
+            this.makeToast(response.data.message, 'error')) ||
+            this.makeToast(JSON.stringify(error.message), 'error')
+        }
+      } else {
+        this.makeToast(error.message, 'error')
+      }
+      return Promise.reject(error)
     })
     this.$store.dispatch('fetchMe').then(() =>
       this.$store.dispatch('fetchConfigs')

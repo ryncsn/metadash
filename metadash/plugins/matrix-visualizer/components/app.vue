@@ -196,14 +196,14 @@ export default {
   methods: {
     getData () {
       return this.$mdAPI.get('/matrix-visualizer/' + this.targetEntity + '/?limit=' + this.entityLimit)
-        .then(res => res.json())
+        .then(res => res.data)
         .then(data => {
           this.data = data['data']
         })
     },
     refresh () {
       return this.$mdAPI.get('/matrix-visualizer')
-        .then(res => res.json())
+        .then(res => res.data)
         .then(data => {
           this.avaliableEntities = data
         })

@@ -2,7 +2,6 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import Vuetify from 'vuetify'
-import VueResource from 'vue-resource'
 
 // CSS
 import 'vuetify/dist/vuetify.min.css'
@@ -20,7 +19,6 @@ import router from '@/router'
 import { Plugins } from '@/plugin'
 import MetadashAPI from '@/libs/metadash-api'
 
-Vue.use(VueResource)
 Vue.use(Vuetify)
 Vue.use(MetadashAPI)
 Vue.config.productionTip = false
@@ -36,22 +34,18 @@ new Vue({
   },
   components: { App },
   created () {
-    Vue.http.interceptors.push((request, next) => {
-      next((response) => {
-        // Handle 401 error
-        if (response.status === 401) {
-          this.$store.dispatch('fetchMe')
-        }
-
-        // Regist entity
-        return response.json()
-          .then(json => {
-            if (json.uuid) {
-              this.$store.commit('registEntity', json)
-            }
-          }, () => {})
-          .then(() => response)
-      })
+    Vue.mdAPI.interceptors.response.use(response => {
+      // Regist entity
+      if (response.data.uuid) {
+        this.$store.commit('registEntity', response.data)
+      }
+      return response
+    }, error => {
+      // Handle 401 error
+      if (error.response && error.response.status === 401) {
+        this.$store.dispatch('fetchMe')
+      }
+      return Promise.reject(error)
     })
   }
 })

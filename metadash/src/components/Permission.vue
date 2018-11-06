@@ -108,7 +108,7 @@ export default {
     }, 500),
     refresh () {
       this.$mdAPI.get('/users')
-        .then(res => res.json())
+        .then(res => res.data)
         .then(data => {
           this.users = data
           this.savedUsers = JSON.parse(JSON.stringify(data))

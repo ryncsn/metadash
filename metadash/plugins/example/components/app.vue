@@ -14,11 +14,11 @@ export default {
   },
   methods: {
     refresh () {
-      this.$http.get('/api/example/').then(res => {
-        res.json().then(json => {
-          this.msg = `Plugins works! Response: "${json[0].name}", created a entity with UUID ${json[0].uuid}`
+      this.$mdAPI.get('/example/')
+        .then(res => res.data)
+        .then(data => {
+          this.msg = `Plugins works! Response: "${data[0].name}", created a entity with UUID ${data[0].uuid}`
         })
-      })
     }
   },
   mounted () {

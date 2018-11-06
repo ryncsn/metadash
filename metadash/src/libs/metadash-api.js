@@ -1,43 +1,38 @@
-// Extend Vue-resource, apply interceptor only to request made using
-// given helpers
-// TODO: make something like sub-resource
-// an resource extention that can have a standalone set of interceptors etc
+// Apply interceptor only to request made using given helpers
 import Vue from 'vue'
+import axios from 'axios'
 
 class API {
   constructor ({
     apiPrefix
   }) {
     this.apiPrefix = apiPrefix || '/api'
-    this.interceptors = []
-
-    this.interceptors.push = (...args) => {
-      for (let handler of args) {
-        Vue.http.interceptors.push((request, next) => {
-          if (request.apiRequestPrefix === this.apiPrefix) {  // Only intercept relative URL
-            handler(request, next)
-          }
-        })
+    this.axiosInstance = axios.create({
+      baseURL: this.apiPrefix,
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8'
       }
-      return Array.prototype.push.apply(this.interceptors, ...args)
-    }
+    })
+    this.interceptors = this.axiosInstance.interceptors
 
-    let APIRequest = (method, url, options, ...args) => {
-      options = Object.assign(options || {}, {
-        apiRequestPrefix: this.apiPrefix
+    let APIRequest = (method, path, {data, ...options}) => {
+      return this.axiosInstance.request({
+        url: path,
+        method,
+        data: data || {},  // GET require an empty data for header to work
+        ...(options || {})
       })
-      return Vue.http[method](this.getAPIUrl(url), ...args, options)
     }
 
-    ['get', 'delete', 'head', 'jsonp'].forEach(method => {
-      this[method] = function (url, options) {
-        return APIRequest(method, url, options)
+    ['get', 'delete', 'head'].forEach(method => {
+      this[method] = function (path, options) {
+        return APIRequest(method, path, {...(options || {})})
       }
     });
 
     ['post', 'put', 'patch'].forEach(method => {
-      this[method] = function (url, body, options) {
-        return APIRequest(method, url, options, body)
+      this[method] = function (path, data, options) {
+        return APIRequest(method, path, {data: data, ...(options || {})})
       }
     })
   }
@@ -54,10 +49,6 @@ class API {
 const MetadashAPIInstaller = {
   install () {
     let api = new API('/api')
-    if (!Vue.http) {
-      throw Error('Vue-resource not installed.')
-    }
-
     Vue.mdAPI = api
     Vue.prototype.$mdAPI = api
   }

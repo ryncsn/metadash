@@ -6,6 +6,27 @@ Vue.use(Vuex)
 
 let _changedConfigs = {} // XXX: ugly
 
+function retriveErrMsg (err) {
+  if (err.response) {
+    if (err.response && err.response.data.message) {
+      return Promise.reject(err.response.data)
+    }
+    return Promise.reject(err)
+  }
+}
+
+function filterAPI (response) {
+  if (response.status < 200 || response.status > 210) {
+    if (response.data.message) {
+      return Promise.reject(response.data)
+    }
+    return Promise.reject({
+      message: JSON.stringify(response)
+    })
+  }
+  return response.data
+}
+
 const store = new Vuex.Store({
   state: {
     configs: {},
@@ -23,31 +44,38 @@ const store = new Vuex.Store({
       }, {
         ignoreAPIError: ignoreAPIError || false
       })
-        .then(res => res.json())
+        .catch(retriveErrMsg)
+        .then(filterAPI)
         .then(data => {
           state.username = data.username
           state.role = data.role
+          return data
         })
     },
     logout ({state}) {
       return Vue.mdAPI.get('/logout')
-        .then(res => res.json())
+        .catch(retriveErrMsg)
+        .then(filterAPI)
         .then(data => {
           state.username = data.username
           state.role = data.role
+          return data
         })
     },
     fetchMe ({state}) {
       return Vue.mdAPI.get('/me')
-        .then(res => res.json())
+        .catch(retriveErrMsg)
+        .then(filterAPI)
         .then(data => {
           state.username = data.username
           state.role = data.role
+          return data
         })
     },
     fetchConfigs ({state}) {
       return Vue.mdAPI.get('/configs/')
-        .then(res => res.json())
+        .catch(retriveErrMsg)
+        .then(filterAPI)
         .then(data => data.data)
         .then(data => {
           state.configs = data
@@ -56,6 +84,7 @@ const store = new Vuex.Store({
               config.error = "Can't be empty"
             }
           }
+          return data
         })
     },
     saveConfigs: _.debounce(function ({state, dispatch}) {
