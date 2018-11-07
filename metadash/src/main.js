@@ -35,16 +35,16 @@ new Vue({
   components: { App },
   created () {
     Vue.mdAPI.interceptors.response.use(response => {
+      // Handle 401 error
+      if (response.status === 401) {
+        this.$store.dispatch('fetchMe')
+      }
       // Regist entity
       if (response.data.uuid) {
         this.$store.commit('registEntity', response.data)
       }
       return response
     }, error => {
-      // Handle 401 error
-      if (error.response && error.response.status === 401) {
-        this.$store.dispatch('fetchMe')
-      }
       return Promise.reject(error)
     })
   }
