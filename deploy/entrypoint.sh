@@ -43,9 +43,9 @@ do
 done
 
 if [[ $BEAT_MODE == 'true' ]] ; then
-    _pipenv run celery worker -A metadash.async.task.celery -l info -B
+    _pipenv run celery worker -A metadash.worker.task.celery -l info -B
 elif [[ $WORKER_MODE == 'true' ]] ; then
-    _pipenv run celery worker -A metadash.async.task.celery -l info
+    _pipenv run celery worker -A metadash.worker.task.celery -l info
 else
     _info "***Initilize Database if not initialized***"
     _pipenv run bin/md-manager db migrate
