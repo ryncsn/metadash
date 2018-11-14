@@ -1,7 +1,7 @@
 <template>
   <v-container fluid grid-list-lg>
-    <draggable element="v-layout" :list="plugins" row wrap @start="drag=true" @end="drag=false">
-      <v-flex xs6 v-for="plugin in plugins" :key="plugin.title">
+    <draggable element="v-layout" :list="dashboards" row wrap @start="drag=true" @end="drag=false">
+      <v-flex xs6 v-for="dashboard in dashboards" :key="dashboard.title">
         <v-card>
           <v-speed-dial
             v-model="actionsFab"
@@ -26,7 +26,7 @@
                 dark
                 small
                 fab
-                @click="closePlugin(plugin)"
+                @click="closePlugin(dashboard)"
               >
                 <v-icon>close</v-icon>
               </v-btn>
@@ -39,11 +39,11 @@
                 dark
                 small
                 fab
-                :to="plugin.path"
+                :to="dashboard.path"
               >
                 <v-icon>info</v-icon>
               </v-btn>
-              <span>{{plugin.title}}</span>
+              <span>{{dashboard.title}}</span>
             </v-tooltip>
             <v-tooltip bottom>
               <v-btn
@@ -52,14 +52,14 @@
                 dark
                 small
                 fab
-                :to="plugin.path"
+                :to="dashboard.path"
               >
                 <v-icon>link</v-icon>
               </v-btn>
               <span>plugin page</span>
             </v-tooltip>
           </v-speed-dial>
-          <component v-bind:is="plugin.dashboard"></component>
+          <component v-bind:is="dashboard.module"></component>
         </v-card>
       </v-flex>
     </draggable>
@@ -76,20 +76,23 @@ export default {
     return {
       actionsFab: true,
       drag: false,
-      plugins: []
+      dashboards: []
     }
   },
   methods: {
-    closePlugin (plugin) {
-      const index = this.plugins.indexOf(plugin)
-      this.plugins.splice(index, 1)
+    closePlugin (dashboard) {
+      const index = this.dashboards.indexOf(dashboard)
+      this.dashboards.splice(index, 1)
     }
   },
   mounted () {
     for (let key in Plugins) {
       let plugin = Plugins[key]
       if (plugin.dashboard) {
-        this.plugins.push(plugin)
+        for (let subKey in plugin.dashboard) {
+          let subDashboard = plugin.dashboard[subKey]
+          this.dashboards.push({'module': subDashboard.component, 'title': plugin.title, 'path': plugin.path, 'name': subDashboard.name})
+        }
       }
     }
   }
