@@ -16,5 +16,11 @@
         "default": null,
         "secret": false,
         "nullable": false
+    },
+    "BACKGROUND_IMG_URL": {
+        "description": "An image url which will be used as the background in the dashboard",
+        "default": "",
+        "secret": false,
+        "nullable": true
     }
 }
