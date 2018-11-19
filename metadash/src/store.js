@@ -115,6 +115,11 @@ const store = new Vuex.Store({
       state.alerts.push({ type: level, msg: text, alert: true })
     }
   },
+  getters: {
+    getConfig: (state) => (key) => {
+      return _.find(state.configs, {key: key})
+    }
+  },
   mutations: {
     registEntity (state, entity) {
       if (!entity.uuid) {
