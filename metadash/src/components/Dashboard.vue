@@ -140,12 +140,23 @@ export default {
     if (data) {
       this.backImgUrl = data.value
     }
+    let defaultDashboard = {
+    }
     for (let key in Plugins) {
       let plugin = Plugins[key]
       if (plugin.dashboard) {
         for (let subKey in plugin.dashboard) {
-          let subDashboard = plugin.dashboard[subKey]
-          this.savedBoards.push({'module': subDashboard.component, 'title': plugin.title, 'path': plugin.path, 'name': subDashboard.name})
+          let subDashboard = {
+            'module': plugin.dashboard[subKey].component,
+            'title': plugin.title,
+            'path': plugin.path,
+            'name': plugin.dashboard[subKey].name
+          }
+          if (subDashboard.name in defaultDashboard) {
+            defaultDashboard[subDashboard.name].push(subDashboard)
+          } else {
+            this.savedBoards.push(subDashboard)
+          }
         }
       }
     }
