@@ -5,11 +5,11 @@ from ldap3 import Server, Connection, ALL
 from .base import User, AuthBase, AuthError
 from .. import db
 from ..models import get_or_create
-from metadash import app
+from ..config import Config
 
 
 def get_ldap_server():
-    return Server(app.config['LDAP_SERVER'], get_info=ALL)
+    return Server(Config.get('LDAP_SERVER'), get_info=ALL)
 
 
 class LDAPAuth(AuthBase):
