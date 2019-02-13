@@ -47,11 +47,9 @@ if [[ $BEAT_MODE == 'true' ]] ; then
 elif [[ $WORKER_MODE == 'true' ]] ; then
     _pipenv run celery worker -A metadash.worker.task.celery -l info
 else
-    _info "***Initilize Database if not initialized***"
-    _pipenv run bin/md-manager db migrate
-
     _info "***Migrate Database if an older version of Database is present***"
-    # TODO: not doing anything yet
+    # db upgrade will also help to create database if not exist
+    _pipenv run bin/md-manager db upgrade
 
     _pipenv run gunicorn -c deploy/gunicorn.py wsgi
 fi
