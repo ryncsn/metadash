@@ -58,6 +58,7 @@ class Property(AttributeModel):
 
 class Detail(AttributeModel):
     """
+    Same as property but use text to store the value in case of large-sized value.
     """
     __alias__ = 'detail'
     __tablename__ = 'metadash_detail'

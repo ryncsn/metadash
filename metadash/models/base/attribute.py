@@ -1,11 +1,10 @@
 """
-Helper to define attribute/metadata models.
+Helper to define attribute models.
 """
 import uuid
 
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import backref, foreign, remote
-from sqlalchemy.ext.associationproxy import association_proxy
 from .utils import _get_alias_dict
 
 from ..types import UUID
