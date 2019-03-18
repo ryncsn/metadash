@@ -1,2 +1,12 @@
-.git
-node_modules
+# Ignore everything except what we want
+**
+
+# What we actually want
+!/metadash
+!/deploy
+!/bin
+!/*.py
+!/Dockerfile
+!/package.json
+!/Pipfile
+!/requirements.txt
