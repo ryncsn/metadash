@@ -6,7 +6,6 @@
 !/deploy
 !/bin
 !/*.py
-!/Dockerfile
 !/package.json
 !/Pipfile
 !/requirements.txt

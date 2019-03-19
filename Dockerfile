@@ -1,12 +1,14 @@
-FROM fedora:28
+FROM fedora:29
 WORKDIR /app/
 
+RUN dnf install -y python3 nodejs pipenv && dnf clean all
+
 COPY . /app/
-RUN dnf install -y python3 python3-pip python3-virtualenv pipenv which \
-        git npm python3-devel gcc krb5-devel && \
-    ./bin/md-manager setup && \
-    dnf remove -y npm gcc krb5-devel && \
-    dnf clean all
+
+RUN dnf install -y gcc python3-devel krb5-devel && \
+        ./bin/md-manager setup && \
+        dnf remove -y gcc python3-devel krb5-devel && \
+        dnf clean all
 
 VOLUME ["/app/node_modules/"]
-ENTRYPOINT ["bash", "-c", "/app/docker/entrypoint.sh"]
+ENTRYPOINT ["bash", "-c", "/app/deploy/entrypoint.sh"]

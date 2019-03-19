@@ -91,7 +91,7 @@ class AppSettings(object):
         if not settings.SECRET_KEY:
             logger.critical("Remember to set your non-empty secret value for production!")
             if not AppSettings.DEVELOPMENT:
-                raise RuntimeError("Please set your secret key value for production!")
+                raise RuntimeError("Please set your secret key (env SECRET_KEY), or use development mode (env APP_DEVELOPMENT=true)!")
             else:
                 logger.warning("Using development secret key, this is only supposed to be used with a development server.")
                 settings.SECRET_KEY = "DEVELOPEMENT"
