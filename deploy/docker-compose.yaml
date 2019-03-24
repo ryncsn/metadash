@@ -1,0 +1,24 @@
+psql:
+  image: postgres
+  restart: always
+  environment:
+    POSTGRES_USER: example-psql-user
+    POSTGRES_PASSWORD: example-psql-password
+    POSTGRES_DB: example-psql-db
+
+redis:
+  image: redis
+  restart: always
+
+metadash:
+  image: metadash
+  restart: always
+  ports:
+    - 8080:8080
+  links:
+    - psql
+    - redis
+  environment:
+    APP_SECRET_KEY: example-secret
+    APP_SQL_DATABASE_URI: postgresql://example-psql-user:example-psql-password@psql/example-psql-db
+    APP_REDIS_URI: redis://redis:6379

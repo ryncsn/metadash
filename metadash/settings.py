@@ -104,15 +104,15 @@ class AppSettings(object):
         settings.SQLALCHEMY_DATABASE_URI = settings.SQL_DATABASE_URI
 
         if settings.REDIS_URI:
-            URI_RE = r'redis://(?::(?P<password>.*?)@)?(?P<host>[\w\d\.^:\-]+?)(?::(?P<port>\d+))'
-            password, host, port = re.match(URI_RE, settings.REDIS_URI).groups()
+            URI_RE = r'redis://(?:(?P<user>[^:@]*)?(?::(?P<password>[^@]*))?@)?(?P<host>[^:/]+)(?::(?P<port>\d+))?/?'
+            _user, password, host, port = re.match(URI_RE, settings.REDIS_URI).groups()
             settings.CACHE_DEFAULT_BACKEND = "dogpile.cache.redis"
             settings.CACHE_ARGUEMENTS = {
                 "distributed_lock": True,
                 "lock_timeout": 60,
                 "host": host,
-                "password": password,
-                "port": port
+                "password": password or '',
+                "port": port or 6379
             }
             settings.CELERY_BROKER_URL = settings.REDIS_URI
             settings.CELERY_RESULT_BACKEND = settings.REDIS_URI

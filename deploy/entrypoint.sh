@@ -14,7 +14,7 @@ _info() {
 }
 
 function _pipenv () {
-    ($(command -v pipenv) --version &>/dev/null && (pipenv $@; return $?))
+    ($(command -v pipenv) --version &>/dev/null && (pipenv $@; return $?)) || echo "Pipenv is not installed"
 }
 
 while [ $# -gt 0 ]
@@ -48,8 +48,10 @@ elif [[ $WORKER_MODE == 'true' ]] ; then
     _pipenv run celery worker -A metadash.worker.task.celery -l info
 else
     _info "***Migrate Database if an older version of Database is present***"
-    # db upgrade will also help to create database if not exist
-    _pipenv run bin/md-manager db upgrade
+    # Don't use upgrade yet... combined with custom tabled in plugin this will mess up easily..
+    # # db upgrade will also help to create database if not exist
+    # _pipenv run md-manager db upgrade
+    _pipenv run md-manager create_database
 
     _pipenv run gunicorn -c deploy/gunicorn.py wsgi
 fi

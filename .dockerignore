@@ -6,6 +6,12 @@
 !/deploy
 !/bin
 !/*.py
+!/.*.js
+!/.*.yml
 !/package.json
 !/Pipfile
 !/requirements.txt
+!/.eslintignore
+!/.flake8
+!/.babelrc
+!/.coveragerc
