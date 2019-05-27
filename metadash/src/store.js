@@ -111,7 +111,7 @@ const store = new Vuex.Store({
       _changedConfigs[key] = value
       dispatch('saveConfigs')
     },
-    newAlert ({state, dispatch}, {text, level, timeout}) {
+    newAlert ({state, dispatch}, {text, level, timeout, noDuplicate}) {
       // TODO: use real UUID generator to replace this simple trick
       var uniqueId = Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36)
       var alert = {
@@ -120,7 +120,15 @@ const store = new Vuex.Store({
         msg: text,
         alert: true
       }
-      state.alerts.push(alert)
+      if (noDuplicate) {
+        if (state.alerts.findIndex(x => {
+          return x.type === level && x.msg === text
+        }) < 0) {
+          state.alerts.push(alert)
+        }
+      } else {
+        state.alerts.push(alert)
+      }
       if (timeout > 0) {
         setTimeout(() => {
           state.alerts.splice(state.alerts.findIndex(x => x.uuid === uniqueId), 1)
