@@ -2,6 +2,7 @@
 Plugin loader
 """
 from flask import Blueprint
+from metadash import settings
 from metadash import logger
 from metadash.injector import NoServiceError
 from metadash.config import load_meta as load_config_meta
@@ -102,7 +103,7 @@ def api_loader(plugin_name, app):
     if os.path.isfile(os.path.join(apis_path, "__init__.py")):
         apis = importlib.import_module("metadash.plugins.{}.apis".format(plugin_name))
         blueprint = apis.Blueprint
-        app.register_blueprint(blueprint, url_prefix="/api")
+        app.register_blueprint(blueprint, url_prefix=settings.API_PATH)
 
 
 def resolve_deps_loading(plugins: list, loader):

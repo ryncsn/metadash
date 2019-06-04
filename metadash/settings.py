@@ -26,6 +26,7 @@ class AppSettings(object):
     Default values for setup development server
     """
     _ENV_PREFIX = 'APP_'
+    RELATIVE_PATH = ''
 
     DEBUG = False
     SECURITY = True
@@ -33,6 +34,9 @@ class AppSettings(object):
     TESTING = False
     SECRET_KEY = ''  # Replace with some random string please
     DEFAULT_AUTH_BACKEND = 'local'
+
+    API_PATH = None  # Hinting
+    STATIC_PATH = None  # Hinting
 
     # SQL Database URI format: "${DATABASE_ENGINE}://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_SERVICE}/${DATABASE_NAME}"
     # or (without authentication): "${DATABASE_ENGINE}://${DATABASE_SERVICE}/${DATABASE_NAME}"
@@ -88,6 +92,9 @@ class AppSettings(object):
         """
         Some common checks and load default values
         """
+        settings.API_PATH = settings.RELATIVE_PATH + '/api'
+        settings.STATIC_PATH = settings.RELATIVE_PATH + '/static'
+
         if not settings.SECRET_KEY:
             logger.critical("Remember to set your non-empty secret value for production!")
             if not AppSettings.DEVELOPMENT:

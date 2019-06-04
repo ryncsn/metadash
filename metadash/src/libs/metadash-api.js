@@ -1,12 +1,12 @@
 // Apply interceptor only to request made using given helpers
 import Vue from 'vue'
 import axios from 'axios'
+import buildinfo from './metadash-buildinfo.js'
 
 class API {
-  constructor ({
-    apiPrefix
-  }) {
-    this.apiPrefix = apiPrefix || '/api'
+  constructor (apiPrefix) {
+    this.apiPrefix = apiPrefix
+    console.log(apiPrefix)
     this.axiosInstance = axios.create({
       baseURL: this.apiPrefix,
       headers: {
@@ -48,7 +48,7 @@ class API {
 
 const MetadashAPIInstaller = {
   install () {
-    let api = new API('/api')
+    let api = new API(`${buildinfo.relativePath}/api`)
     Vue.mdAPI = api
     Vue.prototype.$mdAPI = api
   }

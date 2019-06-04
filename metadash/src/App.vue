@@ -191,7 +191,7 @@
 
 <script>
 import Vue from 'vue'
-import version from './libs/metadash-version.js'
+import buildinfo from './libs/metadash-buildinfo.js'
 import User from '@/components/User.vue'
 import Login from '@/components/Login.vue'
 import Alert from '@/components/Alert.vue'
@@ -204,7 +204,7 @@ export default {
   components: { Login, User, Alert, Notices, Splash },
   data () {
     return {
-      metadashVersion: `Metadash ${version} Running`,
+      metadashVersion: `Metadash ${buildinfo.version} Running`,
       appReady: false,
       loading: false,
       pluginsListDrawer: false,
