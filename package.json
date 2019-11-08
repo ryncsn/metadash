@@ -91,7 +91,7 @@
     "selenium-server": "^3.0.1",
     "sinon": "^1.17.7",
     "sinon-chai": "^2.8.0",
-    "webpack-bundle-analyzer": "^2.2.1",
+    "webpack-bundle-analyzer": "^3.6.0",
     "webpack-dev-middleware": "^1.10.0",
     "webpack-hot-middleware": "^2.16.1"
   },
