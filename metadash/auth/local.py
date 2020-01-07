@@ -14,7 +14,7 @@ class LocalUser(db.Model):
     PASSWORD_RE = re.compile(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$")
 
     uuid = db.Column(db.ForeignKey(User.uuid), primary_key=True)
-    password = db.Column(db.String(64), nullable=False)
+    password = db.Column(db.String(128), nullable=False)
 
     def __init__(self, uuid, password):
         self.uuid = uuid
