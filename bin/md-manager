@@ -151,7 +151,7 @@ if __name__ == '__main__':
         return len(result.errors + result.failures)
 
     @manager.command
-    @manager.option('-n', '--name', dest='name')
+    @manager.option('-n', '--username', dest='username')
     @manager.option('-p', '--password', dest='password')
     @manager.option('-r', '--role', dest='role')
     def create_user(username=None, password=None, role="admin"):
