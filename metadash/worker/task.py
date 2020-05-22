@@ -5,6 +5,7 @@ import logging
 
 from celery import current_task
 from .celery import celery
+from metadash import settings
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +69,8 @@ def task(*args, **kwargs):
             cron.append((periodic, task))
         return task
 
-    if celery:
+    if celery or \
+            (settings.DEVELOPMENT and settings.DEVELOPMENT_FORCE_CELERY):
         return task_wrapper
     else:
         return dumb_wrapper
