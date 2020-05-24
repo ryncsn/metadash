@@ -31,6 +31,7 @@ class AppSettings(object):
     DEBUG = False
     SECURITY = True
     DEVELOPMENT = False
+    DEVELOPMENT_FORCE_CELERY = False
     TESTING = False
     SECRET_KEY = ''  # Replace with some random string please
     DEFAULT_AUTH_BACKEND = 'local'
